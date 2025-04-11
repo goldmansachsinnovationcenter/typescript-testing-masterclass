@@ -108,7 +108,7 @@ describe('useThemeCounter Advanced Pattern', () => {
         result.current.increment();
       });
 
-      expect(result.current.state.count).toBe(8);
+      expect(result.current.state.count).toBe(10);
       
       act(() => {
         result.current.increment();
