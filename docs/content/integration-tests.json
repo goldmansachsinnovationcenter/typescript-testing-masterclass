@@ -1,0 +1,164 @@
+[
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/dynamic-imports/calculator.ts",
+    "relativePath": "dynamic-imports/calculator.ts",
+    "fileName": "calculator.ts",
+    "dirName": "dynamic-imports",
+    "content": "/**\n * Example module that uses dynamic imports\n */\n\nexport class Calculator {\n  async performOperation(operation: 'add' | 'subtract' | 'multiply' | 'divide', a: number, b: number): Promise<number> {\n    const mathUtils = await import('./math-utils');\n    \n    switch (operation) {\n      case 'add':\n        return mathUtils.add(a, b);\n      case 'subtract':\n        return mathUtils.subtract(a, b);\n      case 'multiply':\n        return mathUtils.multiply(a, b);\n      case 'divide':\n        return mathUtils.divide(a, b);\n      default:\n        throw new Error(`Unsupported operation: ${operation}`);\n    }\n  }\n}\n\nexport default Calculator;\n",
+    "description": "Example module that uses dynamic imports",
+    "isTestFile": false,
+    "category": "integration-tests",
+    "codeBlocks": [
+      {
+        "title": "mathUtils",
+        "code": "const mathUtils = await import('./math-utils');\n    \n    switch (operation) {\n      case 'add':\n        return mathUtils.add(a, b);",
+        "type": "function"
+      },
+      {
+        "title": "Calculator",
+        "code": "export class Calculator {\n  async performOperation(operation: 'add' | 'subtract' | 'multiply' | 'divide', a: number, b: number): Promise<number> {\n    const mathUtils = await import('./math-utils');\n    \n    switch (operation) {\n      case 'add':\n        return mathUtils.add(a, b);\n      case 'subtract':\n        return mathUtils.subtract(a, b);\n      case 'multiply':\n        return mathUtils.multiply(a, b);\n      case 'divide':\n        return mathUtils.divide(a, b);\n      default:\n        throw new Error(`Unsupported operation: ${operation}",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/dynamic-imports/dynamic-imports.test.ts",
+    "relativePath": "dynamic-imports/dynamic-imports.test.ts",
+    "fileName": "dynamic-imports.test.ts",
+    "dirName": "dynamic-imports",
+    "content": "/**\n * This test file demonstrates how to mock dynamic imports in Vitest\n * with TypeScript, focusing on avoiding hoisting-related errors.\n */\nimport { describe, it, expect, vi, beforeEach } from 'vitest';\nimport { Calculator } from './calculator';\n\nconst mockAdd = vi.fn();\nconst mockSubtract = vi.fn();\nconst mockMultiply = vi.fn();\nconst mockDivide = vi.fn();\n\nvi.mock('./math-utils', () => {\n  return {\n    default: {\n      add: mockAdd,\n      subtract: mockSubtract,\n      multiply: mockMultiply,\n      divide: mockDivide\n    },\n    add: mockAdd,\n    subtract: mockSubtract,\n    multiply: mockMultiply,\n    divide: mockDivide\n  };\n});\n\ndescribe('Dynamic Imports Mocking', () => {\n  let calculator: Calculator;\n  \n  beforeEach(() => {\n    vi.clearAllMocks();\n    \n    calculator = new Calculator();\n    \n    mockAdd.mockImplementation((a, b) => a + b);\n    mockSubtract.mockImplementation((a, b) => a - b);\n    mockMultiply.mockImplementation((a, b) => a * b);\n    mockDivide.mockImplementation((a, b) => {\n      if (b === 0) throw new Error('Division by zero');\n      return a / b;\n    });\n  });\n  \n  it('should mock dynamically imported add function', async () => {\n    const a = 5;\n    const b = 3;\n    \n    const result = await calculator.performOperation('add', a, b);\n    \n    expect(mockAdd).toHaveBeenCalledTimes(1);\n    expect(mockAdd).toHaveBeenCalledWith(a, b);\n    expect(result).toBe(8);\n  });\n  \n  it('should mock dynamically imported subtract function', async () => {\n    const a = 10;\n    const b = 4;\n    \n    const result = await calculator.performOperation('subtract', a, b);\n    \n    expect(mockSubtract).toHaveBeenCalledTimes(1);\n    expect(mockSubtract).toHaveBeenCalledWith(a, b);\n    expect(result).toBe(6);\n  });\n  \n  it('should mock dynamically imported multiply function', async () => {\n    const a = 7;\n    const b = 6;\n    \n    const result = await calculator.performOperation('multiply', a, b);\n    \n    expect(mockMultiply).toHaveBeenCalledTimes(1);\n    expect(mockMultiply).toHaveBeenCalledWith(a, b);\n    expect(result).toBe(42);\n  });\n  \n  it('should mock dynamically imported divide function', async () => {\n    const a = 20;\n    const b = 4;\n    \n    const result = await calculator.performOperation('divide', a, b);\n    \n    expect(mockDivide).toHaveBeenCalledTimes(1);\n    expect(mockDivide).toHaveBeenCalledWith(a, b);\n    expect(result).toBe(5);\n  });\n  \n  it('should handle errors from mocked functions', async () => {\n    const a = 10;\n    const b = 0;\n    \n    await expect(calculator.performOperation('divide', a, b)).rejects.toThrow('Division by zero');\n    expect(mockDivide).toHaveBeenCalledTimes(1);\n    expect(mockDivide).toHaveBeenCalledWith(a, b);\n  });\n  \n  it('should allow changing mock implementation for specific tests', async () => {\n    mockAdd.mockImplementationOnce(() => 42);\n    \n    const result = await calculator.performOperation('add', 2, 2);\n    \n    expect(result).toBe(42);\n    expect(mockAdd).toHaveBeenCalledTimes(1);\n  });\n});\n",
+    "description": "This test file demonstrates how to mock dynamic imports in Vitest with TypeScript, focusing on avoiding hoisting-related errors.",
+    "isTestFile": true,
+    "category": "integration-tests",
+    "codeBlocks": [
+      {
+        "title": "should mock dynamically imported add function",
+        "code": "it('should mock dynamically imported add function', async () => {\n    const a = 5;\n    const b = 3;\n    \n    const result = await calculator.performOperation('add', a, b);\n    \n    expect(mockAdd).toHaveBeenCalledTimes(1);\n    expect(mockAdd).toHaveBeenCalledWith(a, b);\n    expect(result).toBe(8);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should mock dynamically imported subtract function",
+        "code": "it('should mock dynamically imported subtract function', async () => {\n    const a = 10;\n    const b = 4;\n    \n    const result = await calculator.performOperation('subtract', a, b);\n    \n    expect(mockSubtract).toHaveBeenCalledTimes(1);\n    expect(mockSubtract).toHaveBeenCalledWith(a, b);\n    expect(result).toBe(6);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should mock dynamically imported multiply function",
+        "code": "it('should mock dynamically imported multiply function', async () => {\n    const a = 7;\n    const b = 6;\n    \n    const result = await calculator.performOperation('multiply', a, b);\n    \n    expect(mockMultiply).toHaveBeenCalledTimes(1);\n    expect(mockMultiply).toHaveBeenCalledWith(a, b);\n    expect(result).toBe(42);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should mock dynamically imported divide function",
+        "code": "it('should mock dynamically imported divide function', async () => {\n    const a = 20;\n    const b = 4;\n    \n    const result = await calculator.performOperation('divide', a, b);\n    \n    expect(mockDivide).toHaveBeenCalledTimes(1);\n    expect(mockDivide).toHaveBeenCalledWith(a, b);\n    expect(result).toBe(5);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should handle errors from mocked functions",
+        "code": "it('should handle errors from mocked functions', async () => {\n    const a = 10;\n    const b = 0;\n    \n    await expect(calculator.performOperation('divide', a, b)).rejects.toThrow('Division by zero');\n    expect(mockDivide).toHaveBeenCalledTimes(1);\n    expect(mockDivide).toHaveBeenCalledWith(a, b);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should allow changing mock implementation for specific tests",
+        "code": "it('should allow changing mock implementation for specific tests', async () => {\n    mockAdd.mockImplementationOnce(() => 42);\n    \n    const result = await calculator.performOperation('add', 2, 2);\n    \n    expect(result).toBe(42);\n    expect(mockAdd).toHaveBeenCalledTimes(1);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "Dynamic Imports Mocking",
+        "code": "describe('Dynamic Imports Mocking', () => {\n  let calculator: Calculator;\n  \n  beforeEach(() => {\n    vi.clearAllMocks();\n    \n    calculator = new Calculator();\n    \n    mockAdd.mockImplementation((a, b) => a + b);\n    mockSubtract.mockImplementation((a, b) => a - b);\n    mockMultiply.mockImplementation((a, b) => a * b);\n    mockDivide.mockImplementation((a, b) => {\n      if (b === 0) throw new Error('Division by zero');\n      return a / b;\n    })",
+        "type": "describe-block"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/dynamic-imports/math-utils.ts",
+    "relativePath": "dynamic-imports/math-utils.ts",
+    "fileName": "math-utils.ts",
+    "dirName": "dynamic-imports",
+    "content": "/**\n * Example utility module that will be dynamically imported\n */\nexport const add = (a: number, b: number): number => a + b;\nexport const subtract = (a: number, b: number): number => a - b;\nexport const multiply = (a: number, b: number): number => a * b;\nexport const divide = (a: number, b: number): number => {\n  if (b === 0) throw new Error('Division by zero');\n  return a / b;\n};\n\nexport default {\n  add,\n  subtract,\n  multiply,\n  divide\n};\n",
+    "description": "Example utility module that will be dynamically imported",
+    "isTestFile": false,
+    "category": "integration-tests",
+    "codeBlocks": [
+      {
+        "title": "math-utils.ts",
+        "code": "/**\n * Example utility module that will be dynamically imported\n */\nexport const add = (a: number, b: number): number => a + b;\nexport const subtract = (a: number, b: number): number => a - b;\nexport const multiply = (a: number, b: number): number => a * b;\nexport const divide = (a: number, b: number): number => {\n  if (b === 0) throw new Error('Division by zero');\n  return a / b;\n};\n\nexport default {\n  add,\n  subtract,\n  multiply,\n  divide\n};\n",
+        "type": "file"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/lazy-loaded-components/AppWithLazyLoading.tsx",
+    "relativePath": "lazy-loaded-components/AppWithLazyLoading.tsx",
+    "fileName": "AppWithLazyLoading.tsx",
+    "dirName": "lazy-loaded-components",
+    "content": "/**\n * Example of a React component that uses lazy loading\n */\nimport React, { lazy, Suspense, useState } from 'react';\n\nconst LazyComponent = lazy(() => import('./LazyComponent'));\n\ninterface AppWithLazyLoadingProps {\n  initialTitle?: string;\n}\n\nconst AppWithLazyLoading: React.FC<AppWithLazyLoadingProps> = ({ \n  initialTitle = 'Lazy Loaded Component' \n}) => {\n  const [count, setCount] = useState(0);\n  const [showLazyComponent, setShowLazyComponent] = useState(false);\n\n  const handleAction = () => {\n    setCount(prev => prev + 1);\n  };\n\n  return (\n    <div className=\"app\">\n      <h1>App with Lazy Loading</h1>\n      <p>Count: {count}</p>\n      \n      <button onClick={() => setShowLazyComponent(prev => !prev)}>\n        {showLazyComponent ? 'Hide' : 'Show'} Lazy Component\n      </button>\n      \n      {showLazyComponent && (\n        <Suspense fallback={<div>Loading...</div>}>\n          <LazyComponent \n            title={`${initialTitle} (${count})`} \n            onAction={handleAction} \n          />\n        </Suspense>\n      )}\n    </div>\n  );\n};\n\nexport default AppWithLazyLoading;\n",
+    "description": "Example of a React component that uses lazy loading",
+    "isTestFile": false,
+    "category": "integration-tests",
+    "codeBlocks": [
+      {
+        "title": "handleAction",
+        "code": "const handleAction = () => {\n    setCount(prev => prev + 1);",
+        "type": "function"
+      },
+      {
+        "title": "AppWithLazyLoadingProps",
+        "code": "interface AppWithLazyLoadingProps {\n  initialTitle?: string;\n}",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/lazy-loaded-components/LazyComponent.tsx",
+    "relativePath": "lazy-loaded-components/LazyComponent.tsx",
+    "fileName": "LazyComponent.tsx",
+    "dirName": "lazy-loaded-components",
+    "content": "/**\n * Example of a React component that will be lazy-loaded\n */\nimport React from 'react';\n\ninterface LazyComponentProps {\n  title: string;\n  onAction: () => void;\n}\n\nconst LazyComponent: React.FC<LazyComponentProps> = ({ title, onAction }) => {\n  return (\n    <div className=\"lazy-component\">\n      <h2>{title}</h2>\n      <button onClick={onAction}>Click me</button>\n    </div>\n  );\n};\n\nexport default LazyComponent;\n",
+    "description": "Example of a React component that will be lazy-loaded",
+    "isTestFile": false,
+    "category": "integration-tests",
+    "codeBlocks": [
+      {
+        "title": "LazyComponentProps",
+        "code": "interface LazyComponentProps {\n  title: string;\n  onAction: () => void;\n}",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/lazy-loaded-components/lazy-loaded-components.test.tsx",
+    "relativePath": "lazy-loaded-components/lazy-loaded-components.test.tsx",
+    "fileName": "lazy-loaded-components.test.tsx",
+    "dirName": "lazy-loaded-components",
+    "content": "/**\n * This test file demonstrates how to mock lazy-loaded React components in Vitest\n * with TypeScript, focusing on avoiding hoisting-related errors.\n */\n\n// Import vi first\nimport { vi, describe, it, expect, beforeEach } from 'vitest';\nimport React from 'react';\n\n// Create a mock function for our component\nconst mockLazyComponentFn = vi.fn();\n\n// Mock the LazyComponent module before importing anything else\nvi.mock('./LazyComponent', () => {\n  // Return a mock implementation that uses our spy function\n  return {\n    default: function MockLazyComponent(props: { title: string; onAction: () => void }) {\n      mockLazyComponentFn(props);\n      return (\n        <div data-testid=\"mock-lazy-component\">\n          <h2>{props.title}</h2>\n          <button onClick={props.onAction}>Mocked Button</button>\n        </div>\n      );\n    }\n  };\n});\n\n// Mock React's lazy function to return the imported component directly\nvi.mock('react', async () => {\n  const actual = await vi.importActual('react');\n  const lazyComponent = (await import('./LazyComponent')).default;\n  \n  return {\n    ...actual,\n    lazy: () => lazyComponent\n  };\n});\n\n// Now import everything else\nimport { render, screen, fireEvent } from '@testing-library/react';\nimport '@testing-library/jest-dom';\nimport AppWithLazyLoading from './AppWithLazyLoading';\n\ndescribe('Lazy Loaded React Components Mocking', () => {\n  beforeEach(() => {\n    // Clear all mocks before each test\n    vi.clearAllMocks();\n  });\n\n  it('should render the app with the mocked lazy component', () => {\n    render(<AppWithLazyLoading />);\n    \n    // Click to show the lazy component\n    fireEvent.click(screen.getByText('Show Lazy Component'));\n    \n    // Verify the component is rendered\n    expect(screen.getByTestId('mock-lazy-component')).toBeInTheDocument();\n    \n    // Verify our spy function was called with the correct props\n    expect(mockLazyComponentFn).toHaveBeenCalledTimes(1);\n    expect(mockLazyComponentFn).toHaveBeenCalledWith(\n      expect.objectContaining({\n        title: 'Lazy Loaded Component (0)',\n        onAction: expect.any(Function)\n      })\n    );\n  });\n\n  it('should pass the correct props to the lazy component', () => {\n    render(<AppWithLazyLoading initialTitle=\"Custom Title\" />);\n    \n    // Click to show the lazy component\n    fireEvent.click(screen.getByText('Show Lazy Component'));\n    \n    // Verify our spy function was called with the correct props\n    expect(mockLazyComponentFn).toHaveBeenCalledTimes(1);\n    expect(mockLazyComponentFn).toHaveBeenCalledWith(\n      expect.objectContaining({\n        title: 'Custom Title (0)'\n      })\n    );\n  });\n\n  it('should handle interactions with the mocked component', () => {\n    render(<AppWithLazyLoading />);\n    \n    // Click to show the lazy component\n    fireEvent.click(screen.getByText('Show Lazy Component'));\n    \n    // Click the button in the lazy component\n    fireEvent.click(screen.getByText('Mocked Button'));\n    \n    // Verify the count was incremented\n    expect(screen.getByText('Count: 1')).toBeInTheDocument();\n    \n    // Verify our spy function was called again with the updated props\n    expect(mockLazyComponentFn).toHaveBeenCalledTimes(2);\n    \n    // Get the last call arguments\n    const lastCallArgs = mockLazyComponentFn.mock.calls[1][0];\n    \n    // Verify the title was updated\n    expect(lastCallArgs.title).toBe('Lazy Loaded Component (1)');\n  });\n\n  it('should toggle the lazy component visibility', () => {\n    render(<AppWithLazyLoading />);\n    \n    // Click to show the lazy component\n    fireEvent.click(screen.getByText('Show Lazy Component'));\n    \n    // Verify the component is visible\n    expect(screen.getByTestId('mock-lazy-component')).toBeInTheDocument();\n    expect(screen.getByText('Hide Lazy Component')).toBeInTheDocument();\n    \n    // Click to hide the lazy component\n    fireEvent.click(screen.getByText('Hide Lazy Component'));\n    \n    // Verify the component is hidden\n    expect(screen.queryByTestId('mock-lazy-component')).not.toBeInTheDocument();\n    expect(screen.getByText('Show Lazy Component')).toBeInTheDocument();\n  });\n});\n",
+    "description": "This test file demonstrates how to mock lazy-loaded React components in Vitest with TypeScript, focusing on avoiding hoisting-related errors.",
+    "isTestFile": true,
+    "category": "integration-tests",
+    "codeBlocks": [
+      {
+        "title": "should render the app with the mocked lazy component",
+        "code": "it('should render the app with the mocked lazy component', () => {\n    render(<AppWithLazyLoading />);\n    \n    // Click to show the lazy component\n    fireEvent.click(screen.getByText('Show Lazy Component'));\n    \n    // Verify the component is rendered\n    expect(screen.getByTestId('mock-lazy-component')).toBeInTheDocument();\n    \n    // Verify our spy function was called with the correct props\n    expect(mockLazyComponentFn).toHaveBeenCalledTimes(1);\n    expect(mockLazyComponentFn).toHaveBeenCalledWith(\n      expect.objectContaining({\n        title: 'Lazy Loaded Component (0)',\n        onAction: expect.any(Function)\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should pass the correct props to the lazy component",
+        "code": "it('should pass the correct props to the lazy component', () => {\n    render(<AppWithLazyLoading initialTitle=\"Custom Title\" />);\n    \n    // Click to show the lazy component\n    fireEvent.click(screen.getByText('Show Lazy Component'));\n    \n    // Verify our spy function was called with the correct props\n    expect(mockLazyComponentFn).toHaveBeenCalledTimes(1);\n    expect(mockLazyComponentFn).toHaveBeenCalledWith(\n      expect.objectContaining({\n        title: 'Custom Title (0)'\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should handle interactions with the mocked component",
+        "code": "it('should handle interactions with the mocked component', () => {\n    render(<AppWithLazyLoading />);\n    \n    // Click to show the lazy component\n    fireEvent.click(screen.getByText('Show Lazy Component'));\n    \n    // Click the button in the lazy component\n    fireEvent.click(screen.getByText('Mocked Button'));\n    \n    // Verify the count was incremented\n    expect(screen.getByText('Count: 1')).toBeInTheDocument();\n    \n    // Verify our spy function was called again with the updated props\n    expect(mockLazyComponentFn).toHaveBeenCalledTimes(2);\n    \n    // Get the last call arguments\n    const lastCallArgs = mockLazyComponentFn.mock.calls[1][0];\n    \n    // Verify the title was updated\n    expect(lastCallArgs.title).toBe('Lazy Loaded Component (1)');\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should toggle the lazy component visibility",
+        "code": "it('should toggle the lazy component visibility', () => {\n    render(<AppWithLazyLoading />);\n    \n    // Click to show the lazy component\n    fireEvent.click(screen.getByText('Show Lazy Component'));\n    \n    // Verify the component is visible\n    expect(screen.getByTestId('mock-lazy-component')).toBeInTheDocument();\n    expect(screen.getByText('Hide Lazy Component')).toBeInTheDocument();\n    \n    // Click to hide the lazy component\n    fireEvent.click(screen.getByText('Hide Lazy Component'));\n    \n    // Verify the component is hidden\n    expect(screen.queryByTestId('mock-lazy-component')).not.toBeInTheDocument();\n    expect(screen.getByText('Show Lazy Component')).toBeInTheDocument();\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "Lazy Loaded React Components Mocking",
+        "code": "describe('Lazy Loaded React Components Mocking', () => {\n  beforeEach(() => {\n    // Clear all mocks before each test\n    vi.clearAllMocks();\n  })",
+        "type": "describe-block"
+      }
+    ]
+  }
+]

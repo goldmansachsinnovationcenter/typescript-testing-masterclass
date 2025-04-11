@@ -1,0 +1,140 @@
+[
+  {
+    "title": "Type Safety with MockedFunction",
+    "description": "Using TypeScript to ensure type safety in mocks",
+    "examples": [
+      {
+        "fileName": "direct-imports.test.ts",
+        "dirName": "direct-imports",
+        "path": "direct-imports/direct-imports.test.ts"
+      },
+      {
+        "fileName": "nodejs-testing.test.ts",
+        "dirName": "nodejs-testing",
+        "path": "nodejs-testing/nodejs-testing.test.ts"
+      },
+      {
+        "fileName": "same-package.test.ts",
+        "dirName": "same-package",
+        "path": "same-package/same-package.test.ts"
+      }
+    ]
+  },
+  {
+    "title": "Spy Assertions",
+    "description": "Verifying function calls with spy assertions",
+    "examples": [
+      {
+        "fileName": "accessibility-testing.test.tsx",
+        "dirName": "accessibility-testing",
+        "path": "accessibility-testing/accessibility-testing.test.tsx"
+      },
+      {
+        "fileName": "async-testing.test.ts",
+        "dirName": "async-testing",
+        "path": "async-testing/async-testing.test.ts"
+      },
+      {
+        "fileName": "direct-imports.test.ts",
+        "dirName": "direct-imports",
+        "path": "direct-imports/direct-imports.test.ts"
+      },
+      {
+        "fileName": "dynamic-imports.test.ts",
+        "dirName": "dynamic-imports",
+        "path": "dynamic-imports/dynamic-imports.test.ts"
+      },
+      {
+        "fileName": "indirect-dependencies.test.ts",
+        "dirName": "indirect-dependencies",
+        "path": "indirect-dependencies/indirect-dependencies.test.ts"
+      },
+      {
+        "fileName": "lazy-loaded-components.test.tsx",
+        "dirName": "lazy-loaded-components",
+        "path": "lazy-loaded-components/lazy-loaded-components.test.tsx"
+      },
+      {
+        "fileName": "nodejs-testing.test.ts",
+        "dirName": "nodejs-testing",
+        "path": "nodejs-testing/nodejs-testing.test.ts"
+      },
+      {
+        "fileName": "context.test.tsx",
+        "dirName": "context",
+        "path": "react-specific/context/context.test.tsx"
+      },
+      {
+        "fileName": "useEffect.test.tsx",
+        "dirName": "hooks",
+        "path": "react-specific/hooks/useEffect.test.tsx"
+      },
+      {
+        "fileName": "suspense.test.tsx",
+        "dirName": "suspense",
+        "path": "react-specific/suspense/suspense.test.tsx"
+      },
+      {
+        "fileName": "same-package.test.ts",
+        "dirName": "same-package",
+        "path": "same-package/same-package.test.ts"
+      },
+      {
+        "fileName": "test-doubles.test.ts",
+        "dirName": "test-doubles",
+        "path": "test-doubles/test-doubles.test.ts"
+      }
+    ]
+  },
+  {
+    "title": "Mock Implementation",
+    "description": "Providing custom implementations for mocked functions",
+    "examples": [
+      {
+        "fileName": "async-testing.test.ts",
+        "dirName": "async-testing",
+        "path": "async-testing/async-testing.test.ts"
+      },
+      {
+        "fileName": "dynamic-imports.test.ts",
+        "dirName": "dynamic-imports",
+        "path": "dynamic-imports/dynamic-imports.test.ts"
+      },
+      {
+        "fileName": "indirect-dependencies.test.ts",
+        "dirName": "indirect-dependencies",
+        "path": "indirect-dependencies/indirect-dependencies.test.ts"
+      },
+      {
+        "fileName": "LazyComponent.tsx",
+        "dirName": "__mocks__",
+        "path": "lazy-loaded-components/__mocks__/LazyComponent.tsx"
+      },
+      {
+        "fileName": "nodejs-testing.test.ts",
+        "dirName": "nodejs-testing",
+        "path": "nodejs-testing/nodejs-testing.test.ts"
+      },
+      {
+        "fileName": "context.test.tsx",
+        "dirName": "context",
+        "path": "react-specific/context/context.test.tsx"
+      },
+      {
+        "fileName": "useEffect.test.tsx",
+        "dirName": "hooks",
+        "path": "react-specific/hooks/useEffect.test.tsx"
+      },
+      {
+        "fileName": "suspense.test.tsx",
+        "dirName": "suspense",
+        "path": "react-specific/suspense/suspense.test.tsx"
+      },
+      {
+        "fileName": "same-package.test.ts",
+        "dirName": "same-package",
+        "path": "same-package/same-package.test.ts"
+      }
+    ]
+  }
+]
