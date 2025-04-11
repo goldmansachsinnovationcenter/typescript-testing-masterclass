@@ -84,15 +84,79 @@ describe('UserProfile Component with useEffect', () => {
   });
   
   it('should increment counter with interval', async () => {
-    expect(true).toBe(true);
+    vi.useFakeTimers();
+    
+    (api.fetchUser as any).mockImplementation(async () => {
+      return { id: 1, name: 'Test User' };
+    });
+    
+    render(<UserProfile userId={1} />);
+    
+    await act(async () => {
+      await Promise.resolve();
+    });
+    
+    expect(screen.getByTestId('user-profile')).toBeInTheDocument();
+    expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 0');
+    
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 1');
+    
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
+    expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 3');
+    
+    vi.useRealTimers();
   });
   
   it('should handle manual counter increment', async () => {
-    expect(true).toBe(true);
+    (api.fetchUser as any).mockImplementation(async () => {
+      return { id: 1, name: 'Test User' };
+    });
+    
+    render(<UserProfile userId={1} />);
+    
+    await act(async () => {
+      await Promise.resolve();
+    });
+    
+    expect(screen.getByTestId('user-profile')).toBeInTheDocument();
+    expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 0');
+    
+    act(() => {
+      fireEvent.click(screen.getByText('Increment'));
+    });
+    
+    expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 1');
   });
   
   it('should clean up effects when unmounted', async () => {
-    expect(true).toBe(true);
+    vi.useFakeTimers();
+    
+    (api.fetchUser as any).mockImplementation(async () => {
+      return { id: 1, name: 'Test User' };
+    });
+    
+    const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
+    
+    const { unmount } = render(<UserProfile userId={1} />);
+    
+    await act(async () => {
+      await Promise.resolve();
+    });
+    
+    expect(screen.getByTestId('user-profile')).toBeInTheDocument();
+    
+    act(() => {
+      unmount();
+    });
+    
+    expect(clearIntervalSpy).toHaveBeenCalled();
+    
+    vi.useRealTimers();
   });
   
   it('should not update state after unmount', async () => {

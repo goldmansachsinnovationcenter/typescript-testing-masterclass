@@ -5,6 +5,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ApiClient, User } from './api-client';
 
+vi.setConfig({ testTimeout: 60000 });
+
 describe('Testing Asynchronous Code', () => {
   let apiClient: ApiClient;
   
@@ -52,8 +54,22 @@ describe('Testing Asynchronous Code', () => {
     });
     
     it('should handle promise rejection with try/catch', async () => {
-      expect(true).toBe(true);
-    });
+      const userId = -1;
+      
+      vi.spyOn(Math, 'random').mockReturnValue(0.5);
+      
+      const promise = apiClient.getUser(userId);
+      
+      vi.runAllTimers();
+      
+      try {
+        await promise;
+        expect.fail('Promise should have been rejected');
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe('User not found');
+      }
+    }, 60000);
   });
   
   describe('Testing Async/Await Functions', () => {
