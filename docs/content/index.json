@@ -1,0 +1,423 @@
+{
+  "categories": [
+    "unit-tests",
+    "integration-tests",
+    "e2e-tests",
+    "common-patterns"
+  ],
+  "totalExamples": 38,
+  "examplesByCategory": {
+    "unit-tests": [
+      {
+        "fileName": "api.ts",
+        "dirName": "__mocks__",
+        "description": "Mock implementation of the api module",
+        "isTestFile": false,
+        "path": "direct-imports/__mocks__/api.ts"
+      },
+      {
+        "fileName": "api.ts",
+        "dirName": "direct-imports",
+        "description": "Example API module with functions that will be mocked in tests",
+        "isTestFile": false,
+        "path": "direct-imports/api.ts"
+      },
+      {
+        "fileName": "direct-imports.test.ts",
+        "dirName": "direct-imports",
+        "description": "This test file demonstrates how to mock direct module imports in Vitest with TypeScript, focusing on avoiding hoisting-related errors.",
+        "isTestFile": true,
+        "path": "direct-imports/direct-imports.test.ts"
+      },
+      {
+        "fileName": "user-service.ts",
+        "dirName": "direct-imports",
+        "description": "Example service that uses the API module",
+        "isTestFile": false,
+        "path": "direct-imports/user-service.ts"
+      },
+      {
+        "fileName": "database.ts",
+        "dirName": "indirect-dependencies",
+        "description": "Example database module that will be indirectly mocked",
+        "isTestFile": false,
+        "path": "indirect-dependencies/database.ts"
+      },
+      {
+        "fileName": "db-client.ts",
+        "dirName": "indirect-dependencies",
+        "description": "Database client that uses the Database class",
+        "isTestFile": false,
+        "path": "indirect-dependencies/db-client.ts"
+      },
+      {
+        "fileName": "indirect-dependencies.test.ts",
+        "dirName": "indirect-dependencies",
+        "description": "This test file demonstrates how to mock indirect module dependencies in Vitest with TypeScript, focusing on avoiding hoisting-related errors.",
+        "isTestFile": true,
+        "path": "indirect-dependencies/indirect-dependencies.test.ts"
+      },
+      {
+        "fileName": "user-repository.ts",
+        "dirName": "indirect-dependencies",
+        "description": "User repository that uses the DbClient",
+        "isTestFile": false,
+        "path": "indirect-dependencies/user-repository.ts"
+      },
+      {
+        "fileName": "LazyComponent.tsx",
+        "dirName": "__mocks__",
+        "description": "Mock implementation of the LazyComponent",
+        "isTestFile": false,
+        "path": "lazy-loaded-components/__mocks__/LazyComponent.tsx"
+      },
+      {
+        "fileName": "ThemeContext.tsx",
+        "dirName": "context",
+        "description": "Example context provider for theme management",
+        "isTestFile": false,
+        "path": "react-specific/context/ThemeContext.tsx"
+      },
+      {
+        "fileName": "ThemedComponent.tsx",
+        "dirName": "context",
+        "description": "Example component that uses the theme context",
+        "isTestFile": false,
+        "path": "react-specific/context/ThemedComponent.tsx"
+      },
+      {
+        "fileName": "context.test.tsx",
+        "dirName": "context",
+        "description": "This test file demonstrates how to test React components that use Context with Vitest and Testing Library, focusing on mocking context providers.",
+        "isTestFile": true,
+        "path": "react-specific/context/context.test.tsx"
+      },
+      {
+        "fileName": "useCounter.test.ts",
+        "dirName": "hooks",
+        "description": "This test file demonstrates how to test custom React hooks in Vitest with TypeScript, focusing on testing hook behavior and state changes.",
+        "isTestFile": true,
+        "path": "react-specific/hooks/useCounter.test.ts"
+      },
+      {
+        "fileName": "useCounter.ts",
+        "dirName": "hooks",
+        "description": "Example custom hook for counter functionality",
+        "isTestFile": false,
+        "path": "react-specific/hooks/useCounter.ts"
+      },
+      {
+        "fileName": "useEffect.test.tsx",
+        "dirName": "hooks",
+        "description": "This test file demonstrates how to test components with useEffect in Vitest with TypeScript, focusing on mocking dependencies and testing side effects.",
+        "isTestFile": true,
+        "path": "react-specific/hooks/useEffect.test.tsx"
+      },
+      {
+        "fileName": "useEffectComponent.tsx",
+        "dirName": "hooks",
+        "description": "Example component that uses useEffect for various scenarios",
+        "isTestFile": false,
+        "path": "react-specific/hooks/useEffectComponent.tsx"
+      },
+      {
+        "fileName": "Router.tsx",
+        "dirName": "router",
+        "description": "Example component that uses react-router",
+        "isTestFile": false,
+        "path": "react-specific/router/Router.tsx"
+      },
+      {
+        "fileName": "router.test.tsx",
+        "dirName": "router",
+        "description": "This test file demonstrates how to test React components that use react-router with Vitest and Testing Library, focusing on mocking router functionality.",
+        "isTestFile": true,
+        "path": "react-specific/router/router.test.tsx"
+      },
+      {
+        "fileName": "DataFetcher.tsx",
+        "dirName": "suspense",
+        "description": "Example component that uses React Suspense for data fetching",
+        "isTestFile": false,
+        "path": "react-specific/suspense/DataFetcher.tsx"
+      },
+      {
+        "fileName": "suspense.test.tsx",
+        "dirName": "suspense",
+        "description": "This test file demonstrates how to test React components that use Suspense and ErrorBoundary with Vitest and Testing Library, focusing on mocking async data fetching.",
+        "isTestFile": true,
+        "path": "react-specific/suspense/suspense.test.tsx"
+      },
+      {
+        "fileName": "utils.ts",
+        "dirName": "__mocks__",
+        "description": "Mock implementation of the utils module",
+        "isTestFile": false,
+        "path": "same-package/__mocks__/utils.ts"
+      },
+      {
+        "fileName": "same-package.test.ts",
+        "dirName": "same-package",
+        "description": "This test file demonstrates how to mock files within the same package in Vitest with TypeScript, focusing on avoiding hoisting-related errors.",
+        "isTestFile": true,
+        "path": "same-package/same-package.test.ts"
+      },
+      {
+        "fileName": "user.ts",
+        "dirName": "same-package",
+        "description": "Example user module that uses the utils module from the same package",
+        "isTestFile": false,
+        "path": "same-package/user.ts"
+      },
+      {
+        "fileName": "utils.ts",
+        "dirName": "same-package",
+        "description": "Example utility module that will be mocked within the same package",
+        "isTestFile": false,
+        "path": "same-package/utils.ts"
+      },
+      {
+        "fileName": "payment-service.ts",
+        "dirName": "test-doubles",
+        "description": "Example payment service with external dependencies This demonstrates different types of dependencies that can be tested with various test doubles (stubs, mocks, and spies)",
+        "isTestFile": false,
+        "path": "test-doubles/payment-service.ts"
+      },
+      {
+        "fileName": "test-doubles.test.ts",
+        "dirName": "test-doubles",
+        "description": "This test file demonstrates the differences between various test doubles (stubs, mocks, and spies) in Vitest with TypeScript.",
+        "isTestFile": true,
+        "path": "test-doubles/test-doubles.test.ts"
+      }
+    ],
+    "integration-tests": [
+      {
+        "fileName": "calculator.ts",
+        "dirName": "dynamic-imports",
+        "description": "Example module that uses dynamic imports",
+        "isTestFile": false,
+        "path": "dynamic-imports/calculator.ts"
+      },
+      {
+        "fileName": "dynamic-imports.test.ts",
+        "dirName": "dynamic-imports",
+        "description": "This test file demonstrates how to mock dynamic imports in Vitest with TypeScript, focusing on avoiding hoisting-related errors.",
+        "isTestFile": true,
+        "path": "dynamic-imports/dynamic-imports.test.ts"
+      },
+      {
+        "fileName": "math-utils.ts",
+        "dirName": "dynamic-imports",
+        "description": "Example utility module that will be dynamically imported",
+        "isTestFile": false,
+        "path": "dynamic-imports/math-utils.ts"
+      },
+      {
+        "fileName": "AppWithLazyLoading.tsx",
+        "dirName": "lazy-loaded-components",
+        "description": "Example of a React component that uses lazy loading",
+        "isTestFile": false,
+        "path": "lazy-loaded-components/AppWithLazyLoading.tsx"
+      },
+      {
+        "fileName": "LazyComponent.tsx",
+        "dirName": "lazy-loaded-components",
+        "description": "Example of a React component that will be lazy-loaded",
+        "isTestFile": false,
+        "path": "lazy-loaded-components/LazyComponent.tsx"
+      },
+      {
+        "fileName": "lazy-loaded-components.test.tsx",
+        "dirName": "lazy-loaded-components",
+        "description": "This test file demonstrates how to mock lazy-loaded React components in Vitest with TypeScript, focusing on avoiding hoisting-related errors.",
+        "isTestFile": true,
+        "path": "lazy-loaded-components/lazy-loaded-components.test.tsx"
+      }
+    ],
+    "e2e-tests": [
+      {
+        "fileName": "accessibility-testing.test.tsx",
+        "dirName": "accessibility-testing",
+        "description": "This test file demonstrates techniques for testing accessibility in React components with Vitest, Testing Library, and jest-axe.",
+        "isTestFile": true,
+        "path": "accessibility-testing/accessibility-testing.test.tsx"
+      },
+      {
+        "fileName": "accessible-form.tsx",
+        "dirName": "accessibility-testing",
+        "description": "Example of an accessible form component This demonstrates accessibility best practices for React forms",
+        "isTestFile": false,
+        "path": "accessibility-testing/accessible-form.tsx"
+      },
+      {
+        "fileName": "api-client.ts",
+        "dirName": "async-testing",
+        "description": "Example API client with asynchronous methods This demonstrates common patterns for asynchronous code in TypeScript",
+        "isTestFile": false,
+        "path": "async-testing/api-client.ts"
+      },
+      {
+        "fileName": "async-testing.test.ts",
+        "dirName": "async-testing",
+        "description": "This test file demonstrates techniques for testing asynchronous code with Vitest and TypeScript, focusing on promises, async/await, and race conditions.",
+        "isTestFile": true,
+        "path": "async-testing/async-testing.test.ts"
+      },
+      {
+        "fileName": "cli-script.ts",
+        "dirName": "nodejs-testing",
+        "description": "Example CLI script that uses Node.js native modules and inquirer This demonstrates common patterns for command-line applications",
+        "isTestFile": false,
+        "path": "nodejs-testing/cli-script.ts"
+      },
+      {
+        "fileName": "nodejs-testing.test.ts",
+        "dirName": "nodejs-testing",
+        "description": "This test file demonstrates techniques for testing Node.js scripts with Vitest and TypeScript, focusing on mocking fs, process, and inquirer.",
+        "isTestFile": true,
+        "path": "nodejs-testing/nodejs-testing.test.ts"
+      }
+    ],
+    "common-patterns": [
+      {
+        "title": "Type Safety with MockedFunction",
+        "description": "Using TypeScript to ensure type safety in mocks",
+        "examples": [
+          {
+            "fileName": "direct-imports.test.ts",
+            "dirName": "direct-imports",
+            "path": "direct-imports/direct-imports.test.ts"
+          },
+          {
+            "fileName": "nodejs-testing.test.ts",
+            "dirName": "nodejs-testing",
+            "path": "nodejs-testing/nodejs-testing.test.ts"
+          },
+          {
+            "fileName": "same-package.test.ts",
+            "dirName": "same-package",
+            "path": "same-package/same-package.test.ts"
+          }
+        ]
+      },
+      {
+        "title": "Spy Assertions",
+        "description": "Verifying function calls with spy assertions",
+        "examples": [
+          {
+            "fileName": "accessibility-testing.test.tsx",
+            "dirName": "accessibility-testing",
+            "path": "accessibility-testing/accessibility-testing.test.tsx"
+          },
+          {
+            "fileName": "async-testing.test.ts",
+            "dirName": "async-testing",
+            "path": "async-testing/async-testing.test.ts"
+          },
+          {
+            "fileName": "direct-imports.test.ts",
+            "dirName": "direct-imports",
+            "path": "direct-imports/direct-imports.test.ts"
+          },
+          {
+            "fileName": "dynamic-imports.test.ts",
+            "dirName": "dynamic-imports",
+            "path": "dynamic-imports/dynamic-imports.test.ts"
+          },
+          {
+            "fileName": "indirect-dependencies.test.ts",
+            "dirName": "indirect-dependencies",
+            "path": "indirect-dependencies/indirect-dependencies.test.ts"
+          },
+          {
+            "fileName": "lazy-loaded-components.test.tsx",
+            "dirName": "lazy-loaded-components",
+            "path": "lazy-loaded-components/lazy-loaded-components.test.tsx"
+          },
+          {
+            "fileName": "nodejs-testing.test.ts",
+            "dirName": "nodejs-testing",
+            "path": "nodejs-testing/nodejs-testing.test.ts"
+          },
+          {
+            "fileName": "context.test.tsx",
+            "dirName": "context",
+            "path": "react-specific/context/context.test.tsx"
+          },
+          {
+            "fileName": "useEffect.test.tsx",
+            "dirName": "hooks",
+            "path": "react-specific/hooks/useEffect.test.tsx"
+          },
+          {
+            "fileName": "suspense.test.tsx",
+            "dirName": "suspense",
+            "path": "react-specific/suspense/suspense.test.tsx"
+          },
+          {
+            "fileName": "same-package.test.ts",
+            "dirName": "same-package",
+            "path": "same-package/same-package.test.ts"
+          },
+          {
+            "fileName": "test-doubles.test.ts",
+            "dirName": "test-doubles",
+            "path": "test-doubles/test-doubles.test.ts"
+          }
+        ]
+      },
+      {
+        "title": "Mock Implementation",
+        "description": "Providing custom implementations for mocked functions",
+        "examples": [
+          {
+            "fileName": "async-testing.test.ts",
+            "dirName": "async-testing",
+            "path": "async-testing/async-testing.test.ts"
+          },
+          {
+            "fileName": "dynamic-imports.test.ts",
+            "dirName": "dynamic-imports",
+            "path": "dynamic-imports/dynamic-imports.test.ts"
+          },
+          {
+            "fileName": "indirect-dependencies.test.ts",
+            "dirName": "indirect-dependencies",
+            "path": "indirect-dependencies/indirect-dependencies.test.ts"
+          },
+          {
+            "fileName": "LazyComponent.tsx",
+            "dirName": "__mocks__",
+            "path": "lazy-loaded-components/__mocks__/LazyComponent.tsx"
+          },
+          {
+            "fileName": "nodejs-testing.test.ts",
+            "dirName": "nodejs-testing",
+            "path": "nodejs-testing/nodejs-testing.test.ts"
+          },
+          {
+            "fileName": "context.test.tsx",
+            "dirName": "context",
+            "path": "react-specific/context/context.test.tsx"
+          },
+          {
+            "fileName": "useEffect.test.tsx",
+            "dirName": "hooks",
+            "path": "react-specific/hooks/useEffect.test.tsx"
+          },
+          {
+            "fileName": "suspense.test.tsx",
+            "dirName": "suspense",
+            "path": "react-specific/suspense/suspense.test.tsx"
+          },
+          {
+            "fileName": "same-package.test.ts",
+            "dirName": "same-package",
+            "path": "same-package/same-package.test.ts"
+          }
+        ]
+      }
+    ]
+  }
+}

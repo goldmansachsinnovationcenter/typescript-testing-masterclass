@@ -1,0 +1,999 @@
+[
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/direct-imports/__mocks__/api.ts",
+    "relativePath": "direct-imports/__mocks__/api.ts",
+    "fileName": "api.ts",
+    "dirName": "__mocks__",
+    "content": "/**\n * Mock implementation of the api module\n */\nimport { vi } from 'vitest';\n\nexport const fetchData = vi.fn();\nexport const postData = vi.fn();\n\nexport default {\n  fetchData,\n  postData,\n};\n",
+    "description": "Mock implementation of the api module",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "api.ts",
+        "code": "/**\n * Mock implementation of the api module\n */\nimport { vi } from 'vitest';\n\nexport const fetchData = vi.fn();\nexport const postData = vi.fn();\n\nexport default {\n  fetchData,\n  postData,\n};\n",
+        "type": "file"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/direct-imports/api.ts",
+    "relativePath": "direct-imports/api.ts",
+    "fileName": "api.ts",
+    "dirName": "direct-imports",
+    "content": "/**\n * Example API module with functions that will be mocked in tests\n */\n\nexport const fetchData = async <T>(url: string): Promise<T> => {\n  const response = await fetch(url);\n  if (!response.ok) {\n    throw new Error(`HTTP error! Status: ${response.status}`);\n  }\n  return response.json() as Promise<T>;\n};\n\nexport const postData = async <T>(url: string, data: any): Promise<T> => {\n  const response = await fetch(url, {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(data),\n  });\n  \n  if (!response.ok) {\n    throw new Error(`HTTP error! Status: ${response.status}`);\n  }\n  \n  return response.json() as Promise<T>;\n};\n\nexport default {\n  fetchData,\n  postData,\n};\n",
+    "description": "Example API module with functions that will be mocked in tests",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "fetchData",
+        "code": "export const fetchData = async <T>(url: string): Promise<T> => {\n  const response = await fetch(url);\n  if (!response.ok) {\n    throw new Error(`HTTP error! Status: ${response.status}",
+        "type": "function"
+      },
+      {
+        "title": "postData",
+        "code": "export const postData = async <T>(url: string, data: any): Promise<T> => {\n  const response = await fetch(url, {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(data),\n  });\n  \n  if (!response.ok) {\n    throw new Error(`HTTP error! Status: ${response.status}",
+        "type": "function"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/direct-imports/direct-imports.test.ts",
+    "relativePath": "direct-imports/direct-imports.test.ts",
+    "fileName": "direct-imports.test.ts",
+    "dirName": "direct-imports",
+    "content": "/**\n * This test file demonstrates how to mock direct module imports in Vitest\n * with TypeScript, focusing on avoiding hoisting-related errors.\n */\n\nimport { vi, MockedFunction } from 'vitest';\n\nvi.mock('./api');\n\nimport { describe, it, expect, beforeEach, afterEach } from 'vitest';\nimport userService, { getUser, createUser, getUserWithDefaultApi } from './user-service';\nimport type { User } from './user-service';\n\nimport { fetchData, postData } from './api';\nconst mockFetchData = fetchData as MockedFunction<typeof fetchData>;\nconst mockPostData = postData as MockedFunction<typeof postData>;\n\ndescribe('Direct Module Import Mocking', () => {\n  const mockUser: User = {\n    id: 1,\n    name: 'Test User',\n    email: 'test@example.com',\n  };\n\n  beforeEach(() => {\n    mockFetchData.mockReset();\n    mockPostData.mockReset();\n    \n    mockFetchData.mockResolvedValue(mockUser);\n    mockPostData.mockResolvedValue({ ...mockUser, id: 2 });\n  });\n\n  afterEach(() => {\n    vi.clearAllMocks();\n  });\n\n  it('should mock named import fetchData function', async () => {\n    const result = await getUser(1);\n    \n    expect(mockFetchData).toHaveBeenCalledTimes(1);\n    expect(mockFetchData).toHaveBeenCalledWith('https://api.example.com/users/1');\n    expect(result).toEqual(mockUser);\n  });\n\n  it('should mock named import postData function', async () => {\n    const newUser = { name: 'New User', email: 'new@example.com' };\n    \n    const result = await createUser(newUser);\n    \n    expect(mockPostData).toHaveBeenCalledTimes(1);\n    expect(mockPostData).toHaveBeenCalledWith('https://api.example.com/users', newUser);\n    expect(result).toEqual({ ...mockUser, id: 2 });\n  });\n\n  it('should mock default import api.fetchData function', async () => {\n    const result = await getUserWithDefaultApi(1);\n    \n    expect(mockFetchData).toHaveBeenCalledTimes(1);\n    expect(mockFetchData).toHaveBeenCalledWith('https://api.example.com/users/1');\n    expect(result).toEqual(mockUser);\n  });\n\n  it('should allow changing mock implementation for specific tests', async () => {\n    const customUser = { ...mockUser, name: 'Custom User' };\n    mockFetchData.mockResolvedValueOnce(customUser);\n    \n    const result = await getUser(1);\n    \n    expect(result).toEqual(customUser);\n    expect(mockFetchData).toHaveBeenCalledTimes(1);\n  });\n\n  it('should allow spying on mock calls across multiple tests', async () => {\n    await userService.getUser(1);\n    await userService.getUserWithDefaultApi(2);\n    \n    expect(mockFetchData).toHaveBeenCalledTimes(2);\n    expect(mockFetchData.mock.calls).toEqual([\n      ['https://api.example.com/users/1'],\n      ['https://api.example.com/users/2']\n    ]);\n  });\n});\n",
+    "description": "This test file demonstrates how to mock direct module imports in Vitest with TypeScript, focusing on avoiding hoisting-related errors.",
+    "isTestFile": true,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "should mock named import fetchData function",
+        "code": "it('should mock named import fetchData function', async () => {\n    const result = await getUser(1);\n    \n    expect(mockFetchData).toHaveBeenCalledTimes(1);\n    expect(mockFetchData).toHaveBeenCalledWith('https://api.example.com/users/1');\n    expect(result).toEqual(mockUser);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should mock named import postData function",
+        "code": "it('should mock named import postData function', async () => {\n    const newUser = { name: 'New User', email: 'new@example.com' };\n    \n    const result = await createUser(newUser);\n    \n    expect(mockPostData).toHaveBeenCalledTimes(1);\n    expect(mockPostData).toHaveBeenCalledWith('https://api.example.com/users', newUser);\n    expect(result).toEqual({ ...mockUser, id: 2 })",
+        "type": "test-case"
+      },
+      {
+        "title": "should mock default import api.fetchData function",
+        "code": "it('should mock default import api.fetchData function', async () => {\n    const result = await getUserWithDefaultApi(1);\n    \n    expect(mockFetchData).toHaveBeenCalledTimes(1);\n    expect(mockFetchData).toHaveBeenCalledWith('https://api.example.com/users/1');\n    expect(result).toEqual(mockUser);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should allow changing mock implementation for specific tests",
+        "code": "it('should allow changing mock implementation for specific tests', async () => {\n    const customUser = { ...mockUser, name: 'Custom User' };\n    mockFetchData.mockResolvedValueOnce(customUser);\n    \n    const result = await getUser(1);\n    \n    expect(result).toEqual(customUser);\n    expect(mockFetchData).toHaveBeenCalledTimes(1);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should allow spying on mock calls across multiple tests",
+        "code": "it('should allow spying on mock calls across multiple tests', async () => {\n    await userService.getUser(1);\n    await userService.getUserWithDefaultApi(2);\n    \n    expect(mockFetchData).toHaveBeenCalledTimes(2);\n    expect(mockFetchData.mock.calls).toEqual([\n      ['https://api.example.com/users/1'],\n      ['https://api.example.com/users/2']\n    ]);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "Direct Module Import Mocking",
+        "code": "describe('Direct Module Import Mocking', () => {\n  const mockUser: User = {\n    id: 1,\n    name: 'Test User',\n    email: 'test@example.com',\n  };\n\n  beforeEach(() => {\n    mockFetchData.mockReset();\n    mockPostData.mockReset();\n    \n    mockFetchData.mockResolvedValue(mockUser);\n    mockPostData.mockResolvedValue({ ...mockUser, id: 2 })",
+        "type": "describe-block"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/direct-imports/user-service.ts",
+    "relativePath": "direct-imports/user-service.ts",
+    "fileName": "user-service.ts",
+    "dirName": "direct-imports",
+    "content": "/**\n * Example service that uses the API module\n */\nimport api, { fetchData, postData } from './api';\n\nexport interface User {\n  id: number;\n  name: string;\n  email: string;\n}\n\nexport const getUser = async (id: number): Promise<User> => {\n  return fetchData<User>(`https://api.example.com/users/${id}`);\n};\n\nexport const createUser = async (userData: Omit<User, 'id'>): Promise<User> => {\n  return postData<User>('https://api.example.com/users', userData);\n};\n\nexport const getUserWithDefaultApi = async (id: number): Promise<User> => {\n  return api.fetchData<User>(`https://api.example.com/users/${id}`);\n};\n\nexport default {\n  getUser,\n  createUser,\n  getUserWithDefaultApi,\n};\n",
+    "description": "Example service that uses the API module",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "User",
+        "code": "export interface User {\n  id: number;\n  name: string;\n  email: string;\n}",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/indirect-dependencies/database.ts",
+    "relativePath": "indirect-dependencies/database.ts",
+    "fileName": "database.ts",
+    "dirName": "indirect-dependencies",
+    "content": "/**\n * Example database module that will be indirectly mocked\n */\nexport interface DatabaseConfig {\n  host: string;\n  port: number;\n  username: string;\n  password: string;\n}\n\nexport class Database {\n  private config: DatabaseConfig;\n  private isConnected: boolean = false;\n\n  constructor(config: DatabaseConfig) {\n    this.config = config;\n  }\n\n  async connect(): Promise<void> {\n    console.log(`Connecting to database at ${this.config.host}:${this.config.port}`);\n    await new Promise(resolve => setTimeout(resolve, 100));\n    this.isConnected = true;\n    console.log('Database connected successfully');\n  }\n\n  async query<T>(sql: string, params: any[] = []): Promise<T[]> {\n    if (!this.isConnected) {\n      throw new Error('Database not connected');\n    }\n    \n    console.log(`Executing query: ${sql}`);\n    console.log(`With params: ${JSON.stringify(params)}`);\n    \n    await new Promise(resolve => setTimeout(resolve, 50));\n    \n    return [] as T[];\n  }\n\n  async disconnect(): Promise<void> {\n    if (!this.isConnected) {\n      return;\n    }\n    \n    console.log('Disconnecting from database');\n    await new Promise(resolve => setTimeout(resolve, 50));\n    this.isConnected = false;\n    console.log('Database disconnected successfully');\n  }\n}\n\nexport default Database;\n",
+    "description": "Example database module that will be indirectly mocked",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "DatabaseConfig",
+        "code": "export interface DatabaseConfig {\n  host: string;\n  port: number;\n  username: string;\n  password: string;\n}",
+        "type": "class"
+      },
+      {
+        "title": "Database",
+        "code": "export class Database {\n  private config: DatabaseConfig;\n  private isConnected: boolean = false;\n\n  constructor(config: DatabaseConfig) {\n    this.config = config;\n  }",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/indirect-dependencies/db-client.ts",
+    "relativePath": "indirect-dependencies/db-client.ts",
+    "fileName": "db-client.ts",
+    "dirName": "indirect-dependencies",
+    "content": "/**\n * Database client that uses the Database class\n */\nimport Database, { DatabaseConfig } from './database';\n\nexport class DbClient {\n  private db: Database;\n  \n  constructor(config: DatabaseConfig) {\n    this.db = new Database(config);\n  }\n  \n  async initialize(): Promise<void> {\n    await this.db.connect();\n  }\n  \n  async findUsers(searchTerm: string): Promise<any[]> {\n    const query = 'SELECT * FROM users WHERE name LIKE ?';\n    return this.db.query(query, [`%${searchTerm}%`]);\n  }\n  \n  async close(): Promise<void> {\n    await this.db.disconnect();\n  }\n}\n\nexport default DbClient;\n",
+    "description": "Database client that uses the Database class",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "DbClient",
+        "code": "export class DbClient {\n  private db: Database;\n  \n  constructor(config: DatabaseConfig) {\n    this.db = new Database(config);\n  }",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/indirect-dependencies/indirect-dependencies.test.ts",
+    "relativePath": "indirect-dependencies/indirect-dependencies.test.ts",
+    "fileName": "indirect-dependencies.test.ts",
+    "dirName": "indirect-dependencies",
+    "content": "/**\n * This test file demonstrates how to mock indirect module dependencies in Vitest\n * with TypeScript, focusing on avoiding hoisting-related errors.\n */\nimport { describe, it, expect, vi, beforeEach } from 'vitest';\nimport { UserRepository } from './user-repository';\nimport DbClient from './db-client';\nimport Database from './database';\n\nconst mockQuery = vi.fn();\nconst mockConnect = vi.fn();\nconst mockDisconnect = vi.fn();\n\nvi.mock('./database', () => {\n  const MockDatabase = vi.fn().mockImplementation(() => {\n    return {\n      connect: mockConnect,\n      query: mockQuery,\n      disconnect: mockDisconnect\n    };\n  });\n  \n  return {\n    default: MockDatabase,\n    Database: MockDatabase\n  };\n});\n\ndescribe('Indirect Module Dependencies Mocking', () => {\n  const mockUsers = [\n    { id: 1, name: 'John Doe', email: 'john@example.com' },\n    { id: 2, name: 'Jane Doe', email: 'jane@example.com' }\n  ];\n  \n  let dbClient: DbClient;\n  let userRepository: UserRepository;\n  \n  beforeEach(() => {\n    vi.clearAllMocks();\n    \n    mockConnect.mockResolvedValue(undefined);\n    mockQuery.mockResolvedValue(mockUsers);\n    mockDisconnect.mockResolvedValue(undefined);\n    \n    dbClient = new DbClient({\n      host: 'localhost',\n      port: 5432,\n      username: 'test',\n      password: 'test'\n    });\n    \n    userRepository = new UserRepository(dbClient);\n  });\n  \n  it('should mock the Database class used by DbClient', async () => {\n    const users = await userRepository.findUsersByName('Doe');\n    \n    expect(mockConnect).toHaveBeenCalledTimes(1);\n    expect(mockQuery).toHaveBeenCalledTimes(1);\n    expect(mockQuery).toHaveBeenCalledWith('SELECT * FROM users WHERE name LIKE ?', ['%Doe%']);\n    expect(users).toEqual(mockUsers);\n  });\n  \n  it('should allow changing mock implementation for specific tests', async () => {\n    const customUsers = [{ id: 3, name: 'Custom User', email: 'custom@example.com' }];\n    mockQuery.mockResolvedValueOnce(customUsers);\n    \n    const users = await userRepository.findUsersByName('Custom');\n    \n    expect(mockConnect).toHaveBeenCalledTimes(1);\n    expect(mockQuery).toHaveBeenCalledTimes(1);\n    expect(users).toEqual(customUsers);\n  });\n  \n  it('should handle mock errors correctly', async () => {\n    const error = new Error('Database query failed');\n    mockQuery.mockRejectedValueOnce(error);\n    \n    await expect(userRepository.findUsersByName('Error')).rejects.toThrow('Database query failed');\n    expect(mockConnect).toHaveBeenCalledTimes(1);\n    expect(mockQuery).toHaveBeenCalledTimes(1);\n  });\n  \n  it('should verify the order of function calls', async () => {\n    await userRepository.findUsersByName('Doe');\n    \n    expect(mockConnect.mock.invocationCallOrder[0]).toBeLessThan(mockQuery.mock.invocationCallOrder[0]);\n  });\n});\n",
+    "description": "This test file demonstrates how to mock indirect module dependencies in Vitest with TypeScript, focusing on avoiding hoisting-related errors.",
+    "isTestFile": true,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "should mock the Database class used by DbClient",
+        "code": "it('should mock the Database class used by DbClient', async () => {\n    const users = await userRepository.findUsersByName('Doe');\n    \n    expect(mockConnect).toHaveBeenCalledTimes(1);\n    expect(mockQuery).toHaveBeenCalledTimes(1);\n    expect(mockQuery).toHaveBeenCalledWith('SELECT * FROM users WHERE name LIKE ?', ['%Doe%']);\n    expect(users).toEqual(mockUsers);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should allow changing mock implementation for specific tests",
+        "code": "it('should allow changing mock implementation for specific tests', async () => {\n    const customUsers = [{ id: 3, name: 'Custom User', email: 'custom@example.com' }];\n    mockQuery.mockResolvedValueOnce(customUsers);\n    \n    const users = await userRepository.findUsersByName('Custom');\n    \n    expect(mockConnect).toHaveBeenCalledTimes(1);\n    expect(mockQuery).toHaveBeenCalledTimes(1);\n    expect(users).toEqual(customUsers);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should handle mock errors correctly",
+        "code": "it('should handle mock errors correctly', async () => {\n    const error = new Error('Database query failed');\n    mockQuery.mockRejectedValueOnce(error);\n    \n    await expect(userRepository.findUsersByName('Error')).rejects.toThrow('Database query failed');\n    expect(mockConnect).toHaveBeenCalledTimes(1);\n    expect(mockQuery).toHaveBeenCalledTimes(1);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should verify the order of function calls",
+        "code": "it('should verify the order of function calls', async () => {\n    await userRepository.findUsersByName('Doe');\n    \n    expect(mockConnect.mock.invocationCallOrder[0]).toBeLessThan(mockQuery.mock.invocationCallOrder[0]);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "Indirect Module Dependencies Mocking",
+        "code": "describe('Indirect Module Dependencies Mocking', () => {\n  const mockUsers = [\n    { id: 1, name: 'John Doe', email: 'john@example.com' },\n    { id: 2, name: 'Jane Doe', email: 'jane@example.com' }\n  ];\n  \n  let dbClient: DbClient;\n  let userRepository: UserRepository;\n  \n  beforeEach(() => {\n    vi.clearAllMocks();\n    \n    mockConnect.mockResolvedValue(undefined);\n    mockQuery.mockResolvedValue(mockUsers);\n    mockDisconnect.mockResolvedValue(undefined);\n    \n    dbClient = new DbClient({\n      host: 'localhost',\n      port: 5432,\n      username: 'test',\n      password: 'test'\n    })",
+        "type": "describe-block"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/indirect-dependencies/user-repository.ts",
+    "relativePath": "indirect-dependencies/user-repository.ts",
+    "fileName": "user-repository.ts",
+    "dirName": "indirect-dependencies",
+    "content": "/**\n * User repository that uses the DbClient\n */\nimport DbClient from './db-client';\n\nexport interface User {\n  id: number;\n  name: string;\n  email: string;\n}\n\nexport class UserRepository {\n  private dbClient: DbClient;\n  \n  constructor(dbClient: DbClient) {\n    this.dbClient = dbClient;\n  }\n  \n  async findUsersByName(name: string): Promise<User[]> {\n    await this.dbClient.initialize();\n    const users = await this.dbClient.findUsers(name);\n    return users as User[];\n  }\n}\n\nexport default UserRepository;\n",
+    "description": "User repository that uses the DbClient",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "User",
+        "code": "export interface User {\n  id: number;\n  name: string;\n  email: string;\n}",
+        "type": "class"
+      },
+      {
+        "title": "UserRepository",
+        "code": "export class UserRepository {\n  private dbClient: DbClient;\n  \n  constructor(dbClient: DbClient) {\n    this.dbClient = dbClient;\n  }",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/lazy-loaded-components/__mocks__/LazyComponent.tsx",
+    "relativePath": "lazy-loaded-components/__mocks__/LazyComponent.tsx",
+    "fileName": "LazyComponent.tsx",
+    "dirName": "__mocks__",
+    "content": "/**\n * Mock implementation of the LazyComponent\n */\nimport React from 'react';\nimport { vi } from 'vitest';\n\nconst MockLazyComponent = vi.fn().mockImplementation(({ title, onAction }) => (\n  <div data-testid=\"mock-lazy-component\">\n    <h2>{title}</h2>\n    <button onClick={onAction}>Mocked Button</button>\n  </div>\n));\n\nexport default MockLazyComponent;\n",
+    "description": "Mock implementation of the LazyComponent",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "LazyComponent.tsx",
+        "code": "/**\n * Mock implementation of the LazyComponent\n */\nimport React from 'react';\nimport { vi } from 'vitest';\n\nconst MockLazyComponent = vi.fn().mockImplementation(({ title, onAction }) => (\n  <div data-testid=\"mock-lazy-component\">\n    <h2>{title}</h2>\n    <button onClick={onAction}>Mocked Button</button>\n  </div>\n));\n\nexport default MockLazyComponent;\n",
+        "type": "file"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/react-specific/context/ThemeContext.tsx",
+    "relativePath": "react-specific/context/ThemeContext.tsx",
+    "fileName": "ThemeContext.tsx",
+    "dirName": "context",
+    "content": "/**\n * Example context provider for theme management\n */\nimport React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';\n\nexport type ThemeMode = 'light' | 'dark' | 'system';\n\nexport interface ThemeContextType {\n  mode: ThemeMode;\n  isDark: boolean;\n  setMode: (mode: ThemeMode) => void;\n  toggleTheme: () => void;\n}\n\nexport const ThemeContext = createContext<ThemeContextType | undefined>(undefined);\n\nexport const useTheme = (): ThemeContextType => {\n  const context = useContext(ThemeContext);\n  if (!context) {\n    throw new Error('useTheme must be used within a ThemeProvider');\n  }\n  return context;\n};\n\ninterface ThemeProviderProps {\n  children: ReactNode;\n  initialMode?: ThemeMode;\n  systemIsDark?: boolean;\n}\n\nexport const ThemeProvider: React.FC<ThemeProviderProps> = ({\n  children,\n  initialMode = 'system',\n  systemIsDark = false\n}) => {\n  const [mode, setMode] = useState<ThemeMode>(initialMode);\n  \n  const isDark = mode === 'dark' || (mode === 'system' && systemIsDark);\n  \n  const toggleTheme = useCallback(() => {\n    setMode(prevMode => {\n      if (prevMode === 'light') return 'dark';\n      if (prevMode === 'dark') return 'light';\n      return systemIsDark ? 'light' : 'dark';\n    });\n  }, [systemIsDark]);\n  \n  const value = {\n    mode,\n    isDark,\n    setMode,\n    toggleTheme\n  };\n  \n  return (\n    <ThemeContext.Provider value={value}>\n      {children}\n    </ThemeContext.Provider>\n  );\n};\n\nexport default ThemeProvider;\n",
+    "description": "Example context provider for theme management",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "ThemeContext",
+        "code": "export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);\n\nexport const useTheme = (): ThemeContextType => {\n  const context = useContext(ThemeContext);\n  if (!context) {\n    throw new Error('useTheme must be used within a ThemeProvider');",
+        "type": "function"
+      },
+      {
+        "title": "ThemeMode",
+        "code": "export type ThemeMode = 'light' | 'dark' | 'system';\n\nexport interface ThemeContextType {\n  mode: ThemeMode;\n  isDark: boolean;\n  setMode: (mode: ThemeMode) => void;\n  toggleTheme: () => void;\n}",
+        "type": "class"
+      },
+      {
+        "title": "ThemeProviderProps",
+        "code": "interface ThemeProviderProps {\n  children: ReactNode;\n  initialMode?: ThemeMode;\n  systemIsDark?: boolean;\n}",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/react-specific/context/ThemedComponent.tsx",
+    "relativePath": "react-specific/context/ThemedComponent.tsx",
+    "fileName": "ThemedComponent.tsx",
+    "dirName": "context",
+    "content": "/**\n * Example component that uses the theme context\n */\nimport React from 'react';\nimport { useTheme } from './ThemeContext';\n\ninterface ButtonProps {\n  onClick?: () => void;\n  children: React.ReactNode;\n}\n\nexport const ThemedButton: React.FC<ButtonProps> = ({ onClick, children }) => {\n  const { isDark, toggleTheme } = useTheme();\n  \n  const buttonStyle = {\n    backgroundColor: isDark ? '#333' : '#f0f0f0',\n    color: isDark ? '#fff' : '#000',\n    padding: '10px 15px',\n    border: 'none',\n    borderRadius: '4px',\n    cursor: 'pointer'\n  };\n  \n  return (\n    <button \n      style={buttonStyle} \n      onClick={onClick || toggleTheme}\n      data-testid=\"themed-button\"\n    >\n      {children}\n    </button>\n  );\n};\n\nexport const ThemedPage: React.FC = () => {\n  const { mode, isDark, setMode } = useTheme();\n  \n  const containerStyle = {\n    backgroundColor: isDark ? '#222' : '#fff',\n    color: isDark ? '#fff' : '#000',\n    padding: '20px',\n    minHeight: '200px',\n    borderRadius: '8px'\n  };\n  \n  return (\n    <div style={containerStyle} data-testid=\"themed-page\">\n      <h1>Themed Page</h1>\n      <p>Current theme: {mode}</p>\n      \n      <div>\n        <button \n          onClick={() => setMode('light')}\n          data-testid=\"light-mode-button\"\n          style={{ marginRight: '10px' }}\n        >\n          Light Mode\n        </button>\n        <button \n          onClick={() => setMode('dark')}\n          data-testid=\"dark-mode-button\"\n          style={{ marginRight: '10px' }}\n        >\n          Dark Mode\n        </button>\n        <button \n          onClick={() => setMode('system')}\n          data-testid=\"system-mode-button\"\n        >\n          System Mode\n        </button>\n      </div>\n      \n      <div style={{ marginTop: '20px' }}>\n        <ThemedButton>Toggle Theme</ThemedButton>\n      </div>\n    </div>\n  );\n};\n\nexport default ThemedPage;\n",
+    "description": "Example component that uses the theme context",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "ButtonProps",
+        "code": "interface ButtonProps {\n  onClick?: () => void;\n  children: React.ReactNode;\n}",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/react-specific/context/context.test.tsx",
+    "relativePath": "react-specific/context/context.test.tsx",
+    "fileName": "context.test.tsx",
+    "dirName": "context",
+    "content": "/**\n * This test file demonstrates how to test React components that use Context\n * with Vitest and Testing Library, focusing on mocking context providers.\n */\nimport { describe, it, expect, vi, beforeEach } from 'vitest';\nimport React from 'react';\nimport { render, screen, fireEvent } from '@testing-library/react';\nimport '@testing-library/jest-dom';\nimport { ThemeContext, ThemeProvider, ThemeContextType, ThemeMode } from './ThemeContext';\nimport { ThemedButton, ThemedPage } from './ThemedComponent';\n\ndescribe('React Context Testing', () => {\n  describe('Testing Components with Actual Context Provider', () => {\n    it('should render ThemedPage with default light theme', () => {\n      render(\n        <ThemeProvider initialMode=\"light\">\n          <ThemedPage />\n        </ThemeProvider>\n      );\n      \n      expect(screen.getByTestId('themed-page')).toBeInTheDocument();\n      expect(screen.getByText('Current theme: light')).toBeInTheDocument();\n    });\n    \n    it('should toggle theme when ThemedButton is clicked', () => {\n      render(\n        <ThemeProvider initialMode=\"light\">\n          <ThemedButton>Toggle Theme</ThemedButton>\n        </ThemeProvider>\n      );\n      \n      const button = screen.getByTestId('themed-button');\n      \n      expect(button).toHaveStyle('background-color: #f0f0f0');\n      expect(button).toHaveStyle('color: #000');\n      \n      fireEvent.click(button);\n      \n      expect(button).toHaveStyle('background-color: #333');\n      expect(button).toHaveStyle('color: #fff');\n    });\n    \n    it('should change theme when mode buttons are clicked', () => {\n      render(\n        <ThemeProvider initialMode=\"light\">\n          <ThemedPage />\n        </ThemeProvider>\n      );\n      \n      const page = screen.getByTestId('themed-page');\n      \n      expect(page).toHaveStyle('background-color: #fff');\n      expect(page).toHaveStyle('color: #000');\n      \n      fireEvent.click(screen.getByTestId('dark-mode-button'));\n      \n      expect(page).toHaveStyle('background-color: #222');\n      expect(page).toHaveStyle('color: #fff');\n      expect(screen.getByText('Current theme: dark')).toBeInTheDocument();\n      \n      fireEvent.click(screen.getByTestId('light-mode-button'));\n      \n      expect(page).toHaveStyle('background-color: #fff');\n      expect(page).toHaveStyle('color: #000');\n      expect(screen.getByText('Current theme: light')).toBeInTheDocument();\n    });\n  });\n  \n  describe('Testing Components with Mocked Context', () => {\n    const mockToggleTheme = vi.fn();\n    const mockSetMode = vi.fn();\n    \n    const lightThemeContext: ThemeContextType = {\n      mode: 'light',\n      isDark: false,\n      setMode: mockSetMode,\n      toggleTheme: mockToggleTheme\n    };\n    \n    const darkThemeContext: ThemeContextType = {\n      mode: 'dark',\n      isDark: true,\n      setMode: mockSetMode,\n      toggleTheme: mockToggleTheme\n    };\n    \n    beforeEach(() => {\n      vi.clearAllMocks();\n    });\n    \n    it('should render ThemedButton with mocked light theme context', () => {\n      render(\n        <ThemeContext.Provider value={lightThemeContext}>\n          <ThemedButton>Test Button</ThemedButton>\n        </ThemeContext.Provider>\n      );\n      \n      const button = screen.getByTestId('themed-button');\n      \n      expect(button).toHaveStyle('background-color: #f0f0f0');\n      expect(button).toHaveStyle('color: #000');\n      expect(button).toHaveTextContent('Test Button');\n    });\n    \n    it('should render ThemedButton with mocked dark theme context', () => {\n      render(\n        <ThemeContext.Provider value={darkThemeContext}>\n          <ThemedButton>Test Button</ThemedButton>\n        </ThemeContext.Provider>\n      );\n      \n      const button = screen.getByTestId('themed-button');\n      \n      expect(button).toHaveStyle('background-color: #333');\n      expect(button).toHaveStyle('color: #fff');\n    });\n    \n    it('should call toggleTheme when ThemedButton is clicked', () => {\n      render(\n        <ThemeContext.Provider value={lightThemeContext}>\n          <ThemedButton>Toggle Theme</ThemedButton>\n        </ThemeContext.Provider>\n      );\n      \n      fireEvent.click(screen.getByTestId('themed-button'));\n      \n      expect(mockToggleTheme).toHaveBeenCalledTimes(1);\n    });\n    \n    it('should render ThemedPage with mocked context', () => {\n      render(\n        <ThemeContext.Provider value={darkThemeContext}>\n          <ThemedPage />\n        </ThemeContext.Provider>\n      );\n      \n      expect(screen.getByText('Current theme: dark')).toBeInTheDocument();\n      expect(screen.getByTestId('themed-page')).toHaveStyle('background-color: #222');\n    });\n    \n    it('should call setMode with correct arguments when mode buttons are clicked', () => {\n      render(\n        <ThemeContext.Provider value={lightThemeContext}>\n          <ThemedPage />\n        </ThemeContext.Provider>\n      );\n      \n      fireEvent.click(screen.getByTestId('dark-mode-button'));\n      expect(mockSetMode).toHaveBeenCalledWith('dark');\n      \n      fireEvent.click(screen.getByTestId('light-mode-button'));\n      expect(mockSetMode).toHaveBeenCalledWith('light');\n      \n      fireEvent.click(screen.getByTestId('system-mode-button'));\n      expect(mockSetMode).toHaveBeenCalledWith('system');\n    });\n  });\n  \n  describe('Testing Context Hook Directly', () => {\n    it('should throw error when useTheme is used outside of ThemeProvider', () => {\n      const consoleErrorMock = vi.spyOn(console, 'error');\n      consoleErrorMock.mockImplementation(() => {});\n      \n      expect(true).toBe(true);\n      \n      consoleErrorMock.mockRestore();\n    });\n  });\n});\n",
+    "description": "This test file demonstrates how to test React components that use Context with Vitest and Testing Library, focusing on mocking context providers.",
+    "isTestFile": true,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "should render ThemedPage with default light theme",
+        "code": "it('should render ThemedPage with default light theme', () => {\n      render(\n        <ThemeProvider initialMode=\"light\">\n          <ThemedPage />\n        </ThemeProvider>\n      );\n      \n      expect(screen.getByTestId('themed-page')).toBeInTheDocument();\n      expect(screen.getByText('Current theme: light')).toBeInTheDocument();\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should toggle theme when ThemedButton is clicked",
+        "code": "it('should toggle theme when ThemedButton is clicked', () => {\n      render(\n        <ThemeProvider initialMode=\"light\">\n          <ThemedButton>Toggle Theme</ThemedButton>\n        </ThemeProvider>\n      );\n      \n      const button = screen.getByTestId('themed-button');\n      \n      expect(button).toHaveStyle('background-color: #f0f0f0');\n      expect(button).toHaveStyle('color: #000');\n      \n      fireEvent.click(button);\n      \n      expect(button).toHaveStyle('background-color: #333');\n      expect(button).toHaveStyle('color: #fff');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should change theme when mode buttons are clicked",
+        "code": "it('should change theme when mode buttons are clicked', () => {\n      render(\n        <ThemeProvider initialMode=\"light\">\n          <ThemedPage />\n        </ThemeProvider>\n      );\n      \n      const page = screen.getByTestId('themed-page');\n      \n      expect(page).toHaveStyle('background-color: #fff');\n      expect(page).toHaveStyle('color: #000');\n      \n      fireEvent.click(screen.getByTestId('dark-mode-button'));\n      \n      expect(page).toHaveStyle('background-color: #222');\n      expect(page).toHaveStyle('color: #fff');\n      expect(screen.getByText('Current theme: dark')).toBeInTheDocument();\n      \n      fireEvent.click(screen.getByTestId('light-mode-button'));\n      \n      expect(page).toHaveStyle('background-color: #fff');\n      expect(page).toHaveStyle('color: #000');\n      expect(screen.getByText('Current theme: light')).toBeInTheDocument();\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should render ThemedButton with mocked light theme context",
+        "code": "it('should render ThemedButton with mocked light theme context', () => {\n      render(\n        <ThemeContext.Provider value={lightThemeContext}>\n          <ThemedButton>Test Button</ThemedButton>\n        </ThemeContext.Provider>\n      );\n      \n      const button = screen.getByTestId('themed-button');\n      \n      expect(button).toHaveStyle('background-color: #f0f0f0');\n      expect(button).toHaveStyle('color: #000');\n      expect(button).toHaveTextContent('Test Button');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should render ThemedButton with mocked dark theme context",
+        "code": "it('should render ThemedButton with mocked dark theme context', () => {\n      render(\n        <ThemeContext.Provider value={darkThemeContext}>\n          <ThemedButton>Test Button</ThemedButton>\n        </ThemeContext.Provider>\n      );\n      \n      const button = screen.getByTestId('themed-button');\n      \n      expect(button).toHaveStyle('background-color: #333');\n      expect(button).toHaveStyle('color: #fff');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should call toggleTheme when ThemedButton is clicked",
+        "code": "it('should call toggleTheme when ThemedButton is clicked', () => {\n      render(\n        <ThemeContext.Provider value={lightThemeContext}>\n          <ThemedButton>Toggle Theme</ThemedButton>\n        </ThemeContext.Provider>\n      );\n      \n      fireEvent.click(screen.getByTestId('themed-button'));\n      \n      expect(mockToggleTheme).toHaveBeenCalledTimes(1);\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should render ThemedPage with mocked context",
+        "code": "it('should render ThemedPage with mocked context', () => {\n      render(\n        <ThemeContext.Provider value={darkThemeContext}>\n          <ThemedPage />\n        </ThemeContext.Provider>\n      );\n      \n      expect(screen.getByText('Current theme: dark')).toBeInTheDocument();\n      expect(screen.getByTestId('themed-page')).toHaveStyle('background-color: #222');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should call setMode with correct arguments when mode buttons are clicked",
+        "code": "it('should call setMode with correct arguments when mode buttons are clicked', () => {\n      render(\n        <ThemeContext.Provider value={lightThemeContext}>\n          <ThemedPage />\n        </ThemeContext.Provider>\n      );\n      \n      fireEvent.click(screen.getByTestId('dark-mode-button'));\n      expect(mockSetMode).toHaveBeenCalledWith('dark');\n      \n      fireEvent.click(screen.getByTestId('light-mode-button'));\n      expect(mockSetMode).toHaveBeenCalledWith('light');\n      \n      fireEvent.click(screen.getByTestId('system-mode-button'));\n      expect(mockSetMode).toHaveBeenCalledWith('system');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should throw error when useTheme is used outside of ThemeProvider",
+        "code": "it('should throw error when useTheme is used outside of ThemeProvider', () => {\n      const consoleErrorMock = vi.spyOn(console, 'error');\n      consoleErrorMock.mockImplementation(() => {})",
+        "type": "test-case"
+      },
+      {
+        "title": "React Context Testing",
+        "code": "describe('React Context Testing', () => {\n  describe('Testing Components with Actual Context Provider', () => {\n    it('should render ThemedPage with default light theme', () => {\n      render(\n        <ThemeProvider initialMode=\"light\">\n          <ThemedPage />\n        </ThemeProvider>\n      );\n      \n      expect(screen.getByTestId('themed-page')).toBeInTheDocument();\n      expect(screen.getByText('Current theme: light')).toBeInTheDocument();\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Components with Mocked Context",
+        "code": "describe('Testing Components with Mocked Context', () => {\n    const mockToggleTheme = vi.fn();\n    const mockSetMode = vi.fn();\n    \n    const lightThemeContext: ThemeContextType = {\n      mode: 'light',\n      isDark: false,\n      setMode: mockSetMode,\n      toggleTheme: mockToggleTheme\n    };\n    \n    const darkThemeContext: ThemeContextType = {\n      mode: 'dark',\n      isDark: true,\n      setMode: mockSetMode,\n      toggleTheme: mockToggleTheme\n    };\n    \n    beforeEach(() => {\n      vi.clearAllMocks();\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Context Hook Directly",
+        "code": "describe('Testing Context Hook Directly', () => {\n    it('should throw error when useTheme is used outside of ThemeProvider', () => {\n      const consoleErrorMock = vi.spyOn(console, 'error');\n      consoleErrorMock.mockImplementation(() => {})",
+        "type": "describe-block"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/react-specific/hooks/useCounter.test.ts",
+    "relativePath": "react-specific/hooks/useCounter.test.ts",
+    "fileName": "useCounter.test.ts",
+    "dirName": "hooks",
+    "content": "/**\n * This test file demonstrates how to test custom React hooks in Vitest\n * with TypeScript, focusing on testing hook behavior and state changes.\n */\nimport { describe, it, expect, vi, beforeEach } from 'vitest';\nimport { renderHook, act } from '@testing-library/react';\nimport { useCounter, UseCounterOptions } from './useCounter';\n\ndescribe('useCounter Hook', () => {\n  describe('Basic Functionality', () => {\n    it('should initialize with default values', () => {\n      const { result } = renderHook(() => useCounter());\n      \n      expect(result.current.count).toBe(0);\n    });\n    \n    it('should initialize with provided initial value', () => {\n      const { result } = renderHook(() => useCounter({ initialValue: 10 }));\n      \n      expect(result.current.count).toBe(10);\n    });\n    \n    it('should increment the counter', () => {\n      const { result } = renderHook(() => useCounter());\n      \n      act(() => {\n        result.current.increment();\n      });\n      \n      expect(result.current.count).toBe(1);\n    });\n    \n    it('should decrement the counter', () => {\n      const { result } = renderHook(() => useCounter({ initialValue: 5 }));\n      \n      act(() => {\n        result.current.decrement();\n      });\n      \n      expect(result.current.count).toBe(4);\n    });\n    \n    it('should reset the counter to initial value', () => {\n      const { result } = renderHook(() => useCounter({ initialValue: 5 }));\n      \n      act(() => {\n        result.current.increment();\n        result.current.increment();\n      });\n      \n      expect(result.current.count).toBe(7);\n      \n      act(() => {\n        result.current.reset();\n      });\n      \n      expect(result.current.count).toBe(5);\n    });\n    \n    it('should set the counter to a specific value', () => {\n      const { result } = renderHook(() => useCounter());\n      \n      act(() => {\n        result.current.setValue(42);\n      });\n      \n      expect(result.current.count).toBe(42);\n    });\n  });\n  \n  describe('Advanced Options', () => {\n    it('should respect the min value', () => {\n      const { result } = renderHook(() => useCounter({ initialValue: 5, min: 0 }));\n      \n      act(() => {\n        result.current.decrement();\n        result.current.decrement();\n        result.current.decrement();\n        result.current.decrement();\n        result.current.decrement();\n      });\n      \n      expect(result.current.count).toBe(0);\n      \n      act(() => {\n        result.current.decrement();\n      });\n      \n      expect(result.current.count).toBe(0);\n    });\n    \n    it('should respect the max value', () => {\n      const { result } = renderHook(() => useCounter({ initialValue: 8, max: 10 }));\n      \n      act(() => {\n        result.current.increment();\n        result.current.increment();\n      });\n      \n      expect(result.current.count).toBe(10);\n      \n      act(() => {\n        result.current.increment();\n      });\n      \n      expect(result.current.count).toBe(10);\n    });\n    \n    it('should use the provided step value', () => {\n      const { result } = renderHook(() => useCounter({ step: 5 }));\n      \n      act(() => {\n        result.current.increment();\n      });\n      \n      expect(result.current.count).toBe(5);\n      \n      act(() => {\n        result.current.decrement();\n      });\n      \n      expect(result.current.count).toBe(0);\n    });\n  });\n  \n  describe('Hook Rerendering', () => {\n    it('should update when options change', () => {\n      const initialProps: UseCounterOptions = { initialValue: 0, step: 1 };\n      const { result, rerender } = renderHook((props) => useCounter(props), {\n        initialProps\n      });\n      \n      expect(result.current.count).toBe(0);\n      \n      act(() => {\n        result.current.increment();\n      });\n      \n      expect(result.current.count).toBe(1);\n      \n      rerender({ initialValue: 0, step: 10 });\n      \n      act(() => {\n        result.current.increment();\n      });\n      \n      expect(result.current.count).toBe(11);\n    });\n    \n    it('should not reset count when rerendered with same initialValue', () => {\n      const { result, rerender } = renderHook((props) => useCounter(props), {\n        initialProps: { initialValue: 5 }\n      });\n      \n      act(() => {\n        result.current.increment();\n      });\n      \n      expect(result.current.count).toBe(6);\n      \n      rerender({ initialValue: 5 });\n      \n      expect(result.current.count).toBe(6);\n    });\n  });\n});\n",
+    "description": "This test file demonstrates how to test custom React hooks in Vitest with TypeScript, focusing on testing hook behavior and state changes.",
+    "isTestFile": true,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "should initialize with default values",
+        "code": "it('should initialize with default values', () => {\n      const { result } = renderHook(() => useCounter());\n      \n      expect(result.current.count).toBe(0);\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should initialize with provided initial value",
+        "code": "it('should initialize with provided initial value', () => {\n      const { result } = renderHook(() => useCounter({ initialValue: 10 })",
+        "type": "test-case"
+      },
+      {
+        "title": "should increment the counter",
+        "code": "it('should increment the counter', () => {\n      const { result } = renderHook(() => useCounter());\n      \n      act(() => {\n        result.current.increment();\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should decrement the counter",
+        "code": "it('should decrement the counter', () => {\n      const { result } = renderHook(() => useCounter({ initialValue: 5 })",
+        "type": "test-case"
+      },
+      {
+        "title": "should reset the counter to initial value",
+        "code": "it('should reset the counter to initial value', () => {\n      const { result } = renderHook(() => useCounter({ initialValue: 5 })",
+        "type": "test-case"
+      },
+      {
+        "title": "should set the counter to a specific value",
+        "code": "it('should set the counter to a specific value', () => {\n      const { result } = renderHook(() => useCounter());\n      \n      act(() => {\n        result.current.setValue(42);\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should respect the min value",
+        "code": "it('should respect the min value', () => {\n      const { result } = renderHook(() => useCounter({ initialValue: 5, min: 0 })",
+        "type": "test-case"
+      },
+      {
+        "title": "should respect the max value",
+        "code": "it('should respect the max value', () => {\n      const { result } = renderHook(() => useCounter({ initialValue: 8, max: 10 })",
+        "type": "test-case"
+      },
+      {
+        "title": "should use the provided step value",
+        "code": "it('should use the provided step value', () => {\n      const { result } = renderHook(() => useCounter({ step: 5 })",
+        "type": "test-case"
+      },
+      {
+        "title": "should update when options change",
+        "code": "it('should update when options change', () => {\n      const initialProps: UseCounterOptions = { initialValue: 0, step: 1 };\n      const { result, rerender } = renderHook((props) => useCounter(props), {\n        initialProps\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should not reset count when rerendered with same initialValue",
+        "code": "it('should not reset count when rerendered with same initialValue', () => {\n      const { result, rerender } = renderHook((props) => useCounter(props), {\n        initialProps: { initialValue: 5 }\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "useCounter Hook",
+        "code": "describe('useCounter Hook', () => {\n  describe('Basic Functionality', () => {\n    it('should initialize with default values', () => {\n      const { result } = renderHook(() => useCounter());\n      \n      expect(result.current.count).toBe(0);\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Advanced Options",
+        "code": "describe('Advanced Options', () => {\n    it('should respect the min value', () => {\n      const { result } = renderHook(() => useCounter({ initialValue: 5, min: 0 })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Hook Rerendering",
+        "code": "describe('Hook Rerendering', () => {\n    it('should update when options change', () => {\n      const initialProps: UseCounterOptions = { initialValue: 0, step: 1 };\n      const { result, rerender } = renderHook((props) => useCounter(props), {\n        initialProps\n      })",
+        "type": "describe-block"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/react-specific/hooks/useCounter.ts",
+    "relativePath": "react-specific/hooks/useCounter.ts",
+    "fileName": "useCounter.ts",
+    "dirName": "hooks",
+    "content": "/**\n * Example custom hook for counter functionality\n */\nimport { useState, useCallback } from 'react';\n\nexport interface UseCounterOptions {\n  initialValue?: number;\n  min?: number;\n  max?: number;\n  step?: number;\n}\n\nexport interface UseCounterReturn {\n  count: number;\n  increment: () => void;\n  decrement: () => void;\n  reset: () => void;\n  setValue: (value: number) => void;\n}\n\nexport const useCounter = (options: UseCounterOptions = {}): UseCounterReturn => {\n  const {\n    initialValue = 0,\n    min = Number.MIN_SAFE_INTEGER,\n    max = Number.MAX_SAFE_INTEGER,\n    step = 1\n  } = options;\n  \n  const [count, setCount] = useState<number>(initialValue);\n  \n  const increment = useCallback(() => {\n    setCount(currentCount => {\n      const newValue = currentCount + step;\n      return newValue <= max ? newValue : currentCount;\n    });\n  }, [max, step]);\n  \n  const decrement = useCallback(() => {\n    setCount(currentCount => {\n      const newValue = currentCount - step;\n      return newValue >= min ? newValue : currentCount;\n    });\n  }, [min, step]);\n  \n  const reset = useCallback(() => {\n    setCount(initialValue);\n  }, [initialValue]);\n  \n  const setValue = useCallback((value: number) => {\n    setCount(value);\n  }, []);\n  \n  return {\n    count,\n    increment,\n    decrement,\n    reset,\n    setValue\n  };\n};\n\nexport default useCounter;\n",
+    "description": "Example custom hook for counter functionality",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "useCounter",
+        "code": "export const useCounter = (options: UseCounterOptions = {}): UseCounterReturn => {\n  const {\n    initialValue = 0,\n    min = Number.MIN_SAFE_INTEGER,\n    max = Number.MAX_SAFE_INTEGER,\n    step = 1\n  } = options;\n  \n  const [count, setCount] = useState<number>(initialValue);\n  \n  const increment = useCallback(() => {\n    setCount(currentCount => {\n      const newValue = currentCount + step;\n      return newValue <= max ? newValue : currentCount;\n    }",
+        "type": "function"
+      },
+      {
+        "title": "UseCounterOptions",
+        "code": "export interface UseCounterOptions {\n  initialValue?: number;\n  min?: number;\n  max?: number;\n  step?: number;\n}",
+        "type": "class"
+      },
+      {
+        "title": "UseCounterReturn",
+        "code": "export interface UseCounterReturn {\n  count: number;\n  increment: () => void;\n  decrement: () => void;\n  reset: () => void;\n  setValue: (value: number) => void;\n}",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/react-specific/hooks/useEffect.test.tsx",
+    "relativePath": "react-specific/hooks/useEffect.test.tsx",
+    "fileName": "useEffect.test.tsx",
+    "dirName": "hooks",
+    "content": "/**\n * This test file demonstrates how to test components with useEffect in Vitest\n * with TypeScript, focusing on mocking dependencies and testing side effects.\n */\nimport { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';\nimport React from 'react';\nimport { render, screen, fireEvent, waitFor } from '@testing-library/react';\nimport '@testing-library/jest-dom';\nimport { UserProfile, api } from './useEffectComponent';\n\ndescribe('UserProfile Component with useEffect', () => {\n  const originalTitle = document.title;\n  \n  vi.spyOn(api, 'fetchUser');\n  \n  beforeEach(() => {\n    vi.clearAllMocks();\n    \n    document.title = originalTitle;\n    \n    (api.fetchUser as any).mockResolvedValue({ id: 1, name: 'Test User' });\n  });\n  \n  afterEach(() => {\n    vi.clearAllTimers();\n  });\n  \n  it('should show loading state initially', () => {\n    render(<UserProfile userId={1} />);\n    \n    expect(screen.getByTestId('loading')).toBeInTheDocument();\n  });\n  \n  it('should fetch and display user data', async () => {\n    render(<UserProfile userId={1} />);\n    \n    await waitFor(() => {\n      expect(screen.getByTestId('user-profile')).toBeInTheDocument();\n    });\n    \n    expect(api.fetchUser).toHaveBeenCalledWith(1);\n    expect(screen.getByText('Test User')).toBeInTheDocument();\n  });\n  \n  it('should call onDataLoad callback when data is loaded', async () => {\n    const onDataLoad = vi.fn();\n    \n    render(<UserProfile userId={1} onDataLoad={onDataLoad} />);\n    \n    await waitFor(() => {\n      expect(onDataLoad).toHaveBeenCalledWith({ id: 1, name: 'Test User' });\n    });\n  });\n  \n  it('should handle API errors', async () => {\n    const error = new Error('Failed to fetch');\n    (api.fetchUser as any).mockRejectedValue(error);\n    \n    const onError = vi.fn();\n    \n    render(<UserProfile userId={1} onError={onError} />);\n    \n    await waitFor(() => {\n      expect(screen.getByTestId('error')).toBeInTheDocument();\n    });\n    \n    expect(onError).toHaveBeenCalledWith(error);\n  });\n  \n  it('should update document title when user changes', async () => {\n    render(<UserProfile userId={1} />);\n    \n    await waitFor(() => {\n      expect(document.title).toBe('Profile: Test User');\n    });\n    \n    (api.fetchUser as any).mockResolvedValue({ id: 2, name: 'Another User' });\n    \n    render(<UserProfile userId={2} />);\n    \n    await waitFor(() => {\n      expect(document.title).toBe('Profile: Another User');\n    });\n  });\n  \n  it.skip('should increment counter with interval', async () => {\n    vi.useFakeTimers();\n    \n    render(<UserProfile userId={1} />);\n    \n    await waitFor(() => {\n      expect(screen.getByTestId('user-profile')).toBeInTheDocument();\n    });\n    \n    expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 0');\n    \n    vi.advanceTimersByTime(1000);\n    expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 1');\n    \n    vi.advanceTimersByTime(2000);\n    expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 3');\n    \n    vi.useRealTimers();\n  });\n  \n  it.skip('should handle manual counter increment', async () => {\n    render(<UserProfile userId={1} />);\n    \n    await waitFor(() => {\n      expect(screen.getByTestId('user-profile')).toBeInTheDocument();\n    });\n    \n    expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 0');\n    \n    fireEvent.click(screen.getByText('Increment'));\n    \n    expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 1');\n  });\n  \n  it.skip('should clean up effects when unmounted', async () => {\n    vi.useFakeTimers();\n    \n    const clearIntervalSpy = vi.spyOn(global, 'clearInterval');\n    \n    const { unmount } = render(<UserProfile userId={1} />);\n    \n    await waitFor(() => {\n      expect(screen.getByTestId('user-profile')).toBeInTheDocument();\n    });\n    \n    unmount();\n    \n    expect(clearIntervalSpy).toHaveBeenCalled();\n    \n    vi.useRealTimers();\n  });\n  \n  it('should not update state after unmount', async () => {\n    vi.useFakeTimers();\n    \n    const consoleErrorMock = vi.spyOn(console, 'error');\n    consoleErrorMock.mockImplementation(() => {});\n    \n    (api.fetchUser as any).mockImplementation(() => {\n      return new Promise(resolve => {\n        setTimeout(() => resolve({ id: 1, name: 'Test User' }), 100);\n      });\n    });\n    \n    const { unmount } = render(<UserProfile userId={1} />);\n    \n    unmount();\n    \n    vi.advanceTimersByTime(200);\n    \n    expect(consoleErrorMock).not.toHaveBeenCalledWith(\n      expect.stringMatching(/Can't perform a React state update on an unmounted component/)\n    );\n    \n    consoleErrorMock.mockRestore();\n    vi.useRealTimers();\n  });\n});\n",
+    "description": "This test file demonstrates how to test components with useEffect in Vitest with TypeScript, focusing on mocking dependencies and testing side effects.",
+    "isTestFile": true,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "should show loading state initially",
+        "code": "it('should show loading state initially', () => {\n    render(<UserProfile userId={1} />);\n    \n    expect(screen.getByTestId('loading')).toBeInTheDocument();\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should fetch and display user data",
+        "code": "it('should fetch and display user data', async () => {\n    render(<UserProfile userId={1} />);\n    \n    await waitFor(() => {\n      expect(screen.getByTestId('user-profile')).toBeInTheDocument();\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should call onDataLoad callback when data is loaded",
+        "code": "it('should call onDataLoad callback when data is loaded', async () => {\n    const onDataLoad = vi.fn();\n    \n    render(<UserProfile userId={1} onDataLoad={onDataLoad} />);\n    \n    await waitFor(() => {\n      expect(onDataLoad).toHaveBeenCalledWith({ id: 1, name: 'Test User' })",
+        "type": "test-case"
+      },
+      {
+        "title": "should handle API errors",
+        "code": "it('should handle API errors', async () => {\n    const error = new Error('Failed to fetch');\n    (api.fetchUser as any).mockRejectedValue(error);\n    \n    const onError = vi.fn();\n    \n    render(<UserProfile userId={1} onError={onError} />);\n    \n    await waitFor(() => {\n      expect(screen.getByTestId('error')).toBeInTheDocument();\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should update document title when user changes",
+        "code": "it('should update document title when user changes', async () => {\n    render(<UserProfile userId={1} />);\n    \n    await waitFor(() => {\n      expect(document.title).toBe('Profile: Test User');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should not update state after unmount",
+        "code": "it('should not update state after unmount', async () => {\n    vi.useFakeTimers();\n    \n    const consoleErrorMock = vi.spyOn(console, 'error');\n    consoleErrorMock.mockImplementation(() => {})",
+        "type": "test-case"
+      },
+      {
+        "title": "UserProfile Component with useEffect",
+        "code": "describe('UserProfile Component with useEffect', () => {\n  const originalTitle = document.title;\n  \n  vi.spyOn(api, 'fetchUser');\n  \n  beforeEach(() => {\n    vi.clearAllMocks();\n    \n    document.title = originalTitle;\n    \n    (api.fetchUser as any).mockResolvedValue({ id: 1, name: 'Test User' })",
+        "type": "describe-block"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/react-specific/hooks/useEffectComponent.tsx",
+    "relativePath": "react-specific/hooks/useEffectComponent.tsx",
+    "fileName": "useEffectComponent.tsx",
+    "dirName": "hooks",
+    "content": "/**\n * Example component that uses useEffect for various scenarios\n */\nimport React, { useState, useEffect } from 'react';\n\ninterface User {\n  id: number;\n  name: string;\n}\n\ninterface Props {\n  userId?: number;\n  onDataLoad?: (data: User | null) => void;\n  onError?: (error: Error) => void;\n}\n\nexport const api = {\n  fetchUser: async (id: number): Promise<User> => {\n    return { id, name: `User ${id}` };\n  }\n};\n\nexport const UserProfile: React.FC<Props> = ({ userId, onDataLoad, onError }) => {\n  const [user, setUser] = useState<User | null>(null);\n  const [loading, setLoading] = useState<boolean>(false);\n  const [error, setError] = useState<Error | null>(null);\n  const [count, setCount] = useState<number>(0);\n  \n  useEffect(() => {\n    if (!userId) return;\n    \n    let isMounted = true;\n    setLoading(true);\n    setError(null);\n    \n    const fetchData = async () => {\n      try {\n        const data = await api.fetchUser(userId);\n        \n        if (isMounted) {\n          setUser(data);\n          setLoading(false);\n          onDataLoad?.(data);\n        }\n      } catch (err) {\n        if (isMounted) {\n          const error = err instanceof Error ? err : new Error(String(err));\n          setError(error);\n          setLoading(false);\n          onError?.(error);\n        }\n      }\n    };\n    \n    fetchData();\n    \n    return () => {\n      isMounted = false;\n    };\n  }, [userId, onDataLoad, onError]);\n  \n  useEffect(() => {\n    document.title = user ? `Profile: ${user.name}` : 'User Profile';\n  });\n  \n  useEffect(() => {\n    const timer = setInterval(() => {\n      setCount(c => c + 1);\n    }, 1000);\n    \n    return () => {\n      clearInterval(timer);\n    };\n  }, []);\n  \n  if (loading) {\n    return <div data-testid=\"loading\">Loading...</div>;\n  }\n  \n  if (error) {\n    return <div data-testid=\"error\">Error: {error.message}</div>;\n  }\n  \n  if (!user) {\n    return <div data-testid=\"no-user\">No user selected</div>;\n  }\n  \n  return (\n    <div data-testid=\"user-profile\">\n      <h1>{user.name}</h1>\n      <p>ID: {user.id}</p>\n      <p data-testid=\"counter\">Counter: {count}</p>\n      <button onClick={() => setCount(c => c + 1)}>Increment</button>\n    </div>\n  );\n};\n\nexport default UserProfile;\n",
+    "description": "Example component that uses useEffect for various scenarios",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "api",
+        "code": "export const api = {\n  fetchUser: async (id: number): Promise<User> => {\n    return { id, name: `User ${id}` };\n  }\n};\n\nexport const UserProfile: React.FC<Props> = ({ userId, onDataLoad, onError }) => {\n  const [user, setUser] = useState<User | null>(null);\n  const [loading, setLoading] = useState<boolean>(false);\n  const [error, setError] = useState<Error | null>(null);\n  const [count, setCount] = useState<number>(0);\n  \n  useEffect(() => {\n    if (!userId) return;\n    \n    let isMounted = true;\n    setLoading(true);\n    setError(null);\n    \n    const fetchData = async () => {\n      try {\n        const data = await api.fetchUser(userId);\n        \n        if (isMounted) {\n          setUser(data);",
+        "type": "function"
+      },
+      {
+        "title": "error",
+        "code": "const error = err instanceof Error ? err : new Error(String(err));\n          setError(error);\n          setLoading(false);\n          onError?.(error);\n        }\n      }\n    };\n    \n    fetchData();\n    \n    return () => {\n      isMounted = false;\n    };\n  }, [userId, onDataLoad, onError]);\n  \n  useEffect(() => {\n    document.title = user ? `Profile: ${user.name}` : 'User Profile';\n  });\n  \n  useEffect(() => {\n    const timer = setInterval(() => {\n      setCount(c => c + 1);\n    }, 1000);\n    \n    return () => {\n      clearInterval(timer);\n    };\n  }, []);\n  \n  if (loading) {\n    return <div data-testid=\"loading\">Loading...</div>;\n  }",
+        "type": "function"
+      },
+      {
+        "title": "User",
+        "code": "interface User {\n  id: number;\n  name: string;\n}",
+        "type": "class"
+      },
+      {
+        "title": "Props",
+        "code": "interface Props {\n  userId?: number;\n  onDataLoad?: (data: User | null) => void;\n  onError?: (error: Error) => void;\n}",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/react-specific/router/Router.tsx",
+    "relativePath": "react-specific/router/Router.tsx",
+    "fileName": "Router.tsx",
+    "dirName": "router",
+    "content": "/**\n * Example component that uses react-router\n */\nimport React from 'react';\nimport { BrowserRouter, Routes, Route, Link, useParams, useNavigate, useLocation } from 'react-router-dom';\n\nconst Home = () => (\n  <div data-testid=\"home-page\">\n    <h1>Home Page</h1>\n    <Link to=\"/users\" data-testid=\"users-link\">Users</Link>\n  </div>\n);\n\nconst Users = () => {\n  const navigate = useNavigate();\n  \n  const users = [\n    { id: 1, name: 'John Doe' },\n    { id: 2, name: 'Jane Smith' },\n    { id: 3, name: 'Bob Johnson' }\n  ];\n  \n  return (\n    <div data-testid=\"users-page\">\n      <h1>Users</h1>\n      <ul>\n        {users.map(user => (\n          <li key={user.id} data-testid={`user-${user.id}`}>\n            <Link to={`/users/${user.id}`}>{user.name}</Link>\n          </li>\n        ))}\n      </ul>\n      <button \n        data-testid=\"back-button\"\n        onClick={() => navigate(-1)}\n      >\n        Go Back\n      </button>\n    </div>\n  );\n};\n\nconst UserDetail = () => {\n  const { userId } = useParams<{ userId: string }>();\n  const location = useLocation();\n  \n  return (\n    <div data-testid=\"user-detail-page\">\n      <h1>User Detail</h1>\n      <p data-testid=\"user-id\">User ID: {userId}</p>\n      <p data-testid=\"location-pathname\">Path: {location.pathname}</p>\n      <Link to=\"/users\" data-testid=\"back-to-users\">Back to Users</Link>\n    </div>\n  );\n};\n\nconst NotFound = () => (\n  <div data-testid=\"not-found-page\">\n    <h1>404 - Not Found</h1>\n    <Link to=\"/\">Go Home</Link>\n  </div>\n);\n\nexport const AppRouter = () => {\n  return (\n    <BrowserRouter>\n      <Routes>\n        <Route path=\"/\" element={<Home />} />\n        <Route path=\"/users\" element={<Users />} />\n        <Route path=\"/users/:userId\" element={<UserDetail />} />\n        <Route path=\"*\" element={<NotFound />} />\n      </Routes>\n    </BrowserRouter>\n  );\n};\n\nexport { Home, Users, UserDetail, NotFound };\nexport default AppRouter;\n",
+    "description": "Example component that uses react-router",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "Home",
+        "code": "const Home = () => (\n  <div data-testid=\"home-page\">\n    <h1>Home Page</h1>\n    <Link to=\"/users\" data-testid=\"users-link\">Users</Link>\n  </div>\n);",
+        "type": "function"
+      },
+      {
+        "title": "Users",
+        "code": "const Users = () => {\n  const navigate = useNavigate();",
+        "type": "function"
+      },
+      {
+        "title": "UserDetail",
+        "code": "const UserDetail = () => {\n  const { userId }",
+        "type": "function"
+      },
+      {
+        "title": "NotFound",
+        "code": "const NotFound = () => (\n  <div data-testid=\"not-found-page\">\n    <h1>404 - Not Found</h1>\n    <Link to=\"/\">Go Home</Link>\n  </div>\n);",
+        "type": "function"
+      },
+      {
+        "title": "AppRouter",
+        "code": "export const AppRouter = () => {\n  return (\n    <BrowserRouter>\n      <Routes>\n        <Route path=\"/\" element={<Home />}",
+        "type": "function"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/react-specific/router/router.test.tsx",
+    "relativePath": "react-specific/router/router.test.tsx",
+    "fileName": "router.test.tsx",
+    "dirName": "router",
+    "content": "/**\n * This test file demonstrates how to test React components that use react-router\n * with Vitest and Testing Library, focusing on mocking router functionality.\n */\nimport { describe, it, expect, vi, beforeEach } from 'vitest';\nimport React from 'react';\nimport { render, screen, fireEvent } from '@testing-library/react';\nimport '@testing-library/jest-dom';\nimport { MemoryRouter, Routes, Route } from 'react-router-dom';\nimport { Home, Users, UserDetail, NotFound } from './Router';\n\nconst mockNavigate = vi.fn();\n\nvi.mock('react-router-dom', async () => {\n  const actual = await vi.importActual('react-router-dom');\n  return {\n    ...actual,\n    useNavigate: () => mockNavigate,\n    useParams: () => ({ userId: '42' }),\n    useLocation: () => ({ pathname: '/users/42', search: '', hash: '', state: null, key: 'default' })\n  };\n});\n\n\ndescribe('React Router Testing', () => {\n  beforeEach(() => {\n    vi.clearAllMocks();\n  });\n  \n  describe('Individual Component Tests with Mocked Router Hooks', () => {\n    it('should skip individual component tests due to router context issues', () => {\n      expect(true).toBe(true);\n    });\n  });\n  \n  describe('Integration Tests with MemoryRouter', () => {\n    it('should render Home page at root route', () => {\n      render(\n        <MemoryRouter initialEntries={['/']}>\n          <Routes>\n            <Route path=\"/\" element={<Home />} />\n            <Route path=\"/users\" element={<Users />} />\n            <Route path=\"/users/:userId\" element={<UserDetail />} />\n            <Route path=\"*\" element={<NotFound />} />\n          </Routes>\n        </MemoryRouter>\n      );\n      \n      expect(screen.getByTestId('home-page')).toBeInTheDocument();\n      expect(screen.queryByTestId('users-page')).not.toBeInTheDocument();\n    });\n    \n    it('should navigate from Home to Users page', () => {\n      render(\n        <MemoryRouter initialEntries={['/']}>\n          <Routes>\n            <Route path=\"/\" element={<Home />} />\n            <Route path=\"/users\" element={<Users />} />\n          </Routes>\n        </MemoryRouter>\n      );\n      \n      fireEvent.click(screen.getByTestId('users-link'));\n      \n      expect(screen.getByTestId('users-page')).toBeInTheDocument();\n      expect(screen.queryByTestId('home-page')).not.toBeInTheDocument();\n    });\n    \n    it('should render UserDetail page with correct params', () => {\n      render(\n        <MemoryRouter initialEntries={['/users/123']}>\n          <Routes>\n            <Route path=\"/users/:userId\" element={<UserDetail />} />\n          </Routes>\n        </MemoryRouter>\n      );\n      \n      expect(screen.getByTestId('user-detail-page')).toBeInTheDocument();\n    });\n    \n    it('should render NotFound for unknown routes', () => {\n      render(\n        <MemoryRouter initialEntries={['/unknown-route']}>\n          <Routes>\n            <Route path=\"/\" element={<Home />} />\n            <Route path=\"/users\" element={<Users />} />\n            <Route path=\"/users/:userId\" element={<UserDetail />} />\n            <Route path=\"*\" element={<NotFound />} />\n          </Routes>\n        </MemoryRouter>\n      );\n      \n      expect(screen.getByTestId('not-found-page')).toBeInTheDocument();\n      expect(screen.getByText('404 - Not Found')).toBeInTheDocument();\n    });\n  });\n  \n  describe('Advanced Router Testing Techniques', () => {\n    it('should test deep linking directly to a nested route', () => {\n      render(\n        <MemoryRouter initialEntries={['/users/456']}>\n          <Routes>\n            <Route path=\"/\" element={<Home />} />\n            <Route path=\"/users\" element={<Users />} />\n            <Route path=\"/users/:userId\" element={<UserDetail />} />\n            <Route path=\"*\" element={<NotFound />} />\n          </Routes>\n        </MemoryRouter>\n      );\n      \n      expect(screen.getByTestId('user-detail-page')).toBeInTheDocument();\n    });\n    \n    it('should test navigation through multiple routes', () => {\n      render(\n        <MemoryRouter initialEntries={['/']}>\n          <Routes>\n            <Route path=\"/\" element={<Home />} />\n            <Route path=\"/users\" element={<Users />} />\n            <Route path=\"/users/:userId\" element={<UserDetail />} />\n          </Routes>\n        </MemoryRouter>\n      );\n      \n      expect(screen.getByTestId('home-page')).toBeInTheDocument();\n      \n      fireEvent.click(screen.getByTestId('users-link'));\n      expect(screen.getByTestId('users-page')).toBeInTheDocument();\n      \n      fireEvent.click(screen.getByText('John Doe'));\n      expect(screen.getByTestId('user-detail-page')).toBeInTheDocument();\n    });\n  });\n});\n",
+    "description": "This test file demonstrates how to test React components that use react-router with Vitest and Testing Library, focusing on mocking router functionality.",
+    "isTestFile": true,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "should skip individual component tests due to router context issues",
+        "code": "it('should skip individual component tests due to router context issues', () => {\n      expect(true).toBe(true);\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should render Home page at root route",
+        "code": "it('should render Home page at root route', () => {\n      render(\n        <MemoryRouter initialEntries={['/']}>\n          <Routes>\n            <Route path=\"/\" element={<Home />} />\n            <Route path=\"/users\" element={<Users />} />\n            <Route path=\"/users/:userId\" element={<UserDetail />} />\n            <Route path=\"*\" element={<NotFound />} />\n          </Routes>\n        </MemoryRouter>\n      );\n      \n      expect(screen.getByTestId('home-page')).toBeInTheDocument();\n      expect(screen.queryByTestId('users-page')).not.toBeInTheDocument();\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should navigate from Home to Users page",
+        "code": "it('should navigate from Home to Users page', () => {\n      render(\n        <MemoryRouter initialEntries={['/']}>\n          <Routes>\n            <Route path=\"/\" element={<Home />} />\n            <Route path=\"/users\" element={<Users />} />\n          </Routes>\n        </MemoryRouter>\n      );\n      \n      fireEvent.click(screen.getByTestId('users-link'));\n      \n      expect(screen.getByTestId('users-page')).toBeInTheDocument();\n      expect(screen.queryByTestId('home-page')).not.toBeInTheDocument();\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should render UserDetail page with correct params",
+        "code": "it('should render UserDetail page with correct params', () => {\n      render(\n        <MemoryRouter initialEntries={['/users/123']}>\n          <Routes>\n            <Route path=\"/users/:userId\" element={<UserDetail />} />\n          </Routes>\n        </MemoryRouter>\n      );\n      \n      expect(screen.getByTestId('user-detail-page')).toBeInTheDocument();\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should render NotFound for unknown routes",
+        "code": "it('should render NotFound for unknown routes', () => {\n      render(\n        <MemoryRouter initialEntries={['/unknown-route']}>\n          <Routes>\n            <Route path=\"/\" element={<Home />} />\n            <Route path=\"/users\" element={<Users />} />\n            <Route path=\"/users/:userId\" element={<UserDetail />} />\n            <Route path=\"*\" element={<NotFound />} />\n          </Routes>\n        </MemoryRouter>\n      );\n      \n      expect(screen.getByTestId('not-found-page')).toBeInTheDocument();\n      expect(screen.getByText('404 - Not Found')).toBeInTheDocument();\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should test deep linking directly to a nested route",
+        "code": "it('should test deep linking directly to a nested route', () => {\n      render(\n        <MemoryRouter initialEntries={['/users/456']}>\n          <Routes>\n            <Route path=\"/\" element={<Home />} />\n            <Route path=\"/users\" element={<Users />} />\n            <Route path=\"/users/:userId\" element={<UserDetail />} />\n            <Route path=\"*\" element={<NotFound />} />\n          </Routes>\n        </MemoryRouter>\n      );\n      \n      expect(screen.getByTestId('user-detail-page')).toBeInTheDocument();\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should test navigation through multiple routes",
+        "code": "it('should test navigation through multiple routes', () => {\n      render(\n        <MemoryRouter initialEntries={['/']}>\n          <Routes>\n            <Route path=\"/\" element={<Home />} />\n            <Route path=\"/users\" element={<Users />} />\n            <Route path=\"/users/:userId\" element={<UserDetail />} />\n          </Routes>\n        </MemoryRouter>\n      );\n      \n      expect(screen.getByTestId('home-page')).toBeInTheDocument();\n      \n      fireEvent.click(screen.getByTestId('users-link'));\n      expect(screen.getByTestId('users-page')).toBeInTheDocument();\n      \n      fireEvent.click(screen.getByText('John Doe'));\n      expect(screen.getByTestId('user-detail-page')).toBeInTheDocument();\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "React Router Testing",
+        "code": "describe('React Router Testing', () => {\n  beforeEach(() => {\n    vi.clearAllMocks();\n  })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Individual Component Tests with Mocked Router Hooks",
+        "code": "describe('Individual Component Tests with Mocked Router Hooks', () => {\n    it('should skip individual component tests due to router context issues', () => {\n      expect(true).toBe(true);\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Integration Tests with MemoryRouter",
+        "code": "describe('Integration Tests with MemoryRouter', () => {\n    it('should render Home page at root route', () => {\n      render(\n        <MemoryRouter initialEntries={['/']}>\n          <Routes>\n            <Route path=\"/\" element={<Home />} />\n            <Route path=\"/users\" element={<Users />} />\n            <Route path=\"/users/:userId\" element={<UserDetail />} />\n            <Route path=\"*\" element={<NotFound />} />\n          </Routes>\n        </MemoryRouter>\n      );\n      \n      expect(screen.getByTestId('home-page')).toBeInTheDocument();\n      expect(screen.queryByTestId('users-page')).not.toBeInTheDocument();\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Advanced Router Testing Techniques",
+        "code": "describe('Advanced Router Testing Techniques', () => {\n    it('should test deep linking directly to a nested route', () => {\n      render(\n        <MemoryRouter initialEntries={['/users/456']}>\n          <Routes>\n            <Route path=\"/\" element={<Home />} />\n            <Route path=\"/users\" element={<Users />} />\n            <Route path=\"/users/:userId\" element={<UserDetail />} />\n            <Route path=\"*\" element={<NotFound />} />\n          </Routes>\n        </MemoryRouter>\n      );\n      \n      expect(screen.getByTestId('user-detail-page')).toBeInTheDocument();\n    })",
+        "type": "describe-block"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/react-specific/suspense/DataFetcher.tsx",
+    "relativePath": "react-specific/suspense/DataFetcher.tsx",
+    "fileName": "DataFetcher.tsx",
+    "dirName": "suspense",
+    "content": "/**\n * Example component that uses React Suspense for data fetching\n */\nimport React, { Suspense, useState } from 'react';\n\ninterface ResourceCache<T> {\n  read: () => T;\n}\n\nexport function createResource<T>(promise: Promise<T>): ResourceCache<T> {\n  let status: 'pending' | 'success' | 'error' = 'pending';\n  let result: T;\n  let error: Error;\n  \n  const suspender = promise.then(\n    (data) => {\n      status = 'success';\n      result = data;\n    },\n    (e) => {\n      status = 'error';\n      error = e;\n    }\n  );\n  \n  return {\n    read() {\n      if (status === 'pending') {\n        throw suspender;\n      } else if (status === 'error') {\n        throw error;\n      } else {\n        return result;\n      }\n    }\n  };\n}\n\nexport const api = {\n  fetchUser: async (id: number): Promise<{ id: number; name: string }> => {\n    await new Promise(resolve => setTimeout(resolve, 500));\n    \n    if (id === 0) {\n      throw new Error('User not found');\n    }\n    \n    return { id, name: `User ${id}` };\n  }\n};\n\ninterface UserDetailsProps {\n  resource: ResourceCache<{ id: number; name: string }>;\n}\n\nexport const UserDetails: React.FC<UserDetailsProps> = ({ resource }) => {\n  const user = resource.read();\n  \n  return (\n    <div data-testid=\"user-details\">\n      <h2>User Details</h2>\n      <p data-testid=\"user-id\">ID: {user.id}</p>\n      <p data-testid=\"user-name\">Name: {user.name}</p>\n    </div>\n  );\n};\n\nexport const LoadingFallback: React.FC = () => (\n  <div data-testid=\"loading-fallback\">\n    <h2>Loading...</h2>\n    <div className=\"spinner\"></div>\n  </div>\n);\n\ninterface ErrorFallbackProps {\n  error: Error;\n  resetErrorBoundary: () => void;\n}\n\nexport const ErrorFallback: React.FC<ErrorFallbackProps> = ({ \n  error, \n  resetErrorBoundary \n}) => (\n  <div data-testid=\"error-fallback\" role=\"alert\">\n    <h2>Something went wrong:</h2>\n    <pre data-testid=\"error-message\">{error.message}</pre>\n    <button onClick={resetErrorBoundary} data-testid=\"retry-button\">\n      Try again\n    </button>\n  </div>\n);\n\ninterface ErrorBoundaryProps {\n  fallback: React.ReactNode;\n  onReset?: () => void;\n  children?: React.ReactNode;\n}\n\ninterface ErrorBoundaryState {\n  hasError: boolean;\n  error: Error | null;\n}\n\nexport class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {\n  constructor(props: ErrorBoundaryProps) {\n    super(props);\n    this.state = { hasError: false, error: null };\n  }\n  \n  static getDerivedStateFromError(error: Error): ErrorBoundaryState {\n    return { hasError: true, error };\n  }\n  \n  resetErrorBoundary = () => {\n    this.setState({ hasError: false, error: null });\n    this.props.onReset?.();\n  };\n  \n  render() {\n    if (this.state.hasError && this.state.error) {\n      if (React.isValidElement(this.props.fallback)) {\n        return this.props.fallback;\n      }\n      \n      return (\n        <ErrorFallback \n          error={this.state.error} \n          resetErrorBoundary={this.resetErrorBoundary} \n        />\n      );\n    }\n    \n    return this.props.children;\n  }\n}\n\nexport const UserProfile: React.FC = () => {\n  const [userId, setUserId] = useState<number>(1);\n  const [resource, setResource] = useState(() => \n    createResource(api.fetchUser(userId))\n  );\n  \n  const handleLoadUser = (id: number) => {\n    setUserId(id);\n    setResource(createResource(api.fetchUser(id)));\n  };\n  \n  return (\n    <div data-testid=\"user-profile\">\n      <h1>User Profile</h1>\n      \n      <div>\n        <button \n          onClick={() => handleLoadUser(1)}\n          data-testid=\"load-user-1\"\n        >\n          Load User 1\n        </button>\n        <button \n          onClick={() => handleLoadUser(2)}\n          data-testid=\"load-user-2\"\n        >\n          Load User 2\n        </button>\n        <button \n          onClick={() => handleLoadUser(0)}\n          data-testid=\"load-invalid-user\"\n        >\n          Load Invalid User\n        </button>\n      </div>\n      \n      <ErrorBoundary\n        fallback={<ErrorFallback error={new Error('')} resetErrorBoundary={() => handleLoadUser(1)} />}\n        onReset={() => handleLoadUser(1)}\n      >\n        <Suspense fallback={<LoadingFallback />}>\n          <UserDetails resource={resource} />\n        </Suspense>\n      </ErrorBoundary>\n    </div>\n  );\n};\n\nexport default UserProfile;\n",
+    "description": "Example component that uses React Suspense for data fetching",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "createResource",
+        "code": "export function createResource<T>(promise: Promise<T>): ResourceCache<T> {\n  let status: 'pending' | 'success' | 'error' = 'pending';\n  let result: T;\n  let error: Error;\n  \n  const suspender = promise.then(\n    (data) => {\n      status = 'success';\n      result = data;\n    },\n    (e) => {\n      status = 'error';\n      error = e;\n    }\n  );\n  \n  return {\n    read() {\n      if (status === 'pending') {\n        throw suspender;\n      }",
+        "type": "function"
+      },
+      {
+        "title": "api",
+        "code": "export const api = {\n  fetchUser: async (id: number): Promise<{ id: number; name: string }> => {\n    await new Promise(resolve => setTimeout(resolve, 500));\n    \n    if (id === 0) {\n      throw new Error('User not found');",
+        "type": "function"
+      },
+      {
+        "title": "UserDetails",
+        "code": "export const UserDetails: React.FC<UserDetailsProps> = ({ resource }) => {\n  const user = resource.read();\n  \n  return (\n    <div data-testid=\"user-details\">\n      <h2>User Details</h2>\n      <p data-testid=\"user-id\">ID: {user.id}</p>\n      <p data-testid=\"user-name\">Name: {user.name}</p>\n    </div>\n  );\n};\n\nexport const LoadingFallback: React.FC = () => (\n  <div data-testid=\"loading-fallback\">\n    <h2>Loading...</h2>\n    <div className=\"spinner\"></div>\n  </div>\n);\n\ninterface ErrorFallbackProps {\n  error: Error;\n  resetErrorBoundary: () => void;\n}\n\nexport const ErrorFallback: React.FC<ErrorFallbackProps> = ({ \n  error, \n  resetErrorBoundary \n}) => (\n  <div data-testid=\"error-fallback\" role=\"alert\">\n    <h2>Something went wrong:</h2>\n    <pre data-testid=\"error-message\">{error.message}</pre>\n    <button onClick={resetErrorBoundary} data-testid=\"retry-button\">\n      Try again\n    </button>\n  </div>\n);\n\ninterface ErrorBoundaryProps {\n  fallback: React.ReactNode;\n  onReset?: () => void;\n  children?: React.ReactNode;\n}\n\ninterface ErrorBoundaryState {\n  hasError: boolean;\n  error: Error | null;\n}\n\nexport class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {\n  constructor(props: ErrorBoundaryProps) {\n    super(props);",
+        "type": "function"
+      },
+      {
+        "title": "handleLoadUser",
+        "code": "const handleLoadUser = (id: number) => {\n    setUserId(id);",
+        "type": "function"
+      },
+      {
+        "title": "ResourceCache",
+        "code": "interface ResourceCache<T> {\n  read: () => T;\n}",
+        "type": "class"
+      },
+      {
+        "title": "UserDetailsProps",
+        "code": "interface UserDetailsProps {\n  resource: ResourceCache<{ id: number; name: string }",
+        "type": "class"
+      },
+      {
+        "title": "ErrorFallbackProps",
+        "code": "interface ErrorFallbackProps {\n  error: Error;\n  resetErrorBoundary: () => void;\n}",
+        "type": "class"
+      },
+      {
+        "title": "ErrorBoundaryProps",
+        "code": "interface ErrorBoundaryProps {\n  fallback: React.ReactNode;\n  onReset?: () => void;\n  children?: React.ReactNode;\n}",
+        "type": "class"
+      },
+      {
+        "title": "ErrorBoundaryState",
+        "code": "interface ErrorBoundaryState {\n  hasError: boolean;\n  error: Error | null;\n}",
+        "type": "class"
+      },
+      {
+        "title": "ErrorBoundary",
+        "code": "export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {\n  constructor(props: ErrorBoundaryProps) {\n    super(props);\n    this.state = { hasError: false, error: null }",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/react-specific/suspense/suspense.test.tsx",
+    "relativePath": "react-specific/suspense/suspense.test.tsx",
+    "fileName": "suspense.test.tsx",
+    "dirName": "suspense",
+    "content": "/**\n * This test file demonstrates how to test React components that use Suspense and ErrorBoundary\n * with Vitest and Testing Library, focusing on mocking async data fetching.\n */\nimport { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';\nimport React, { Suspense } from 'react';\nimport { render, screen, fireEvent, waitFor } from '@testing-library/react';\nimport '@testing-library/jest-dom';\nimport { \n  UserProfile, \n  UserDetails, \n  LoadingFallback, \n  ErrorBoundary,\n  ErrorFallback,\n  createResource, \n  api \n} from './DataFetcher';\n\ndescribe('React Suspense and ErrorBoundary Testing', () => {\n  vi.spyOn(api, 'fetchUser');\n  \n  beforeEach(() => {\n    vi.clearAllMocks();\n    \n    (api.fetchUser as any).mockImplementation(async (id: number) => {\n      await new Promise(resolve => setTimeout(resolve, 100));\n      \n      if (id === 0) {\n        throw new Error('User not found');\n      }\n      \n      return { id, name: `User ${id}` };\n    });\n  });\n  \n  afterEach(() => {\n    vi.clearAllTimers();\n  });\n  \n  describe('Testing Individual Components', () => {\n    it('should render UserDetails with provided resource', async () => {\n      const mockUser = { id: 1, name: 'Test User' };\n      const promise = Promise.resolve(mockUser);\n      const resource = createResource(promise);\n      \n      await promise;\n      \n      render(<UserDetails resource={resource} />);\n      \n      expect(screen.getByTestId('user-details')).toBeInTheDocument();\n      expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 1');\n      expect(screen.getByTestId('user-name')).toHaveTextContent('Name: Test User');\n    });\n    \n    it('should render LoadingFallback correctly', () => {\n      render(<LoadingFallback />);\n      \n      expect(screen.getByTestId('loading-fallback')).toBeInTheDocument();\n      expect(screen.getByText('Loading...')).toBeInTheDocument();\n    });\n    \n    it('should render ErrorBoundary fallback when an error occurs', () => {\n      const originalConsoleError = console.error;\n      console.error = vi.fn();\n      \n      const TestComponent = () => {\n        throw new Error('Test error');\n      };\n      \n      render(\n        <ErrorFallback \n          error={new Error('Test error')} \n          resetErrorBoundary={() => {}} \n        />\n      );\n      \n      expect(screen.getByTestId('error-fallback')).toBeInTheDocument();\n      expect(screen.getByTestId('error-message')).toBeInTheDocument();\n      \n      console.error = originalConsoleError;\n    });\n    \n    it('should call onReset when retry button is clicked', () => {\n      const handleReset = vi.fn();\n      \n      render(\n        <ErrorFallback \n          error={new Error('Test error')} \n          resetErrorBoundary={handleReset} \n        />\n      );\n      \n      fireEvent.click(screen.getByTestId('retry-button'));\n      \n      expect(handleReset).toHaveBeenCalledTimes(1);\n    });\n  });\n  \n  describe('Testing Suspense with Fast Promises', () => {\n    it('should render UserDetails after resource resolves', async () => {\n      const mockUser = { id: 1, name: 'Test User' };\n      const promise = Promise.resolve(mockUser);\n      const resource = createResource(promise);\n      \n      await promise;\n      \n      const { act } = await import('react');\n      \n      await act(async () => {\n        render(\n          <Suspense fallback={<LoadingFallback />}>\n            <UserDetails resource={resource} />\n          </Suspense>\n        );\n      });\n      \n      expect(screen.getByTestId('user-details')).toBeInTheDocument();\n      expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 1');\n      expect(screen.getByTestId('user-name')).toHaveTextContent('Name: Test User');\n    });\n  });\n  \n  describe('Testing Complete UserProfile Component', () => {\n    beforeEach(() => {\n      vi.useFakeTimers();\n    });\n    \n    afterEach(() => {\n      vi.useRealTimers();\n    });\n    \n    it.skip('should initially show loading state and then user details', async () => {\n      const { act } = await import('react');\n      \n      await act(async () => {\n        render(<UserProfile />);\n      });\n      \n      expect(screen.getByTestId('loading-fallback')).toBeInTheDocument();\n      \n      await act(async () => {\n        await vi.runAllTimersAsync();\n      });\n      \n      await waitFor(() => {\n        expect(screen.getByTestId('user-details')).toBeInTheDocument();\n      });\n      \n      expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 1');\n      expect(api.fetchUser).toHaveBeenCalledWith(1);\n    });\n    \n    it.skip('should load a different user when button is clicked', async () => {\n      const { act } = await import('react');\n      \n      await act(async () => {\n        render(<UserProfile />);\n      });\n      \n      await act(async () => {\n        await vi.runAllTimersAsync();\n      });\n      \n      await waitFor(() => {\n        expect(screen.getByTestId('user-details')).toBeInTheDocument();\n      });\n      \n      await act(async () => {\n        fireEvent.click(screen.getByTestId('load-user-2'));\n      });\n      \n      expect(screen.getByTestId('loading-fallback')).toBeInTheDocument();\n      \n      await act(async () => {\n        await vi.runAllTimersAsync();\n      });\n      \n      await waitFor(() => {\n        expect(screen.getByTestId('user-details')).toBeInTheDocument();\n      });\n      \n      expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 2');\n      expect(screen.getByTestId('user-name')).toHaveTextContent('Name: User 2');\n      expect(api.fetchUser).toHaveBeenCalledWith(2);\n    });\n    \n    it.skip('should show error boundary when loading invalid user', async () => {\n      const { act } = await import('react');\n      \n      const originalConsoleError = console.error;\n      console.error = vi.fn();\n      \n      await act(async () => {\n        render(<UserProfile />);\n      });\n      \n      await act(async () => {\n        await vi.runAllTimersAsync();\n      });\n      \n      await waitFor(() => {\n        expect(screen.getByTestId('user-details')).toBeInTheDocument();\n      });\n      \n      await act(async () => {\n        fireEvent.click(screen.getByTestId('load-invalid-user'));\n      });\n      \n      expect(screen.getByTestId('loading-fallback')).toBeInTheDocument();\n      \n      await act(async () => {\n        await vi.runAllTimersAsync();\n      });\n      \n      await waitFor(() => {\n        expect(screen.getByTestId('error-fallback')).toBeInTheDocument();\n      });\n      \n      expect(screen.getByTestId('error-message')).toHaveTextContent('User not found');\n      expect(api.fetchUser).toHaveBeenCalledWith(0);\n      \n      await act(async () => {\n        fireEvent.click(screen.getByTestId('retry-button'));\n      });\n      \n      expect(screen.getByTestId('loading-fallback')).toBeInTheDocument();\n      \n      await act(async () => {\n        await vi.runAllTimersAsync();\n      });\n      \n      await waitFor(() => {\n        expect(screen.getByTestId('user-details')).toBeInTheDocument();\n      });\n      \n      expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 1');\n      \n      console.error = originalConsoleError;\n    });\n  });\n  \n  describe('Testing createResource Function', () => {\n    it('should return a resource with read method', () => {\n      const resource = createResource(Promise.resolve('test'));\n      \n      expect(resource).toHaveProperty('read');\n      expect(typeof resource.read).toBe('function');\n    });\n    \n    it('should throw the promise when read before resolution', () => {\n      const promise = new Promise(resolve => setTimeout(() => resolve('test'), 100));\n      const resource = createResource(promise);\n      \n      expect(() => resource.read()).toThrow();\n    });\n    \n    it('should return the resolved value after resolution', async () => {\n      const promise = Promise.resolve('test value');\n      const resource = createResource(promise);\n      \n      await promise;\n      \n      expect(resource.read()).toBe('test value');\n    });\n    \n    it('should throw the error when promise rejects', async () => {\n      const error = new Error('test error');\n      const promise = Promise.reject(error);\n      const resource = createResource(promise);\n      \n      await promise.catch(() => {});\n      \n      expect(() => resource.read()).toThrow('test error');\n    });\n  });\n});\n",
+    "description": "This test file demonstrates how to test React components that use Suspense and ErrorBoundary with Vitest and Testing Library, focusing on mocking async data fetching.",
+    "isTestFile": true,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "should render UserDetails with provided resource",
+        "code": "it('should render UserDetails with provided resource', async () => {\n      const mockUser = { id: 1, name: 'Test User' };\n      const promise = Promise.resolve(mockUser);\n      const resource = createResource(promise);\n      \n      await promise;\n      \n      render(<UserDetails resource={resource} />);\n      \n      expect(screen.getByTestId('user-details')).toBeInTheDocument();\n      expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 1');\n      expect(screen.getByTestId('user-name')).toHaveTextContent('Name: Test User');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should render LoadingFallback correctly",
+        "code": "it('should render LoadingFallback correctly', () => {\n      render(<LoadingFallback />);\n      \n      expect(screen.getByTestId('loading-fallback')).toBeInTheDocument();\n      expect(screen.getByText('Loading...')).toBeInTheDocument();\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should render ErrorBoundary fallback when an error occurs",
+        "code": "it('should render ErrorBoundary fallback when an error occurs', () => {\n      const originalConsoleError = console.error;\n      console.error = vi.fn();\n      \n      const TestComponent = () => {\n        throw new Error('Test error');\n      };\n      \n      render(\n        <ErrorFallback \n          error={new Error('Test error')} \n          resetErrorBoundary={() => {}} \n        />\n      );\n      \n      expect(screen.getByTestId('error-fallback')).toBeInTheDocument();\n      expect(screen.getByTestId('error-message')).toBeInTheDocument();\n      \n      console.error = originalConsoleError;\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should call onReset when retry button is clicked",
+        "code": "it('should call onReset when retry button is clicked', () => {\n      const handleReset = vi.fn();\n      \n      render(\n        <ErrorFallback \n          error={new Error('Test error')} \n          resetErrorBoundary={handleReset} \n        />\n      );\n      \n      fireEvent.click(screen.getByTestId('retry-button'));\n      \n      expect(handleReset).toHaveBeenCalledTimes(1);\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should render UserDetails after resource resolves",
+        "code": "it('should render UserDetails after resource resolves', async () => {\n      const mockUser = { id: 1, name: 'Test User' };\n      const promise = Promise.resolve(mockUser);\n      const resource = createResource(promise);\n      \n      await promise;\n      \n      const { act } = await import('react');\n      \n      await act(async () => {\n        render(\n          <Suspense fallback={<LoadingFallback />}>\n            <UserDetails resource={resource} />\n          </Suspense>\n        );\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should return a resource with read method",
+        "code": "it('should return a resource with read method', () => {\n      const resource = createResource(Promise.resolve('test'));\n      \n      expect(resource).toHaveProperty('read');\n      expect(typeof resource.read).toBe('function');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should throw the promise when read before resolution",
+        "code": "it('should throw the promise when read before resolution', () => {\n      const promise = new Promise(resolve => setTimeout(() => resolve('test'), 100));\n      const resource = createResource(promise);\n      \n      expect(() => resource.read()).toThrow();\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should return the resolved value after resolution",
+        "code": "it('should return the resolved value after resolution', async () => {\n      const promise = Promise.resolve('test value');\n      const resource = createResource(promise);\n      \n      await promise;\n      \n      expect(resource.read()).toBe('test value');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should throw the error when promise rejects",
+        "code": "it('should throw the error when promise rejects', async () => {\n      const error = new Error('test error');\n      const promise = Promise.reject(error);\n      const resource = createResource(promise);\n      \n      await promise.catch(() => {})",
+        "type": "test-case"
+      },
+      {
+        "title": "React Suspense and ErrorBoundary Testing",
+        "code": "describe('React Suspense and ErrorBoundary Testing', () => {\n  vi.spyOn(api, 'fetchUser');\n  \n  beforeEach(() => {\n    vi.clearAllMocks();\n    \n    (api.fetchUser as any).mockImplementation(async (id: number) => {\n      await new Promise(resolve => setTimeout(resolve, 100));\n      \n      if (id === 0) {\n        throw new Error('User not found');\n      }\n      \n      return { id, name: `User ${id}` };\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Individual Components",
+        "code": "describe('Testing Individual Components', () => {\n    it('should render UserDetails with provided resource', async () => {\n      const mockUser = { id: 1, name: 'Test User' };\n      const promise = Promise.resolve(mockUser);\n      const resource = createResource(promise);\n      \n      await promise;\n      \n      render(<UserDetails resource={resource} />);\n      \n      expect(screen.getByTestId('user-details')).toBeInTheDocument();\n      expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 1');\n      expect(screen.getByTestId('user-name')).toHaveTextContent('Name: Test User');\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Suspense with Fast Promises",
+        "code": "describe('Testing Suspense with Fast Promises', () => {\n    it('should render UserDetails after resource resolves', async () => {\n      const mockUser = { id: 1, name: 'Test User' };\n      const promise = Promise.resolve(mockUser);\n      const resource = createResource(promise);\n      \n      await promise;\n      \n      const { act } = await import('react');\n      \n      await act(async () => {\n        render(\n          <Suspense fallback={<LoadingFallback />}>\n            <UserDetails resource={resource} />\n          </Suspense>\n        );\n      })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Complete UserProfile Component",
+        "code": "describe('Testing Complete UserProfile Component', () => {\n    beforeEach(() => {\n      vi.useFakeTimers();\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing createResource Function",
+        "code": "describe('Testing createResource Function', () => {\n    it('should return a resource with read method', () => {\n      const resource = createResource(Promise.resolve('test'));\n      \n      expect(resource).toHaveProperty('read');\n      expect(typeof resource.read).toBe('function');\n    })",
+        "type": "describe-block"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/same-package/__mocks__/utils.ts",
+    "relativePath": "same-package/__mocks__/utils.ts",
+    "fileName": "utils.ts",
+    "dirName": "__mocks__",
+    "content": "/**\n * Mock implementation of the utils module\n */\nimport { vi } from 'vitest';\n\nexport const generateId = vi.fn();\nexport const validateEmail = vi.fn();\nexport const formatDate = vi.fn();\n\nexport default {\n  generateId,\n  validateEmail,\n  formatDate\n};\n",
+    "description": "Mock implementation of the utils module",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "utils.ts",
+        "code": "/**\n * Mock implementation of the utils module\n */\nimport { vi } from 'vitest';\n\nexport const generateId = vi.fn();\nexport const validateEmail = vi.fn();\nexport const formatDate = vi.fn();\n\nexport default {\n  generateId,\n  validateEmail,\n  formatDate\n};\n",
+        "type": "file"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/same-package/same-package.test.ts",
+    "relativePath": "same-package/same-package.test.ts",
+    "fileName": "same-package.test.ts",
+    "dirName": "same-package",
+    "content": "/**\n * This test file demonstrates how to mock files within the same package in Vitest\n * with TypeScript, focusing on avoiding hoisting-related errors.\n */\n\nimport { vi, MockedFunction } from 'vitest';\n\nvi.mock('./utils');\n\nimport { describe, it, expect, beforeEach } from 'vitest';\nimport { UserService } from './user';\nimport type { User } from './user';\n\nimport { generateId, validateEmail, formatDate } from './utils';\nconst mockGenerateId = generateId as MockedFunction<typeof generateId>;\nconst mockValidateEmail = validateEmail as MockedFunction<typeof validateEmail>;\nconst mockFormatDate = formatDate as MockedFunction<typeof formatDate>;\n\ndescribe('Same Package Mocking', () => {\n  let userService: UserService;\n  \n  beforeEach(() => {\n    vi.clearAllMocks();\n    \n    mockGenerateId.mockReturnValue('mocked-id-123');\n    mockValidateEmail.mockReturnValue(true);\n    \n    userService = new UserService();\n  });\n  \n  it('should mock the generateId function from utils', () => {\n    const name = 'John Doe';\n    const email = 'john@example.com';\n    \n    const user = userService.createUser(name, email);\n    \n    expect(mockGenerateId).toHaveBeenCalledTimes(1);\n    expect(user.id).toBe('mocked-id-123');\n  });\n  \n  it('should mock the validateEmail function from utils', () => {\n    const name = 'Jane Doe';\n    const email = 'jane@example.com';\n    \n    userService.createUser(name, email);\n    \n    expect(mockValidateEmail).toHaveBeenCalledTimes(1);\n    expect(mockValidateEmail).toHaveBeenCalledWith(email);\n  });\n  \n  it('should throw an error when validateEmail returns false', () => {\n    mockValidateEmail.mockReturnValueOnce(false);\n    const name = 'Invalid User';\n    const email = 'invalid-email';\n    \n    expect(() => userService.createUser(name, email)).toThrow('Invalid email address');\n    expect(mockValidateEmail).toHaveBeenCalledTimes(1);\n    expect(mockValidateEmail).toHaveBeenCalledWith(email);\n  });\n  \n  it('should allow changing mock implementation for specific tests', () => {\n    const customId = 'custom-id-456';\n    mockGenerateId.mockReturnValueOnce(customId);\n    \n    const user = userService.createUser('Custom User', 'custom@example.com');\n    \n    expect(user.id).toBe(customId);\n    expect(mockGenerateId).toHaveBeenCalledTimes(1);\n  });\n  \n  it('should create multiple users with different mocked IDs', () => {\n    mockGenerateId\n      .mockReturnValueOnce('id-1')\n      .mockReturnValueOnce('id-2');\n    \n    const user1 = userService.createUser('User 1', 'user1@example.com');\n    const user2 = userService.createUser('User 2', 'user2@example.com');\n    \n    expect(mockGenerateId).toHaveBeenCalledTimes(2);\n    expect(user1.id).toBe('id-1');\n    expect(user2.id).toBe('id-2');\n  });\n  \n  it('should store and retrieve users correctly', () => {\n    const user = userService.createUser('Test User', 'test@example.com');\n    \n    const retrievedUser = userService.getUserById(user.id);\n    const allUsers = userService.getAllUsers();\n    \n    expect(retrievedUser).toEqual(user);\n    expect(allUsers).toHaveLength(1);\n    expect(allUsers[0]).toEqual(user);\n  });\n});\n",
+    "description": "This test file demonstrates how to mock files within the same package in Vitest with TypeScript, focusing on avoiding hoisting-related errors.",
+    "isTestFile": true,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "should mock the generateId function from utils",
+        "code": "it('should mock the generateId function from utils', () => {\n    const name = 'John Doe';\n    const email = 'john@example.com';\n    \n    const user = userService.createUser(name, email);\n    \n    expect(mockGenerateId).toHaveBeenCalledTimes(1);\n    expect(user.id).toBe('mocked-id-123');\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should mock the validateEmail function from utils",
+        "code": "it('should mock the validateEmail function from utils', () => {\n    const name = 'Jane Doe';\n    const email = 'jane@example.com';\n    \n    userService.createUser(name, email);\n    \n    expect(mockValidateEmail).toHaveBeenCalledTimes(1);\n    expect(mockValidateEmail).toHaveBeenCalledWith(email);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should throw an error when validateEmail returns false",
+        "code": "it('should throw an error when validateEmail returns false', () => {\n    mockValidateEmail.mockReturnValueOnce(false);\n    const name = 'Invalid User';\n    const email = 'invalid-email';\n    \n    expect(() => userService.createUser(name, email)).toThrow('Invalid email address');\n    expect(mockValidateEmail).toHaveBeenCalledTimes(1);\n    expect(mockValidateEmail).toHaveBeenCalledWith(email);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should allow changing mock implementation for specific tests",
+        "code": "it('should allow changing mock implementation for specific tests', () => {\n    const customId = 'custom-id-456';\n    mockGenerateId.mockReturnValueOnce(customId);\n    \n    const user = userService.createUser('Custom User', 'custom@example.com');\n    \n    expect(user.id).toBe(customId);\n    expect(mockGenerateId).toHaveBeenCalledTimes(1);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should create multiple users with different mocked IDs",
+        "code": "it('should create multiple users with different mocked IDs', () => {\n    mockGenerateId\n      .mockReturnValueOnce('id-1')\n      .mockReturnValueOnce('id-2');\n    \n    const user1 = userService.createUser('User 1', 'user1@example.com');\n    const user2 = userService.createUser('User 2', 'user2@example.com');\n    \n    expect(mockGenerateId).toHaveBeenCalledTimes(2);\n    expect(user1.id).toBe('id-1');\n    expect(user2.id).toBe('id-2');\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "should store and retrieve users correctly",
+        "code": "it('should store and retrieve users correctly', () => {\n    const user = userService.createUser('Test User', 'test@example.com');\n    \n    const retrievedUser = userService.getUserById(user.id);\n    const allUsers = userService.getAllUsers();\n    \n    expect(retrievedUser).toEqual(user);\n    expect(allUsers).toHaveLength(1);\n    expect(allUsers[0]).toEqual(user);\n  })",
+        "type": "test-case"
+      },
+      {
+        "title": "Same Package Mocking",
+        "code": "describe('Same Package Mocking', () => {\n  let userService: UserService;\n  \n  beforeEach(() => {\n    vi.clearAllMocks();\n    \n    mockGenerateId.mockReturnValue('mocked-id-123');\n    mockValidateEmail.mockReturnValue(true);\n    \n    userService = new UserService();\n  })",
+        "type": "describe-block"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/same-package/user.ts",
+    "relativePath": "same-package/user.ts",
+    "fileName": "user.ts",
+    "dirName": "same-package",
+    "content": "/**\n * Example user module that uses the utils module from the same package\n */\nimport { generateId, validateEmail } from './utils';\n\nexport interface User {\n  id: string;\n  name: string;\n  email: string;\n  createdAt: Date;\n}\n\nexport class UserService {\n  private users: User[] = [];\n  \n  createUser(name: string, email: string): User {\n    if (!validateEmail(email)) {\n      throw new Error('Invalid email address');\n    }\n    \n    const newUser: User = {\n      id: generateId(),\n      name,\n      email,\n      createdAt: new Date()\n    };\n    \n    this.users.push(newUser);\n    return newUser;\n  }\n  \n  getUserById(id: string): User | undefined {\n    return this.users.find(user => user.id === id);\n  }\n  \n  getAllUsers(): User[] {\n    return [...this.users];\n  }\n}\n\nexport default UserService;\n",
+    "description": "Example user module that uses the utils module from the same package",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "User",
+        "code": "export interface User {\n  id: string;\n  name: string;\n  email: string;\n  createdAt: Date;\n}",
+        "type": "class"
+      },
+      {
+        "title": "UserService",
+        "code": "export class UserService {\n  private users: User[] = [];\n  \n  createUser(name: string, email: string): User {\n    if (!validateEmail(email)) {\n      throw new Error('Invalid email address');\n    }",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/same-package/utils.ts",
+    "relativePath": "same-package/utils.ts",
+    "fileName": "utils.ts",
+    "dirName": "same-package",
+    "content": "/**\n * Example utility module that will be mocked within the same package\n */\nexport const generateId = (): string => {\n  return Math.random().toString(36).substring(2, 15);\n};\n\nexport const formatDate = (date: Date): string => {\n  return date.toISOString().split('T')[0];\n};\n\nexport const validateEmail = (email: string): boolean => {\n  const regex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n  return regex.test(email);\n};\n\nexport default {\n  generateId,\n  formatDate,\n  validateEmail\n};\n",
+    "description": "Example utility module that will be mocked within the same package",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "utils.ts",
+        "code": "/**\n * Example utility module that will be mocked within the same package\n */\nexport const generateId = (): string => {\n  return Math.random().toString(36).substring(2, 15);\n};\n\nexport const formatDate = (date: Date): string => {\n  return date.toISOString().split('T')[0];\n};\n\nexport const validateEmail = (email: string): boolean => {\n  const regex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n  return regex.test(email);\n};\n\nexport default {\n  generateId,\n  formatDate,\n  validateEmail\n};\n",
+        "type": "file"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/test-doubles/payment-service.ts",
+    "relativePath": "test-doubles/payment-service.ts",
+    "fileName": "payment-service.ts",
+    "dirName": "test-doubles",
+    "content": "/**\n * Example payment service with external dependencies\n * This demonstrates different types of dependencies that can be tested\n * with various test doubles (stubs, mocks, and spies)\n */\n\nexport interface PaymentResult {\n  success: boolean;\n  transactionId?: string;\n  error?: string;\n}\n\nexport interface PaymentDetails {\n  amount: number;\n  cardNumber: string;\n  expiryDate: string;\n  cvv: string;\n}\n\nexport interface PaymentGateway {\n  processPayment(details: PaymentDetails): Promise<PaymentResult>;\n  refundPayment(transactionId: string): Promise<PaymentResult>;\n}\n\nexport interface Logger {\n  info(message: string, meta?: Record<string, unknown>): void;\n  error(message: string, error?: Error, meta?: Record<string, unknown>): void;\n}\n\nexport interface NotificationService {\n  sendPaymentConfirmation(email: string, amount: number, transactionId: string): Promise<boolean>;\n  sendPaymentFailure(email: string, amount: number, reason: string): Promise<boolean>;\n}\n\nexport class PaymentService {\n  private paymentGateway: PaymentGateway;\n  private logger: Logger;\n  private notificationService: NotificationService;\n  \n  constructor(\n    paymentGateway: PaymentGateway,\n    logger: Logger,\n    notificationService: NotificationService\n  ) {\n    this.paymentGateway = paymentGateway;\n    this.logger = logger;\n    this.notificationService = notificationService;\n  }\n  \n  /**\n   * Process a payment and send confirmation\n   * @param details Payment details\n   * @param email Customer email for notification\n   * @returns Payment result\n   */\n  async processPayment(details: PaymentDetails, email: string): Promise<PaymentResult> {\n    try {\n      this.logger.info('Processing payment', { amount: details.amount });\n      \n      this.validatePaymentDetails(details);\n      \n      const result = await this.paymentGateway.processPayment(details);\n      \n      if (result.success) {\n        this.logger.info('Payment successful', { \n          amount: details.amount,\n          transactionId: result.transactionId\n        });\n        \n        await this.notificationService.sendPaymentConfirmation(\n          email,\n          details.amount,\n          result.transactionId!\n        );\n      } else {\n        this.logger.error('Payment failed', undefined, {\n          amount: details.amount,\n          error: result.error\n        });\n        \n        await this.notificationService.sendPaymentFailure(\n          email,\n          details.amount,\n          result.error || 'Unknown error'\n        );\n      }\n      \n      return result;\n    } catch (error) {\n      const errorMessage = error instanceof Error ? error.message : 'Unknown error';\n      this.logger.error('Payment processing error', error instanceof Error ? error : undefined, {\n        amount: details.amount\n      });\n      \n      await this.notificationService.sendPaymentFailure(\n        email,\n        details.amount,\n        errorMessage\n      );\n      \n      return {\n        success: false,\n        error: errorMessage\n      };\n    }\n  }\n  \n  /**\n   * Refund a payment\n   * @param transactionId Transaction ID to refund\n   * @param email Customer email for notification\n   * @returns Refund result\n   */\n  async refundPayment(transactionId: string, email: string): Promise<PaymentResult> {\n    try {\n      this.logger.info('Processing refund', { transactionId });\n      \n      const result = await this.paymentGateway.refundPayment(transactionId);\n      \n      if (result.success) {\n        this.logger.info('Refund successful', { transactionId });\n      } else {\n        this.logger.error('Refund failed', undefined, {\n          transactionId,\n          error: result.error\n        });\n      }\n      \n      return result;\n    } catch (error) {\n      const errorMessage = error instanceof Error ? error.message : 'Unknown error';\n      this.logger.error('Refund processing error', error instanceof Error ? error : undefined, {\n        transactionId\n      });\n      \n      return {\n        success: false,\n        error: errorMessage\n      };\n    }\n  }\n  \n  /**\n   * Validate payment details\n   * @param details Payment details to validate\n   * @throws Error if validation fails\n   */\n  private validatePaymentDetails(details: PaymentDetails): void {\n    if (details.amount <= 0) {\n      throw new Error('Payment amount must be greater than zero');\n    }\n    \n    if (!details.cardNumber || details.cardNumber.length < 15) {\n      throw new Error('Invalid card number');\n    }\n    \n    if (!details.expiryDate || !details.expiryDate.match(/^\\d{2}\\/\\d{2}$/)) {\n      throw new Error('Invalid expiry date format (MM/YY)');\n    }\n    \n    if (!details.cvv || details.cvv.length < 3) {\n      throw new Error('Invalid CVV');\n    }\n  }\n}\n",
+    "description": "Example payment service with external dependencies This demonstrates different types of dependencies that can be tested with various test doubles (stubs, mocks, and spies)",
+    "isTestFile": false,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "result",
+        "code": "const result = await this.paymentGateway.processPayment(details);\n      \n      if (result.success) {\n        this.logger.info('Payment successful', { \n          amount: details.amount,\n          transactionId: result.transactionId\n        }",
+        "type": "function"
+      },
+      {
+        "title": "errorMessage",
+        "code": "const errorMessage = error instanceof Error ? error.message : 'Unknown error';\n      this.logger.error('Payment processing error', error instanceof Error ? error : undefined, {\n        amount: details.amount\n      });\n      \n      await this.notificationService.sendPaymentFailure(\n        email,\n        details.amount,\n        errorMessage\n      );\n      \n      return {\n        success: false,\n        error: errorMessage\n      };\n    }\n  }\n  \n  /**\n   * Refund a payment\n   * @param transactionId Transaction ID to refund\n   * @param email Customer email for notification\n   * @returns Refund result\n   */\n  async refundPayment(transactionId: string, email: string): Promise<PaymentResult> {\n    try {\n      this.logger.info('Processing refund', { transactionId });\n      \n      const result = await this.paymentGateway.refundPayment(transactionId);\n      \n      if (result.success) {\n        this.logger.info('Refund successful', { transactionId }",
+        "type": "function"
+      },
+      {
+        "title": "errorMessage",
+        "code": "const errorMessage = error instanceof Error ? error.message : 'Unknown error';\n      this.logger.error('Refund processing error', error instanceof Error ? error : undefined, {\n        transactionId\n      });\n      \n      return {\n        success: false,\n        error: errorMessage\n      };\n    }\n  }\n  \n  /**\n   * Validate payment details\n   * @param details Payment details to validate\n   * @throws Error if validation fails\n   */\n  private validatePaymentDetails(details: PaymentDetails): void {\n    if (details.amount <= 0) {\n      throw new Error('Payment amount must be greater than zero');",
+        "type": "function"
+      },
+      {
+        "title": "PaymentResult",
+        "code": "export interface PaymentResult {\n  success: boolean;\n  transactionId?: string;\n  error?: string;\n}",
+        "type": "class"
+      },
+      {
+        "title": "PaymentDetails",
+        "code": "export interface PaymentDetails {\n  amount: number;\n  cardNumber: string;\n  expiryDate: string;\n  cvv: string;\n}",
+        "type": "class"
+      },
+      {
+        "title": "PaymentGateway",
+        "code": "export interface PaymentGateway {\n  processPayment(details: PaymentDetails): Promise<PaymentResult>;\n  refundPayment(transactionId: string): Promise<PaymentResult>;\n}",
+        "type": "class"
+      },
+      {
+        "title": "Logger",
+        "code": "export interface Logger {\n  info(message: string, meta?: Record<string, unknown>): void;\n  error(message: string, error?: Error, meta?: Record<string, unknown>): void;\n}",
+        "type": "class"
+      },
+      {
+        "title": "NotificationService",
+        "code": "export interface NotificationService {\n  sendPaymentConfirmation(email: string, amount: number, transactionId: string): Promise<boolean>;\n  sendPaymentFailure(email: string, amount: number, reason: string): Promise<boolean>;\n}",
+        "type": "class"
+      },
+      {
+        "title": "PaymentService",
+        "code": "export class PaymentService {\n  private paymentGateway: PaymentGateway;\n  private logger: Logger;\n  private notificationService: NotificationService;\n  \n  constructor(\n    paymentGateway: PaymentGateway,\n    logger: Logger,\n    notificationService: NotificationService\n  ) {\n    this.paymentGateway = paymentGateway;\n    this.logger = logger;\n    this.notificationService = notificationService;\n  }",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/test-doubles/test-doubles.test.ts",
+    "relativePath": "test-doubles/test-doubles.test.ts",
+    "fileName": "test-doubles.test.ts",
+    "dirName": "test-doubles",
+    "content": "/**\n * This test file demonstrates the differences between various test doubles\n * (stubs, mocks, and spies) in Vitest with TypeScript.\n */\nimport { describe, it, expect, vi, beforeEach } from 'vitest';\nimport { \n  PaymentService, \n  PaymentGateway, \n  Logger, \n  NotificationService,\n  PaymentDetails,\n  PaymentResult\n} from './payment-service';\n\ndescribe('Test Doubles: Stubs vs Mocks vs Spies', () => {\n  const validPaymentDetails: PaymentDetails = {\n    amount: 100,\n    cardNumber: '4111111111111111',\n    expiryDate: '12/25',\n    cvv: '123'\n  };\n  \n  const customerEmail = 'customer@example.com';\n  \n  describe('Using Stubs', () => {\n    /**\n     * STUBS:\n     * - Replace real objects with simplified implementations\n     * - Return predefined responses\n     * - Don't track or verify calls\n     * - Used when you only care about the RESULT, not HOW it was achieved\n     */\n    \n    it('should process payment successfully using stubs', async () => {\n      const stubGateway: PaymentGateway = {\n        processPayment: async () => ({ \n          success: true, \n          transactionId: 'stub-transaction-123' \n        }),\n        refundPayment: async () => ({ success: true })\n      };\n      \n      const stubLogger: Logger = {\n        info: () => {},\n        error: () => {}\n      };\n      \n      const stubNotificationService: NotificationService = {\n        sendPaymentConfirmation: async () => true,\n        sendPaymentFailure: async () => true\n      };\n      \n      const paymentService = new PaymentService(\n        stubGateway,\n        stubLogger,\n        stubNotificationService\n      );\n      \n      const result = await paymentService.processPayment(validPaymentDetails, customerEmail);\n      \n      expect(result.success).toBe(true);\n      expect(result.transactionId).toBe('stub-transaction-123');\n    });\n    \n    it('should handle payment failure using stubs', async () => {\n      const stubGateway: PaymentGateway = {\n        processPayment: async () => ({ \n          success: false, \n          error: 'Insufficient funds' \n        }),\n        refundPayment: async () => ({ success: true })\n      };\n      \n      const stubLogger: Logger = {\n        info: () => {},\n        error: () => {}\n      };\n      \n      const stubNotificationService: NotificationService = {\n        sendPaymentConfirmation: async () => true,\n        sendPaymentFailure: async () => true\n      };\n      \n      const paymentService = new PaymentService(\n        stubGateway,\n        stubLogger,\n        stubNotificationService\n      );\n      \n      const result = await paymentService.processPayment(validPaymentDetails, customerEmail);\n      \n      expect(result.success).toBe(false);\n      expect(result.error).toBe('Insufficient funds');\n    });\n  });\n  \n  describe('Using Spies', () => {\n    /**\n     * SPIES:\n     * - Wrap real objects or functions\n     * - Track calls and arguments\n     * - Don't change behavior (unless configured to)\n     * - Used when you want to verify HOW something was called\n     * - Good for verifying interactions with real implementations\n     */\n    \n    it('should track calls to dependencies using spies', async () => {\n      const gateway: PaymentGateway = {\n        processPayment: async () => ({ \n          success: true, \n          transactionId: 'spy-transaction-123' \n        }),\n        refundPayment: async () => ({ success: true })\n      };\n      \n      const logger: Logger = {\n        info: () => {},\n        error: () => {}\n      };\n      \n      const notificationService: NotificationService = {\n        sendPaymentConfirmation: async () => true,\n        sendPaymentFailure: async () => true\n      };\n      \n      const processPaymentSpy = vi.spyOn(gateway, 'processPayment');\n      const loggerInfoSpy = vi.spyOn(logger, 'info');\n      const sendConfirmationSpy = vi.spyOn(notificationService, 'sendPaymentConfirmation');\n      \n      const paymentService = new PaymentService(\n        gateway,\n        logger,\n        notificationService\n      );\n      \n      await paymentService.processPayment(validPaymentDetails, customerEmail);\n      \n      expect(processPaymentSpy).toHaveBeenCalledTimes(1);\n      expect(processPaymentSpy).toHaveBeenCalledWith(validPaymentDetails);\n      \n      expect(loggerInfoSpy).toHaveBeenCalledTimes(2);\n      expect(loggerInfoSpy).toHaveBeenCalledWith('Processing payment', { amount: 100 });\n      expect(loggerInfoSpy).toHaveBeenCalledWith('Payment successful', { \n        amount: 100,\n        transactionId: 'spy-transaction-123'\n      });\n      \n      expect(sendConfirmationSpy).toHaveBeenCalledTimes(1);\n      expect(sendConfirmationSpy).toHaveBeenCalledWith(\n        customerEmail,\n        100,\n        'spy-transaction-123'\n      );\n    });\n    \n    it('should allow spies to modify return values', async () => {\n      const gateway: PaymentGateway = {\n        processPayment: async () => ({ \n          success: true, \n          transactionId: 'original-transaction-123' \n        }),\n        refundPayment: async () => ({ success: true })\n      };\n      \n      const logger: Logger = {\n        info: () => {},\n        error: () => {}\n      };\n      \n      const notificationService: NotificationService = {\n        sendPaymentConfirmation: async () => true,\n        sendPaymentFailure: async () => true\n      };\n      \n      const processPaymentSpy = vi.spyOn(gateway, 'processPayment');\n      processPaymentSpy.mockResolvedValueOnce({\n        success: false,\n        error: 'Spy modified error'\n      });\n      \n      const paymentService = new PaymentService(\n        gateway,\n        logger,\n        notificationService\n      );\n      \n      const result = await paymentService.processPayment(validPaymentDetails, customerEmail);\n      \n      expect(result.success).toBe(false);\n      expect(result.error).toBe('Spy modified error');\n      expect(processPaymentSpy).toHaveBeenCalledTimes(1);\n    });\n  });\n  \n  describe('Using Mocks', () => {\n    /**\n     * MOCKS:\n     * - Completely replace real objects\n     * - Have predefined expectations about calls\n     * - Track calls, arguments, and can verify expectations\n     * - Used when you need to verify complex interactions\n     * - Combine aspects of both stubs and spies\n     */\n    \n    let mockGateway: PaymentGateway;\n    let mockLogger: Logger;\n    let mockNotificationService: NotificationService;\n    let paymentService: PaymentService;\n    \n    beforeEach(() => {\n      mockGateway = {\n        processPayment: vi.fn(),\n        refundPayment: vi.fn()\n      };\n      \n      mockLogger = {\n        info: vi.fn(),\n        error: vi.fn()\n      };\n      \n      mockNotificationService = {\n        sendPaymentConfirmation: vi.fn(),\n        sendPaymentFailure: vi.fn()\n      };\n      \n      paymentService = new PaymentService(\n        mockGateway,\n        mockLogger,\n        mockNotificationService\n      );\n      \n      (mockGateway.processPayment as any).mockResolvedValue({\n        success: true,\n        transactionId: 'mock-transaction-123'\n      });\n      \n      (mockNotificationService.sendPaymentConfirmation as any).mockResolvedValue(true);\n      (mockNotificationService.sendPaymentFailure as any).mockResolvedValue(true);\n    });\n    \n    it('should verify the complete payment flow with mocks', async () => {\n      const result = await paymentService.processPayment(validPaymentDetails, customerEmail);\n      \n      expect(result.success).toBe(true);\n      expect(result.transactionId).toBe('mock-transaction-123');\n      \n      expect(mockLogger.info).toHaveBeenCalledWith('Processing payment', { amount: 100 });\n      expect(mockGateway.processPayment).toHaveBeenCalledWith(validPaymentDetails);\n      expect(mockLogger.info).toHaveBeenCalledWith('Payment successful', { \n        amount: 100,\n        transactionId: 'mock-transaction-123'\n      });\n      expect(mockNotificationService.sendPaymentConfirmation).toHaveBeenCalledWith(\n        customerEmail,\n        100,\n        'mock-transaction-123'\n      );\n      \n      expect(mockLogger.error).not.toHaveBeenCalled();\n      expect(mockNotificationService.sendPaymentFailure).not.toHaveBeenCalled();\n    });\n    \n    it('should handle validation errors with mocks', async () => {\n      const invalidPaymentDetails: PaymentDetails = {\n        ...validPaymentDetails,\n        amount: -100 // Invalid amount\n      };\n      \n      const result = await paymentService.processPayment(invalidPaymentDetails, customerEmail);\n      \n      expect(result.success).toBe(false);\n      expect(result.error).toBe('Payment amount must be greater than zero');\n      \n      expect(mockLogger.info).toHaveBeenCalledWith('Processing payment', { amount: -100 });\n      expect(mockLogger.error).toHaveBeenCalledWith(\n        'Payment processing error',\n        expect.any(Error),\n        { amount: -100 }\n      );\n      expect(mockNotificationService.sendPaymentFailure).toHaveBeenCalledWith(\n        customerEmail,\n        -100,\n        'Payment amount must be greater than zero'\n      );\n      \n      expect(mockGateway.processPayment).not.toHaveBeenCalled();\n      expect(mockNotificationService.sendPaymentConfirmation).not.toHaveBeenCalled();\n    });\n    \n    it('should handle gateway errors with mocks', async () => {\n      (mockGateway.processPayment as any).mockRejectedValueOnce(\n        new Error('Network error')\n      );\n      \n      const result = await paymentService.processPayment(validPaymentDetails, customerEmail);\n      \n      expect(result.success).toBe(false);\n      expect(result.error).toBe('Network error');\n      \n      expect(mockLogger.error).toHaveBeenCalledWith(\n        'Payment processing error',\n        expect.any(Error),\n        { amount: 100 }\n      );\n      expect(mockNotificationService.sendPaymentFailure).toHaveBeenCalledWith(\n        customerEmail,\n        100,\n        'Network error'\n      );\n    });\n  });\n  \n  describe('Comparing Test Doubles', () => {\n    /**\n     * This section demonstrates when to use each type of test double\n     * and how they compare to each other\n     */\n    \n    it('should demonstrate stub vs mock vs spy usage', async () => {\n      const stubGateway: PaymentGateway = {\n        processPayment: async () => ({ success: true, transactionId: 'stub-tx' }),\n        refundPayment: async () => ({ success: true })\n      };\n      \n      const mockLogger: Logger = {\n        info: vi.fn(),\n        error: vi.fn()\n      };\n      \n      const realNotificationService: NotificationService = {\n        sendPaymentConfirmation: async () => true,\n        sendPaymentFailure: async () => true\n      };\n      const spyOnSendConfirmation = vi.spyOn(realNotificationService, 'sendPaymentConfirmation');\n      \n      const paymentService = new PaymentService(\n        stubGateway,\n        mockLogger as Logger,\n        realNotificationService\n      );\n      \n      await paymentService.processPayment(validPaymentDetails, customerEmail);\n      \n      expect(mockLogger.info).toHaveBeenCalledTimes(2);\n      \n      expect(spyOnSendConfirmation).toHaveBeenCalledTimes(1);\n    });\n  });\n});\n",
+    "description": "This test file demonstrates the differences between various test doubles (stubs, mocks, and spies) in Vitest with TypeScript.",
+    "isTestFile": true,
+    "category": "unit-tests",
+    "codeBlocks": [
+      {
+        "title": "should process payment successfully using stubs",
+        "code": "it('should process payment successfully using stubs', async () => {\n      const stubGateway: PaymentGateway = {\n        processPayment: async () => ({ \n          success: true, \n          transactionId: 'stub-transaction-123' \n        })",
+        "type": "test-case"
+      },
+      {
+        "title": "should handle payment failure using stubs",
+        "code": "it('should handle payment failure using stubs', async () => {\n      const stubGateway: PaymentGateway = {\n        processPayment: async () => ({ \n          success: false, \n          error: 'Insufficient funds' \n        })",
+        "type": "test-case"
+      },
+      {
+        "title": "should track calls to dependencies using spies",
+        "code": "it('should track calls to dependencies using spies', async () => {\n      const gateway: PaymentGateway = {\n        processPayment: async () => ({ \n          success: true, \n          transactionId: 'spy-transaction-123' \n        })",
+        "type": "test-case"
+      },
+      {
+        "title": "should allow spies to modify return values",
+        "code": "it('should allow spies to modify return values', async () => {\n      const gateway: PaymentGateway = {\n        processPayment: async () => ({ \n          success: true, \n          transactionId: 'original-transaction-123' \n        })",
+        "type": "test-case"
+      },
+      {
+        "title": "should verify the complete payment flow with mocks",
+        "code": "it('should verify the complete payment flow with mocks', async () => {\n      const result = await paymentService.processPayment(validPaymentDetails, customerEmail);\n      \n      expect(result.success).toBe(true);\n      expect(result.transactionId).toBe('mock-transaction-123');\n      \n      expect(mockLogger.info).toHaveBeenCalledWith('Processing payment', { amount: 100 })",
+        "type": "test-case"
+      },
+      {
+        "title": "should handle validation errors with mocks",
+        "code": "it('should handle validation errors with mocks', async () => {\n      const invalidPaymentDetails: PaymentDetails = {\n        ...validPaymentDetails,\n        amount: -100 // Invalid amount\n      };\n      \n      const result = await paymentService.processPayment(invalidPaymentDetails, customerEmail);\n      \n      expect(result.success).toBe(false);\n      expect(result.error).toBe('Payment amount must be greater than zero');\n      \n      expect(mockLogger.info).toHaveBeenCalledWith('Processing payment', { amount: -100 })",
+        "type": "test-case"
+      },
+      {
+        "title": "should handle gateway errors with mocks",
+        "code": "it('should handle gateway errors with mocks', async () => {\n      (mockGateway.processPayment as any).mockRejectedValueOnce(\n        new Error('Network error')\n      );\n      \n      const result = await paymentService.processPayment(validPaymentDetails, customerEmail);\n      \n      expect(result.success).toBe(false);\n      expect(result.error).toBe('Network error');\n      \n      expect(mockLogger.error).toHaveBeenCalledWith(\n        'Payment processing error',\n        expect.any(Error),\n        { amount: 100 }\n      )",
+        "type": "test-case"
+      },
+      {
+        "title": "should demonstrate stub vs mock vs spy usage",
+        "code": "it('should demonstrate stub vs mock vs spy usage', async () => {\n      const stubGateway: PaymentGateway = {\n        processPayment: async () => ({ success: true, transactionId: 'stub-tx' })",
+        "type": "test-case"
+      },
+      {
+        "title": "Test Doubles: Stubs vs Mocks vs Spies",
+        "code": "describe('Test Doubles: Stubs vs Mocks vs Spies', () => {\n  const validPaymentDetails: PaymentDetails = {\n    amount: 100,\n    cardNumber: '4111111111111111',\n    expiryDate: '12/25',\n    cvv: '123'\n  };\n  \n  const customerEmail = 'customer@example.com';\n  \n  describe('Using Stubs', () => {\n    /**\n     * STUBS:\n     * - Replace real objects with simplified implementations\n     * - Return predefined responses\n     * - Don't track or verify calls\n     * - Used when you only care about the RESULT, not HOW it was achieved\n     */\n    \n    it('should process payment successfully using stubs', async () => {\n      const stubGateway: PaymentGateway = {\n        processPayment: async () => ({ \n          success: true, \n          transactionId: 'stub-transaction-123' \n        })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Using Spies",
+        "code": "describe('Using Spies', () => {\n    /**\n     * SPIES:\n     * - Wrap real objects or functions\n     * - Track calls and arguments\n     * - Don't change behavior (unless configured to)\n     * - Used when you want to verify HOW something was called\n     * - Good for verifying interactions with real implementations\n     */\n    \n    it('should track calls to dependencies using spies', async () => {\n      const gateway: PaymentGateway = {\n        processPayment: async () => ({ \n          success: true, \n          transactionId: 'spy-transaction-123' \n        })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Using Mocks",
+        "code": "describe('Using Mocks', () => {\n    /**\n     * MOCKS:\n     * - Completely replace real objects\n     * - Have predefined expectations about calls\n     * - Track calls, arguments, and can verify expectations\n     * - Used when you need to verify complex interactions\n     * - Combine aspects of both stubs and spies\n     */\n    \n    let mockGateway: PaymentGateway;\n    let mockLogger: Logger;\n    let mockNotificationService: NotificationService;\n    let paymentService: PaymentService;\n    \n    beforeEach(() => {\n      mockGateway = {\n        processPayment: vi.fn(),\n        refundPayment: vi.fn()\n      };\n      \n      mockLogger = {\n        info: vi.fn(),\n        error: vi.fn()\n      };\n      \n      mockNotificationService = {\n        sendPaymentConfirmation: vi.fn(),\n        sendPaymentFailure: vi.fn()\n      };\n      \n      paymentService = new PaymentService(\n        mockGateway,\n        mockLogger,\n        mockNotificationService\n      );\n      \n      (mockGateway.processPayment as any).mockResolvedValue({\n        success: true,\n        transactionId: 'mock-transaction-123'\n      })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Comparing Test Doubles",
+        "code": "describe('Comparing Test Doubles', () => {\n    /**\n     * This section demonstrates when to use each type of test double\n     * and how they compare to each other\n     */\n    \n    it('should demonstrate stub vs mock vs spy usage', async () => {\n      const stubGateway: PaymentGateway = {\n        processPayment: async () => ({ success: true, transactionId: 'stub-tx' })",
+        "type": "describe-block"
+      }
+    ]
+  }
+]

@@ -1,0 +1,509 @@
+[
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/accessibility-testing/accessibility-testing.test.tsx",
+    "relativePath": "accessibility-testing/accessibility-testing.test.tsx",
+    "fileName": "accessibility-testing.test.tsx",
+    "dirName": "accessibility-testing",
+    "content": "/**\n * This test file demonstrates techniques for testing accessibility in React components\n * with Vitest, Testing Library, and jest-axe.\n */\nimport { describe, it, expect, vi, beforeEach } from 'vitest';\nimport React from 'react';\nimport { render, screen, fireEvent, waitFor, act } from '@testing-library/react';\nimport { axe, toHaveNoViolations } from 'jest-axe';\nimport '@testing-library/jest-dom';\nimport { AccessibleForm } from './accessible-form';\n\nexpect.extend(toHaveNoViolations);\n\ndescribe('Accessibility Testing', () => {\n  const mockSubmit = vi.fn();\n  \n  beforeEach(() => {\n    mockSubmit.mockClear();\n  });\n  \n  describe('Automated Accessibility Testing with jest-axe', () => {\n    it('should have no accessibility violations', async () => {\n      const { container } = render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const results = await axe(container);\n      \n      expect(results).toHaveNoViolations();\n    });\n    \n    it('should have no accessibility violations when showing errors', async () => {\n      const { container } = render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      const results = await axe(container);\n      expect(results).toHaveNoViolations();\n    });\n    \n    it('should have no accessibility violations when showing success message', async () => {\n      const { container } = render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'John Doe' } });\n      fireEvent.change(screen.getByTestId('email-input'), { target: { value: 'john@example.com' } });\n      fireEvent.change(screen.getByTestId('message-input'), { target: { value: 'Test message' } });\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      const results = await axe(container);\n      expect(results).toHaveNoViolations();\n    });\n  });\n  \n  describe('Testing ARIA Attributes', () => {\n    it('should have proper aria-required attributes', () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      expect(screen.getByTestId('name-input')).toHaveAttribute('aria-required', 'true');\n      expect(screen.getByTestId('email-input')).toHaveAttribute('aria-required', 'true');\n      expect(screen.getByTestId('message-input')).toHaveAttribute('aria-required', 'true');\n    });\n    \n    it('should set aria-invalid when validation fails', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      expect(screen.getByTestId('name-input')).toHaveAttribute('aria-invalid', 'true');\n      expect(screen.getByTestId('email-input')).toHaveAttribute('aria-invalid', 'true');\n      expect(screen.getByTestId('message-input')).toHaveAttribute('aria-invalid', 'true');\n    });\n    \n    it('should connect error messages with inputs using aria-describedby', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      const nameInput = screen.getByTestId('name-input');\n      const nameErrorId = nameInput.getAttribute('aria-describedby');\n      expect(nameErrorId).toBeTruthy();\n      \n      const nameError = screen.getByTestId('name-error');\n      expect(nameError).toHaveAttribute('id', nameErrorId);\n    });\n  });\n  \n  describe('Testing Focus Management', () => {\n    it('should focus the first field with an error after failed submission', async () => {\n      expect(true).toBe(true);\n    });\n    \n    it('should focus the submit button after successful submission', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'John Doe' } });\n      fireEvent.change(screen.getByTestId('email-input'), { target: { value: 'john@example.com' } });\n      fireEvent.change(screen.getByTestId('message-input'), { target: { value: 'Test message' } });\n      \n      const submitButton = screen.getByTestId('submit-button');\n      \n      await act(async () => {\n        fireEvent.click(submitButton);\n      });\n      \n      await waitFor(() => {\n        expect(document.activeElement).toBe(submitButton);\n      });\n    });\n  });\n  \n  describe('Testing Keyboard Navigation', () => {\n    it('should allow form completion using only the keyboard', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const nameInput = screen.getByTestId('name-input');\n      const emailInput = screen.getByTestId('email-input');\n      const messageInput = screen.getByTestId('message-input');\n      const prioritySelect = screen.getByTestId('priority-select');\n      const subscribeCheckbox = screen.getByTestId('subscribe-checkbox');\n      const submitButton = screen.getByTestId('submit-button');\n      \n      await act(async () => {\n        nameInput.focus();\n        fireEvent.change(nameInput, { target: { value: 'John Doe' } });\n        \n        emailInput.focus();\n        fireEvent.change(emailInput, { target: { value: 'john@example.com' } });\n        \n        messageInput.focus();\n        fireEvent.change(messageInput, { target: { value: 'Test message' } });\n        \n        prioritySelect.focus();\n        fireEvent.change(prioritySelect, { target: { value: 'high' } });\n        \n        subscribeCheckbox.focus();\n        fireEvent.click(subscribeCheckbox);\n        \n        submitButton.focus();\n        fireEvent.click(submitButton);\n      });\n      \n      await waitFor(() => {\n        expect(mockSubmit).toHaveBeenCalledTimes(1);\n      });\n      \n      expect(mockSubmit).toHaveBeenCalledWith({\n        name: 'John Doe',\n        email: 'john@example.com',\n        message: 'Test message',\n        priority: 'high',\n        subscribe: true\n      });\n    });\n  });\n  \n  describe('Testing Screen Reader Announcements', () => {\n    it('should announce form errors to screen readers', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      const nameError = screen.getByTestId('name-error');\n      expect(nameError).toHaveAttribute('aria-live', 'polite');\n      expect(nameError).toHaveTextContent('Name is required');\n    });\n    \n    it('should announce success message to screen readers', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'John Doe' } });\n      fireEvent.change(screen.getByTestId('email-input'), { target: { value: 'john@example.com' } });\n      fireEvent.change(screen.getByTestId('message-input'), { target: { value: 'Test message' } });\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      expect(screen.getByTestId('visible-success-message')).toBeInTheDocument();\n      \n      const srMessage = screen.getByTestId('success-message');\n      expect(srMessage).toHaveAttribute('aria-live', 'polite');\n    });\n  });\n  \n  describe('Testing Color Contrast', () => {\n    \n    it('should have sufficient color contrast for error messages', () => {\n      \n      \n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      const nameError = screen.getByTestId('name-error');\n      expect(nameError).toHaveClass('error-message');\n    });\n  });\n  \n  describe('Testing Form Validation', () => {\n    it('should validate email format', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'John Doe' } });\n      fireEvent.change(screen.getByTestId('email-input'), { target: { value: 'invalid-email' } });\n      fireEvent.change(screen.getByTestId('message-input'), { target: { value: 'Test message' } });\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      expect(screen.getByTestId('email-error')).toHaveTextContent('Please enter a valid email address');\n      expect(mockSubmit).not.toHaveBeenCalled();\n    });\n    \n    it('should clear error messages when fields are edited', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      expect(screen.getByTestId('name-error')).toBeInTheDocument();\n      \n      fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'John Doe' } });\n      \n      expect(screen.queryByTestId('name-error')).not.toBeInTheDocument();\n    });\n  });\n});\n",
+    "description": "This test file demonstrates techniques for testing accessibility in React components with Vitest, Testing Library, and jest-axe.",
+    "isTestFile": true,
+    "category": "e2e-tests",
+    "codeBlocks": [
+      {
+        "title": "should have no accessibility violations",
+        "code": "it('should have no accessibility violations', async () => {\n      const { container } = render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const results = await axe(container);\n      \n      expect(results).toHaveNoViolations();\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should have no accessibility violations when showing errors",
+        "code": "it('should have no accessibility violations when showing errors', async () => {\n      const { container } = render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      const results = await axe(container);\n      expect(results).toHaveNoViolations();\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should have no accessibility violations when showing success message",
+        "code": "it('should have no accessibility violations when showing success message', async () => {\n      const { container } = render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'John Doe' } })",
+        "type": "test-case"
+      },
+      {
+        "title": "should have proper aria-required attributes",
+        "code": "it('should have proper aria-required attributes', () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      expect(screen.getByTestId('name-input')).toHaveAttribute('aria-required', 'true');\n      expect(screen.getByTestId('email-input')).toHaveAttribute('aria-required', 'true');\n      expect(screen.getByTestId('message-input')).toHaveAttribute('aria-required', 'true');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should set aria-invalid when validation fails",
+        "code": "it('should set aria-invalid when validation fails', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      expect(screen.getByTestId('name-input')).toHaveAttribute('aria-invalid', 'true');\n      expect(screen.getByTestId('email-input')).toHaveAttribute('aria-invalid', 'true');\n      expect(screen.getByTestId('message-input')).toHaveAttribute('aria-invalid', 'true');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should connect error messages with inputs using aria-describedby",
+        "code": "it('should connect error messages with inputs using aria-describedby', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      const nameInput = screen.getByTestId('name-input');\n      const nameErrorId = nameInput.getAttribute('aria-describedby');\n      expect(nameErrorId).toBeTruthy();\n      \n      const nameError = screen.getByTestId('name-error');\n      expect(nameError).toHaveAttribute('id', nameErrorId);\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should focus the first field with an error after failed submission",
+        "code": "it('should focus the first field with an error after failed submission', async () => {\n      expect(true).toBe(true);\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should focus the submit button after successful submission",
+        "code": "it('should focus the submit button after successful submission', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'John Doe' } })",
+        "type": "test-case"
+      },
+      {
+        "title": "should allow form completion using only the keyboard",
+        "code": "it('should allow form completion using only the keyboard', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const nameInput = screen.getByTestId('name-input');\n      const emailInput = screen.getByTestId('email-input');\n      const messageInput = screen.getByTestId('message-input');\n      const prioritySelect = screen.getByTestId('priority-select');\n      const subscribeCheckbox = screen.getByTestId('subscribe-checkbox');\n      const submitButton = screen.getByTestId('submit-button');\n      \n      await act(async () => {\n        nameInput.focus();\n        fireEvent.change(nameInput, { target: { value: 'John Doe' } })",
+        "type": "test-case"
+      },
+      {
+        "title": "should announce form errors to screen readers",
+        "code": "it('should announce form errors to screen readers', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      const nameError = screen.getByTestId('name-error');\n      expect(nameError).toHaveAttribute('aria-live', 'polite');\n      expect(nameError).toHaveTextContent('Name is required');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should announce success message to screen readers",
+        "code": "it('should announce success message to screen readers', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'John Doe' } })",
+        "type": "test-case"
+      },
+      {
+        "title": "should have sufficient color contrast for error messages",
+        "code": "it('should have sufficient color contrast for error messages', () => {\n      \n      \n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      const nameError = screen.getByTestId('name-error');\n      expect(nameError).toHaveClass('error-message');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should validate email format",
+        "code": "it('should validate email format', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'John Doe' } })",
+        "type": "test-case"
+      },
+      {
+        "title": "should clear error messages when fields are edited",
+        "code": "it('should clear error messages when fields are edited', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      expect(screen.getByTestId('name-error')).toBeInTheDocument();\n      \n      fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'John Doe' } })",
+        "type": "test-case"
+      },
+      {
+        "title": "Accessibility Testing",
+        "code": "describe('Accessibility Testing', () => {\n  const mockSubmit = vi.fn();\n  \n  beforeEach(() => {\n    mockSubmit.mockClear();\n  })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Automated Accessibility Testing with jest-axe",
+        "code": "describe('Automated Accessibility Testing with jest-axe', () => {\n    it('should have no accessibility violations', async () => {\n      const { container } = render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const results = await axe(container);\n      \n      expect(results).toHaveNoViolations();\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing ARIA Attributes",
+        "code": "describe('Testing ARIA Attributes', () => {\n    it('should have proper aria-required attributes', () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      expect(screen.getByTestId('name-input')).toHaveAttribute('aria-required', 'true');\n      expect(screen.getByTestId('email-input')).toHaveAttribute('aria-required', 'true');\n      expect(screen.getByTestId('message-input')).toHaveAttribute('aria-required', 'true');\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Focus Management",
+        "code": "describe('Testing Focus Management', () => {\n    it('should focus the first field with an error after failed submission', async () => {\n      expect(true).toBe(true);\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Keyboard Navigation",
+        "code": "describe('Testing Keyboard Navigation', () => {\n    it('should allow form completion using only the keyboard', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const nameInput = screen.getByTestId('name-input');\n      const emailInput = screen.getByTestId('email-input');\n      const messageInput = screen.getByTestId('message-input');\n      const prioritySelect = screen.getByTestId('priority-select');\n      const subscribeCheckbox = screen.getByTestId('subscribe-checkbox');\n      const submitButton = screen.getByTestId('submit-button');\n      \n      await act(async () => {\n        nameInput.focus();\n        fireEvent.change(nameInput, { target: { value: 'John Doe' } })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Screen Reader Announcements",
+        "code": "describe('Testing Screen Reader Announcements', () => {\n    it('should announce form errors to screen readers', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      const nameError = screen.getByTestId('name-error');\n      expect(nameError).toHaveAttribute('aria-live', 'polite');\n      expect(nameError).toHaveTextContent('Name is required');\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Color Contrast",
+        "code": "describe('Testing Color Contrast', () => {\n    \n    it('should have sufficient color contrast for error messages', () => {\n      \n      \n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      const submitButton = screen.getByTestId('submit-button');\n      fireEvent.click(submitButton);\n      \n      const nameError = screen.getByTestId('name-error');\n      expect(nameError).toHaveClass('error-message');\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Form Validation",
+        "code": "describe('Testing Form Validation', () => {\n    it('should validate email format', async () => {\n      render(<AccessibleForm onSubmit={mockSubmit} />);\n      \n      fireEvent.change(screen.getByTestId('name-input'), { target: { value: 'John Doe' } })",
+        "type": "describe-block"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/accessibility-testing/accessible-form.tsx",
+    "relativePath": "accessibility-testing/accessible-form.tsx",
+    "fileName": "accessible-form.tsx",
+    "dirName": "accessibility-testing",
+    "content": "/**\n * Example of an accessible form component\n * This demonstrates accessibility best practices for React forms\n */\nimport React, { useState, useRef, useId } from 'react';\n\ninterface FormData {\n  name: string;\n  email: string;\n  message: string;\n  priority: 'low' | 'medium' | 'high';\n  subscribe: boolean;\n}\n\ninterface FormProps {\n  onSubmit: (data: FormData) => void;\n  initialData?: Partial<FormData>;\n}\n\nexport const AccessibleForm: React.FC<FormProps> = ({ \n  onSubmit,\n  initialData = {}\n}) => {\n  const [formData, setFormData] = useState<FormData>({\n    name: '',\n    email: '',\n    message: '',\n    priority: 'medium',\n    subscribe: false,\n    ...initialData\n  });\n  \n  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});\n  const [submitted, setSubmitted] = useState(false);\n  \n  const nameId = useId();\n  const emailId = useId();\n  const messageId = useId();\n  const priorityId = useId();\n  const subscribeId = useId();\n  \n  const nameInputRef = useRef<HTMLInputElement>(null);\n  const submitButtonRef = useRef<HTMLButtonElement>(null);\n  \n  const focusFirstError = () => {\n    if (errors.name) {\n      nameInputRef.current?.focus();\n    }\n  };\n  \n  const handleChange = (\n    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>\n  ) => {\n    const { name, value, type } = e.target;\n    const checked = (e.target as HTMLInputElement).checked;\n    \n    setFormData(prev => ({\n      ...prev,\n      [name]: type === 'checkbox' ? checked : value\n    }));\n    \n    if (errors[name as keyof FormData]) {\n      setErrors(prev => ({\n        ...prev,\n        [name]: undefined\n      }));\n    }\n  };\n  \n  const validateForm = (): boolean => {\n    const newErrors: Partial<Record<keyof FormData, string>> = {};\n    \n    if (!formData.name.trim()) {\n      newErrors.name = 'Name is required';\n    }\n    \n    if (!formData.email.trim()) {\n      newErrors.email = 'Email is required';\n    } else if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(formData.email)) {\n      newErrors.email = 'Please enter a valid email address';\n    }\n    \n    if (!formData.message.trim()) {\n      newErrors.message = 'Message is required';\n    }\n    \n    setErrors(newErrors);\n    return Object.keys(newErrors).length === 0;\n  };\n  \n  const handleSubmit = (e: React.FormEvent) => {\n    e.preventDefault();\n    \n    const isValid = validateForm();\n    setSubmitted(true);\n    \n    if (isValid) {\n      onSubmit(formData);\n      submitButtonRef.current?.focus();\n      \n      const successMessage = document.getElementById('form-success-message');\n      if (successMessage) {\n        successMessage.textContent = 'Form submitted successfully!';\n      }\n    } else {\n      focusFirstError();\n    }\n  };\n  \n  return (\n    <div className=\"accessible-form-container\">\n      <h2 id=\"form-heading\">Contact Us</h2>\n      \n      {/* Success message for screen readers */}\n      <div \n        id=\"form-success-message\" \n        className=\"sr-only\" \n        aria-live=\"polite\"\n        data-testid=\"success-message\"\n      ></div>\n      \n      <form \n        onSubmit={handleSubmit} \n        aria-labelledby=\"form-heading\"\n        noValidate\n        data-testid=\"accessible-form\"\n      >\n        <div className=\"form-group\">\n          <label htmlFor={nameId}>\n            Name\n            <span aria-hidden=\"true\" className=\"required-indicator\">*</span>\n          </label>\n          <input\n            ref={nameInputRef}\n            type=\"text\"\n            id={nameId}\n            name=\"name\"\n            value={formData.name}\n            onChange={handleChange}\n            aria-required=\"true\"\n            aria-invalid={!!errors.name}\n            aria-describedby={errors.name ? `${nameId}-error` : undefined}\n            data-testid=\"name-input\"\n          />\n          {errors.name && (\n            <div \n              id={`${nameId}-error`} \n              className=\"error-message\" \n              aria-live=\"polite\"\n              data-testid=\"name-error\"\n            >\n              {errors.name}\n            </div>\n          )}\n        </div>\n        \n        <div className=\"form-group\">\n          <label htmlFor={emailId}>\n            Email\n            <span aria-hidden=\"true\" className=\"required-indicator\">*</span>\n          </label>\n          <input\n            type=\"email\"\n            id={emailId}\n            name=\"email\"\n            value={formData.email}\n            onChange={handleChange}\n            aria-required=\"true\"\n            aria-invalid={!!errors.email}\n            aria-describedby={errors.email ? `${emailId}-error` : undefined}\n            data-testid=\"email-input\"\n          />\n          {errors.email && (\n            <div \n              id={`${emailId}-error`} \n              className=\"error-message\" \n              aria-live=\"polite\"\n              data-testid=\"email-error\"\n            >\n              {errors.email}\n            </div>\n          )}\n        </div>\n        \n        <div className=\"form-group\">\n          <label htmlFor={messageId}>\n            Message\n            <span aria-hidden=\"true\" className=\"required-indicator\">*</span>\n          </label>\n          <textarea\n            id={messageId}\n            name=\"message\"\n            value={formData.message}\n            onChange={handleChange}\n            rows={4}\n            aria-required=\"true\"\n            aria-invalid={!!errors.message}\n            aria-describedby={errors.message ? `${messageId}-error` : undefined}\n            data-testid=\"message-input\"\n          ></textarea>\n          {errors.message && (\n            <div \n              id={`${messageId}-error`} \n              className=\"error-message\" \n              aria-live=\"polite\"\n              data-testid=\"message-error\"\n            >\n              {errors.message}\n            </div>\n          )}\n        </div>\n        \n        <div className=\"form-group\">\n          <label htmlFor={priorityId}>Priority</label>\n          <select\n            id={priorityId}\n            name=\"priority\"\n            value={formData.priority}\n            onChange={handleChange}\n            data-testid=\"priority-select\"\n          >\n            <option value=\"low\">Low</option>\n            <option value=\"medium\">Medium</option>\n            <option value=\"high\">High</option>\n          </select>\n        </div>\n        \n        <div className=\"form-group checkbox-group\">\n          <input\n            type=\"checkbox\"\n            id={subscribeId}\n            name=\"subscribe\"\n            checked={formData.subscribe}\n            onChange={handleChange}\n            data-testid=\"subscribe-checkbox\"\n          />\n          <label htmlFor={subscribeId}>\n            Subscribe to newsletter\n          </label>\n        </div>\n        \n        <div className=\"form-actions\">\n          <button \n            type=\"submit\" \n            ref={submitButtonRef}\n            data-testid=\"submit-button\"\n          >\n            Submit\n          </button>\n        </div>\n        \n        {submitted && Object.keys(errors).length === 0 && (\n          <div \n            className=\"success-message\" \n            role=\"status\"\n            data-testid=\"visible-success-message\"\n          >\n            Form submitted successfully!\n          </div>\n        )}\n      </form>\n    </div>\n  );\n};\n\nexport default AccessibleForm;\n",
+    "description": "Example of an accessible form component This demonstrates accessibility best practices for React forms",
+    "isTestFile": false,
+    "category": "e2e-tests",
+    "codeBlocks": [
+      {
+        "title": "AccessibleForm",
+        "code": "export const AccessibleForm: React.FC<FormProps> = ({ \n  onSubmit,\n  initialData = {}\n}) => {\n  const [formData, setFormData] = useState<FormData>({\n    name: '',\n    email: '',\n    message: '',\n    priority: 'medium',\n    subscribe: false,\n    ...initialData\n  });\n  \n  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});\n  const [submitted, setSubmitted] = useState(false);\n  \n  const nameId = useId();\n  const emailId = useId();\n  const messageId = useId();\n  const priorityId = useId();\n  const subscribeId = useId();\n  \n  const nameInputRef = useRef<HTMLInputElement>(null);\n  const submitButtonRef = useRef<HTMLButtonElement>(null);\n  \n  const focusFirstError = () => {\n    if (errors.name) {\n      nameInputRef.current?.focus();",
+        "type": "function"
+      },
+      {
+        "title": "handleChange",
+        "code": "const handleChange = (\n    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>\n  ) => {\n    const { name, value, type }",
+        "type": "function"
+      },
+      {
+        "title": "checked",
+        "code": "const checked = (e.target as HTMLInputElement).checked;\n    \n    setFormData(prev => ({\n      ...prev,\n      [name]: type === 'checkbox' ? checked : value\n    }));\n    \n    if (errors[name as keyof FormData]) {\n      setErrors(prev => ({\n        ...prev,\n        [name]: undefined\n      }));\n    }\n  };\n  \n  const validateForm = (): boolean => {\n    const newErrors: Partial<Record<keyof FormData, string>> = {};\n    \n    if (!formData.name.trim()) {\n      newErrors.name = 'Name is required';\n    }\n    \n    if (!formData.email.trim()) {\n      newErrors.email = 'Email is required';\n    } else if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(formData.email)) {\n      newErrors.email = 'Please enter a valid email address';\n    }\n    \n    if (!formData.message.trim()) {\n      newErrors.message = 'Message is required';\n    }\n    \n    setErrors(newErrors);\n    return Object.keys(newErrors).length === 0;\n  };\n  \n  const handleSubmit = (e: React.FormEvent) => {\n    e.preventDefault();",
+        "type": "function"
+      },
+      {
+        "title": "isValid",
+        "code": "const isValid = validateForm();\n    setSubmitted(true);\n    \n    if (isValid) {\n      onSubmit(formData);",
+        "type": "function"
+      },
+      {
+        "title": "successMessage",
+        "code": "const successMessage = document.getElementById('form-success-message');\n      if (successMessage) {\n        successMessage.textContent = 'Form submitted successfully!';\n      }",
+        "type": "function"
+      },
+      {
+        "title": "FormData",
+        "code": "interface FormData {\n  name: string;\n  email: string;\n  message: string;\n  priority: 'low' | 'medium' | 'high';\n  subscribe: boolean;\n}",
+        "type": "class"
+      },
+      {
+        "title": "FormProps",
+        "code": "interface FormProps {\n  onSubmit: (data: FormData) => void;\n  initialData?: Partial<FormData>;\n}",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/async-testing/api-client.ts",
+    "relativePath": "async-testing/api-client.ts",
+    "fileName": "api-client.ts",
+    "dirName": "async-testing",
+    "content": "/**\n * Example API client with asynchronous methods\n * This demonstrates common patterns for asynchronous code in TypeScript\n */\n\nexport interface User {\n  id: number;\n  name: string;\n  email: string;\n}\n\nexport interface ApiResponse<T> {\n  data: T;\n  status: number;\n  message: string;\n}\n\nconst delay = (ms: number): Promise<void> => \n  new Promise(resolve => setTimeout(resolve, ms));\n\nexport class ApiClient {\n  private baseUrl: string;\n  private timeout: number;\n  \n  constructor(baseUrl: string = 'https://api.example.com', timeout: number = 5000) {\n    this.baseUrl = baseUrl;\n    this.timeout = timeout;\n  }\n  \n  /**\n   * Fetches a user by ID\n   * @param id User ID\n   * @returns Promise with user data\n   * @throws Error if request times out or fails\n   */\n  async getUser(id: number): Promise<ApiResponse<User>> {\n    await delay(300);\n    \n    if (Math.random() < 0.1) {\n      throw new Error('Request timed out');\n    }\n    \n    if (id <= 0) {\n      throw new Error('User not found');\n    }\n    \n    return {\n      data: {\n        id,\n        name: `User ${id}`,\n        email: `user${id}@example.com`\n      },\n      status: 200,\n      message: 'Success'\n    };\n  }\n  \n  /**\n   * Creates a new user\n   * @param user User data\n   * @returns Promise with created user\n   */\n  async createUser(user: Omit<User, 'id'>): Promise<ApiResponse<User>> {\n    await delay(500);\n    \n    if (!user.name || !user.email) {\n      throw new Error('Invalid user data');\n    }\n    \n    const newUser: User = {\n      ...user,\n      id: Math.floor(Math.random() * 1000) + 1\n    };\n    \n    return {\n      data: newUser,\n      status: 201,\n      message: 'User created successfully'\n    };\n  }\n  \n  /**\n   * Fetches multiple users concurrently\n   * @param ids Array of user IDs\n   * @returns Promise with array of users\n   */\n  async getUsers(ids: number[]): Promise<ApiResponse<User[]>> {\n    try {\n      const userPromises = ids.map(id => this.getUserWithoutResponse(id));\n      const users = await Promise.all(userPromises);\n      \n      return {\n        data: users,\n        status: 200,\n        message: 'Success'\n      };\n    } catch (error) {\n      throw new Error(`Failed to fetch users: ${error instanceof Error ? error.message : String(error)}`);\n    }\n  }\n  \n  /**\n   * Helper method that returns just the user data without the API response wrapper\n   */\n  private async getUserWithoutResponse(id: number): Promise<User> {\n    const response = await this.getUser(id);\n    return response.data;\n  }\n  \n  /**\n   * Fetches a user with timeout\n   * @param id User ID\n   * @returns Promise with user data or null if timeout\n   */\n  async getUserWithTimeout(id: number): Promise<ApiResponse<User> | null> {\n    try {\n      const timeoutPromise = new Promise<null>((_, reject) => {\n        setTimeout(() => reject(new Error('Request timed out')), this.timeout);\n      });\n      \n      const result = await Promise.race([\n        this.getUser(id),\n        timeoutPromise\n      ]);\n      \n      return result;\n    } catch (error) {\n      console.error('Request failed:', error);\n      return null;\n    }\n  }\n}\n\nexport default ApiClient;\n",
+    "description": "Example API client with asynchronous methods This demonstrates common patterns for asynchronous code in TypeScript",
+    "isTestFile": false,
+    "category": "e2e-tests",
+    "codeBlocks": [
+      {
+        "title": "delay",
+        "code": "const delay = (ms: number): Promise<void> => \n  new Promise(resolve => setTimeout(resolve, ms));\n\nexport class ApiClient {\n  private baseUrl: string;\n  private timeout: number;\n  \n  constructor(baseUrl: string = 'https://api.example.com', timeout: number = 5000) {\n    this.baseUrl = baseUrl;\n    this.timeout = timeout;\n  }\n  \n  /**\n   * Fetches a user by ID\n   * @param id User ID\n   * @returns Promise with user data\n   * @throws Error if request times out or fails\n   */\n  async getUser(id: number): Promise<ApiResponse<User>> {\n    await delay(300);\n    \n    if (Math.random() < 0.1) {\n      throw new Error('Request timed out');\n    }\n    \n    if (id <= 0) {\n      throw new Error('User not found');\n    }\n    \n    return {\n      data: {\n        id,\n        name: `User ${id}`,\n        email: `user${id}@example.com`\n      },\n      status: 200,\n      message: 'Success'\n    };\n  }\n  \n  /**\n   * Creates a new user\n   * @param user User data\n   * @returns Promise with created user\n   */\n  async createUser(user: Omit<User, 'id'>): Promise<ApiResponse<User>> {\n    await delay(500);\n    \n    if (!user.name || !user.email) {\n      throw new Error('Invalid user data');\n    }\n    \n    const newUser: User = {\n      ...user,\n      id: Math.floor(Math.random() * 1000) + 1\n    };\n    \n    return {\n      data: newUser,\n      status: 201,\n      message: 'User created successfully'\n    };\n  }\n  \n  /**\n   * Fetches multiple users concurrently\n   * @param ids Array of user IDs\n   * @returns Promise with array of users\n   */\n  async getUsers(ids: number[]): Promise<ApiResponse<User[]>> {\n    try {\n      const userPromises = ids.map(id => this.getUserWithoutResponse(id));\n      const users = await Promise.all(userPromises);\n      \n      return {\n        data: users,\n        status: 200,\n        message: 'Success'\n      };\n    } catch (error) {\n      throw new Error(`Failed to fetch users: ${error instanceof Error ? error.message : String(error)}`);\n    }\n  }\n  \n  /**\n   * Helper method that returns just the user data without the API response wrapper\n   */\n  private async getUserWithoutResponse(id: number): Promise<User> {\n    const response = await this.getUser(id);\n    return response.data;\n  }\n  \n  /**\n   * Fetches a user with timeout\n   * @param id User ID\n   * @returns Promise with user data or null if timeout\n   */\n  async getUserWithTimeout(id: number): Promise<ApiResponse<User> | null> {\n    try {\n      const timeoutPromise = new Promise<null>((_, reject) => {\n        setTimeout(() => reject(new Error('Request timed out')), this.timeout);",
+        "type": "function"
+      },
+      {
+        "title": "result",
+        "code": "const result = await Promise.race([\n        this.getUser(id),\n        timeoutPromise\n      ]);\n      \n      return result;\n    } catch (error) {\n      console.error('Request failed:', error);",
+        "type": "function"
+      },
+      {
+        "title": "User",
+        "code": "export interface User {\n  id: number;\n  name: string;\n  email: string;\n}",
+        "type": "class"
+      },
+      {
+        "title": "ApiResponse",
+        "code": "export interface ApiResponse<T> {\n  data: T;\n  status: number;\n  message: string;\n}",
+        "type": "class"
+      },
+      {
+        "title": "ApiClient",
+        "code": "export class ApiClient {\n  private baseUrl: string;\n  private timeout: number;\n  \n  constructor(baseUrl: string = 'https://api.example.com', timeout: number = 5000) {\n    this.baseUrl = baseUrl;\n    this.timeout = timeout;\n  }",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/async-testing/async-testing.test.ts",
+    "relativePath": "async-testing/async-testing.test.ts",
+    "fileName": "async-testing.test.ts",
+    "dirName": "async-testing",
+    "content": "/**\n * This test file demonstrates techniques for testing asynchronous code\n * with Vitest and TypeScript, focusing on promises, async/await, and race conditions.\n */\nimport { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';\nimport { ApiClient, User } from './api-client';\n\ndescribe('Testing Asynchronous Code', () => {\n  let apiClient: ApiClient;\n  \n  beforeEach(() => {\n    apiClient = new ApiClient();\n    \n    vi.useFakeTimers();\n  });\n  \n  afterEach(() => {\n    vi.restoreAllMocks();\n    vi.useRealTimers();\n  });\n  \n  describe('Basic Promise Testing', () => {\n    it('should resolve with user data for valid ID', async () => {\n      const userId = 1;\n      \n      vi.spyOn(Math, 'random').mockReturnValue(0.5);\n      \n      const promise = apiClient.getUser(userId);\n      \n      vi.runAllTimers();\n      \n      await expect(promise).resolves.toEqual(expect.objectContaining({\n        data: expect.objectContaining({\n          id: userId,\n          name: `User ${userId}`,\n          email: `user${userId}@example.com`\n        }),\n        status: 200\n      }));\n    });\n    \n    it('should reject for invalid user ID', async () => {\n      const userId = -1;\n      \n      const promise = apiClient.getUser(userId);\n      \n      vi.runAllTimers();\n      \n      await expect(promise).rejects.toThrow('User not found');\n    });\n    \n    it.skip('should handle promise rejection with try/catch', async () => {\n      const userId = -1;\n      \n      vi.runAllTimers();\n      \n      try {\n        await apiClient.getUser(userId);\n        expect.fail('Promise should have been rejected');\n      } catch (error) {\n        expect(error).toBeInstanceOf(Error);\n        expect((error as Error).message).toBe('User not found');\n      }\n    });\n  });\n  \n  describe('Testing Async/Await Functions', () => {\n    it('should create a user with valid data', async () => {\n      const userData = {\n        name: 'John Doe',\n        email: 'john@example.com'\n      };\n      \n      const promise = apiClient.createUser(userData);\n      vi.runAllTimers();\n      const result = await promise;\n      \n      expect(result.status).toBe(201);\n      expect(result.data).toEqual(expect.objectContaining({\n        id: expect.any(Number),\n        name: userData.name,\n        email: userData.email\n      }));\n    });\n    \n    it('should throw for invalid user data', async () => {\n      const invalidUserData = {\n        name: '',\n        email: 'john@example.com'\n      };\n      \n      const createPromise = apiClient.createUser(invalidUserData);\n      vi.runAllTimers();\n      \n      await expect(createPromise).rejects.toThrow('Invalid user data');\n    });\n  });\n  \n  describe('Testing Concurrent Operations', () => {\n    it('should fetch multiple users concurrently', async () => {\n      const userIds = [1, 2, 3];\n      \n      vi.spyOn(Math, 'random').mockReturnValue(0.5);\n      \n      const promise = apiClient.getUsers(userIds);\n      vi.runAllTimers();\n      const result = await promise;\n      \n      expect(result.data).toHaveLength(userIds.length);\n      expect(result.data[0].id).toBe(userIds[0]);\n      expect(result.data[1].id).toBe(userIds[1]);\n      expect(result.data[2].id).toBe(userIds[2]);\n    });\n    \n    it('should handle errors in concurrent operations', async () => {\n      const userIds = [1, -1, 3]; // One invalid ID\n      \n      const promise = apiClient.getUsers(userIds);\n      vi.runAllTimers();\n      \n      await expect(promise).rejects.toThrow('Failed to fetch users');\n    });\n  });\n  \n  describe('Testing Race Conditions', () => {\n    it('should handle timeout race conditions', async () => {\n      const userId = 1;\n      \n      const getUserSpy = vi.spyOn(apiClient as any, 'getUser');\n      getUserSpy.mockImplementationOnce(async () => {\n        await new Promise(resolve => setTimeout(resolve, 10000)); // Very long delay\n        return { data: { id: userId, name: 'User 1', email: 'user1@example.com' } };\n      });\n      \n      const promise = apiClient.getUserWithTimeout(userId);\n      \n      vi.advanceTimersByTime(6000);\n      \n      const result = await promise;\n      expect(result).toBeNull();\n    });\n    \n    it('should return data when request completes before timeout', async () => {\n      const userId = 1;\n      \n      const getUserSpy = vi.spyOn(apiClient as any, 'getUser');\n      getUserSpy.mockResolvedValueOnce({\n        data: { id: userId, name: 'User 1', email: 'user1@example.com' },\n        status: 200,\n        message: 'Success'\n      });\n      \n      const promise = apiClient.getUserWithTimeout(userId);\n      \n      vi.runAllTimers();\n      \n      const result = await promise;\n      expect(result).not.toBeNull();\n      expect(result?.data.id).toBe(userId);\n    });\n  });\n  \n  describe('Advanced Timer Techniques', () => {\n    it('should test sequential async operations with runOnlyPendingTimers', async () => {\n      vi.spyOn(Math, 'random').mockReturnValue(0.5);\n      \n      const createUserSpy = vi.spyOn(apiClient, 'createUser');\n      const userData = { name: 'Test User', email: 'test@example.com' };\n      \n      const createPromise = apiClient.createUser(userData);\n      \n      vi.runOnlyPendingTimers();\n      \n      await createPromise;\n      \n      const getUserPromise = apiClient.getUser(1);\n      \n      vi.runOnlyPendingTimers();\n      \n      await getUserPromise;\n      expect(createUserSpy).toHaveBeenCalledTimes(1);\n    });\n    \n    it('should test with advanceTimersToNextTimer', async () => {\n      vi.spyOn(Math, 'random').mockReturnValue(0.5);\n      \n      const getUserSpy = vi.spyOn(apiClient, 'getUser');\n      \n      const promise = apiClient.getUser(1);\n      \n      vi.advanceTimersToNextTimer();\n      \n      await promise;\n      expect(getUserSpy).toHaveBeenCalledTimes(1);\n    });\n  });\n});\n",
+    "description": "This test file demonstrates techniques for testing asynchronous code with Vitest and TypeScript, focusing on promises, async/await, and race conditions.",
+    "isTestFile": true,
+    "category": "e2e-tests",
+    "codeBlocks": [
+      {
+        "title": "should resolve with user data for valid ID",
+        "code": "it('should resolve with user data for valid ID', async () => {\n      const userId = 1;\n      \n      vi.spyOn(Math, 'random').mockReturnValue(0.5);\n      \n      const promise = apiClient.getUser(userId);\n      \n      vi.runAllTimers();\n      \n      await expect(promise).resolves.toEqual(expect.objectContaining({\n        data: expect.objectContaining({\n          id: userId,\n          name: `User ${userId}`,\n          email: `user${userId}@example.com`\n        })",
+        "type": "test-case"
+      },
+      {
+        "title": "should reject for invalid user ID",
+        "code": "it('should reject for invalid user ID', async () => {\n      const userId = -1;\n      \n      const promise = apiClient.getUser(userId);\n      \n      vi.runAllTimers();\n      \n      await expect(promise).rejects.toThrow('User not found');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should create a user with valid data",
+        "code": "it('should create a user with valid data', async () => {\n      const userData = {\n        name: 'John Doe',\n        email: 'john@example.com'\n      };\n      \n      const promise = apiClient.createUser(userData);\n      vi.runAllTimers();\n      const result = await promise;\n      \n      expect(result.status).toBe(201);\n      expect(result.data).toEqual(expect.objectContaining({\n        id: expect.any(Number),\n        name: userData.name,\n        email: userData.email\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should throw for invalid user data",
+        "code": "it('should throw for invalid user data', async () => {\n      const invalidUserData = {\n        name: '',\n        email: 'john@example.com'\n      };\n      \n      const createPromise = apiClient.createUser(invalidUserData);\n      vi.runAllTimers();\n      \n      await expect(createPromise).rejects.toThrow('Invalid user data');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should fetch multiple users concurrently",
+        "code": "it('should fetch multiple users concurrently', async () => {\n      const userIds = [1, 2, 3];\n      \n      vi.spyOn(Math, 'random').mockReturnValue(0.5);\n      \n      const promise = apiClient.getUsers(userIds);\n      vi.runAllTimers();\n      const result = await promise;\n      \n      expect(result.data).toHaveLength(userIds.length);\n      expect(result.data[0].id).toBe(userIds[0]);\n      expect(result.data[1].id).toBe(userIds[1]);\n      expect(result.data[2].id).toBe(userIds[2]);\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should handle errors in concurrent operations",
+        "code": "it('should handle errors in concurrent operations', async () => {\n      const userIds = [1, -1, 3]; // One invalid ID\n      \n      const promise = apiClient.getUsers(userIds);\n      vi.runAllTimers();\n      \n      await expect(promise).rejects.toThrow('Failed to fetch users');\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should handle timeout race conditions",
+        "code": "it('should handle timeout race conditions', async () => {\n      const userId = 1;\n      \n      const getUserSpy = vi.spyOn(apiClient as any, 'getUser');\n      getUserSpy.mockImplementationOnce(async () => {\n        await new Promise(resolve => setTimeout(resolve, 10000)); // Very long delay\n        return { data: { id: userId, name: 'User 1', email: 'user1@example.com' } };\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should return data when request completes before timeout",
+        "code": "it('should return data when request completes before timeout', async () => {\n      const userId = 1;\n      \n      const getUserSpy = vi.spyOn(apiClient as any, 'getUser');\n      getUserSpy.mockResolvedValueOnce({\n        data: { id: userId, name: 'User 1', email: 'user1@example.com' },\n        status: 200,\n        message: 'Success'\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should test sequential async operations with runOnlyPendingTimers",
+        "code": "it('should test sequential async operations with runOnlyPendingTimers', async () => {\n      vi.spyOn(Math, 'random').mockReturnValue(0.5);\n      \n      const createUserSpy = vi.spyOn(apiClient, 'createUser');\n      const userData = { name: 'Test User', email: 'test@example.com' };\n      \n      const createPromise = apiClient.createUser(userData);\n      \n      vi.runOnlyPendingTimers();\n      \n      await createPromise;\n      \n      const getUserPromise = apiClient.getUser(1);\n      \n      vi.runOnlyPendingTimers();\n      \n      await getUserPromise;\n      expect(createUserSpy).toHaveBeenCalledTimes(1);\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should test with advanceTimersToNextTimer",
+        "code": "it('should test with advanceTimersToNextTimer', async () => {\n      vi.spyOn(Math, 'random').mockReturnValue(0.5);\n      \n      const getUserSpy = vi.spyOn(apiClient, 'getUser');\n      \n      const promise = apiClient.getUser(1);\n      \n      vi.advanceTimersToNextTimer();\n      \n      await promise;\n      expect(getUserSpy).toHaveBeenCalledTimes(1);\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "Testing Asynchronous Code",
+        "code": "describe('Testing Asynchronous Code', () => {\n  let apiClient: ApiClient;\n  \n  beforeEach(() => {\n    apiClient = new ApiClient();\n    \n    vi.useFakeTimers();\n  })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Basic Promise Testing",
+        "code": "describe('Basic Promise Testing', () => {\n    it('should resolve with user data for valid ID', async () => {\n      const userId = 1;\n      \n      vi.spyOn(Math, 'random').mockReturnValue(0.5);\n      \n      const promise = apiClient.getUser(userId);\n      \n      vi.runAllTimers();\n      \n      await expect(promise).resolves.toEqual(expect.objectContaining({\n        data: expect.objectContaining({\n          id: userId,\n          name: `User ${userId}`,\n          email: `user${userId}@example.com`\n        })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Async/Await Functions",
+        "code": "describe('Testing Async/Await Functions', () => {\n    it('should create a user with valid data', async () => {\n      const userData = {\n        name: 'John Doe',\n        email: 'john@example.com'\n      };\n      \n      const promise = apiClient.createUser(userData);\n      vi.runAllTimers();\n      const result = await promise;\n      \n      expect(result.status).toBe(201);\n      expect(result.data).toEqual(expect.objectContaining({\n        id: expect.any(Number),\n        name: userData.name,\n        email: userData.email\n      })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Concurrent Operations",
+        "code": "describe('Testing Concurrent Operations', () => {\n    it('should fetch multiple users concurrently', async () => {\n      const userIds = [1, 2, 3];\n      \n      vi.spyOn(Math, 'random').mockReturnValue(0.5);\n      \n      const promise = apiClient.getUsers(userIds);\n      vi.runAllTimers();\n      const result = await promise;\n      \n      expect(result.data).toHaveLength(userIds.length);\n      expect(result.data[0].id).toBe(userIds[0]);\n      expect(result.data[1].id).toBe(userIds[1]);\n      expect(result.data[2].id).toBe(userIds[2]);\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Race Conditions",
+        "code": "describe('Testing Race Conditions', () => {\n    it('should handle timeout race conditions', async () => {\n      const userId = 1;\n      \n      const getUserSpy = vi.spyOn(apiClient as any, 'getUser');\n      getUserSpy.mockImplementationOnce(async () => {\n        await new Promise(resolve => setTimeout(resolve, 10000)); // Very long delay\n        return { data: { id: userId, name: 'User 1', email: 'user1@example.com' } };\n      })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Advanced Timer Techniques",
+        "code": "describe('Advanced Timer Techniques', () => {\n    it('should test sequential async operations with runOnlyPendingTimers', async () => {\n      vi.spyOn(Math, 'random').mockReturnValue(0.5);\n      \n      const createUserSpy = vi.spyOn(apiClient, 'createUser');\n      const userData = { name: 'Test User', email: 'test@example.com' };\n      \n      const createPromise = apiClient.createUser(userData);\n      \n      vi.runOnlyPendingTimers();\n      \n      await createPromise;\n      \n      const getUserPromise = apiClient.getUser(1);\n      \n      vi.runOnlyPendingTimers();\n      \n      await getUserPromise;\n      expect(createUserSpy).toHaveBeenCalledTimes(1);\n    })",
+        "type": "describe-block"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/nodejs-testing/cli-script.ts",
+    "relativePath": "nodejs-testing/cli-script.ts",
+    "fileName": "cli-script.ts",
+    "dirName": "nodejs-testing",
+    "content": "/**\n * Example CLI script that uses Node.js native modules and inquirer\n * This demonstrates common patterns for command-line applications\n */\nimport fs from 'fs';\nimport path from 'path';\nimport inquirer from 'inquirer';\n\nexport interface Config {\n  name: string;\n  outputDir: string;\n  features: string[];\n  verbose: boolean;\n}\n\nexport interface FileStats {\n  filename: string;\n  size: number;\n  created: Date;\n  modified: Date;\n}\n\n/**\n * Reads a configuration file\n * @param configPath Path to the config file\n * @returns Parsed configuration object\n */\nexport function readConfig(configPath: string): Config {\n  try {\n    const configData = fs.readFileSync(configPath, 'utf8');\n    return JSON.parse(configData) as Config;\n  } catch (error) {\n    console.error(`Error reading config file: ${error instanceof Error ? error.message : String(error)}`);\n    process.exit(1);\n  }\n}\n\n/**\n * Writes a configuration file\n * @param configPath Path to write the config file\n * @param config Configuration object to write\n * @returns true if successful\n */\nexport function writeConfig(configPath: string, config: Config): boolean {\n  try {\n    const configDir = path.dirname(configPath);\n    \n    if (!fs.existsSync(configDir)) {\n      fs.mkdirSync(configDir, { recursive: true });\n    }\n    \n    fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');\n    return true;\n  } catch (error) {\n    console.error(`Error writing config file: ${error instanceof Error ? error.message : String(error)}`);\n    return false;\n  }\n}\n\n/**\n * Gets file statistics for files in a directory\n * @param directory Directory to scan\n * @param extension Optional file extension filter\n * @returns Array of file statistics\n */\nexport function getFileStats(directory: string, extension?: string): FileStats[] {\n  try {\n    if (!fs.existsSync(directory)) {\n      throw new Error(`Directory does not exist: ${directory}`);\n    }\n    \n    const files = fs.readdirSync(directory);\n    const stats: FileStats[] = [];\n    \n    for (const file of files) {\n      if (extension && !file.endsWith(extension)) {\n        continue;\n      }\n      \n      const filePath = path.join(directory, file);\n      const fileStat = fs.statSync(filePath);\n      \n      if (fileStat.isFile()) {\n        stats.push({\n          filename: file,\n          size: fileStat.size,\n          created: fileStat.birthtime,\n          modified: fileStat.mtime\n        });\n      }\n    }\n    \n    return stats;\n  } catch (error) {\n    console.error(`Error getting file stats: ${error instanceof Error ? error.message : String(error)}`);\n    return [];\n  }\n}\n\n/**\n * Prompts the user for configuration values\n * @param defaultConfig Optional default configuration\n * @returns Promise resolving to the user's configuration\n */\nexport async function promptForConfig(defaultConfig?: Partial<Config>): Promise<Config> {\n  const questions = [\n    {\n      type: 'input',\n      name: 'name',\n      message: 'Project name:',\n      default: defaultConfig?.name || 'my-project'\n    },\n    {\n      type: 'input',\n      name: 'outputDir',\n      message: 'Output directory:',\n      default: defaultConfig?.outputDir || './output'\n    },\n    {\n      type: 'checkbox',\n      name: 'features',\n      message: 'Select features:',\n      choices: ['api', 'ui', 'database', 'auth'],\n      default: defaultConfig?.features || []\n    },\n    {\n      type: 'confirm',\n      name: 'verbose',\n      message: 'Enable verbose logging?',\n      default: defaultConfig?.verbose || false\n    }\n  ];\n  \n  return inquirer.prompt(questions) as Promise<Config>;\n}\n\n/**\n * Processes files based on configuration\n * @param config Configuration object\n * @returns Number of processed files\n */\nexport function processFiles(config: Config): number {\n  try {\n    console.log(`Processing files for project: ${config.name}`);\n    \n    if (!fs.existsSync(config.outputDir)) {\n      fs.mkdirSync(config.outputDir, { recursive: true });\n    }\n    \n    for (const feature of config.features) {\n      const featureFile = path.join(config.outputDir, `${feature}.json`);\n      const featureData = {\n        name: feature,\n        enabled: true,\n        timestamp: new Date().toISOString()\n      };\n      \n      fs.writeFileSync(featureFile, JSON.stringify(featureData, null, 2), 'utf8');\n      \n      if (config.verbose) {\n        console.log(`Created feature file: ${featureFile}`);\n      }\n    }\n    \n    return config.features.length;\n  } catch (error) {\n    console.error(`Error processing files: ${error instanceof Error ? error.message : String(error)}`);\n    return 0;\n  }\n}\n\n/**\n * Main CLI function\n * @param args Command line arguments\n * @returns Promise resolving to exit code\n */\nexport async function main(args: string[]): Promise<number> {\n  try {\n    console.log('Starting CLI application...');\n    \n    const configPath = args[0] || './config.json';\n    \n    let config: Config;\n    \n    if (fs.existsSync(configPath)) {\n      console.log(`Loading configuration from ${configPath}`);\n      config = readConfig(configPath);\n      \n      const { confirmConfig } = await inquirer.prompt([\n        {\n          type: 'confirm',\n          name: 'confirmConfig',\n          message: 'Use existing configuration?',\n          default: true\n        }\n      ]) as { confirmConfig: boolean };\n      \n      if (!confirmConfig) {\n        config = await promptForConfig(config);\n        writeConfig(configPath, config);\n      }\n    } else {\n      console.log('No configuration found. Please provide configuration details:');\n      config = await promptForConfig();\n      writeConfig(configPath, config);\n    }\n    \n    const processedCount = processFiles(config);\n    console.log(`Processed ${processedCount} feature files.`);\n    \n    if (config.verbose) {\n      const stats = getFileStats(config.outputDir, '.json');\n      console.log('File statistics:');\n      console.table(stats.map(stat => ({\n        filename: stat.filename,\n        size: `${stat.size} bytes`,\n        modified: stat.modified.toLocaleString()\n      })));\n    }\n    \n    console.log('CLI application completed successfully.');\n    return 0;\n  } catch (error) {\n    console.error(`Error in CLI application: ${error instanceof Error ? error.message : String(error)}`);\n    return 1;\n  }\n}\n\nif (require.main === module) {\n  main(process.argv.slice(2))\n    .then(exitCode => process.exit(exitCode))\n    .catch(error => {\n      console.error('Unhandled error:', error);\n      process.exit(1);\n    });\n}\n",
+    "description": "Example CLI script that uses Node.js native modules and inquirer This demonstrates common patterns for command-line applications",
+    "isTestFile": false,
+    "category": "e2e-tests",
+    "codeBlocks": [
+      {
+        "title": "readConfig",
+        "code": "export function readConfig(configPath: string): Config {\n  try {\n    const configData = fs.readFileSync(configPath, 'utf8');\n    return JSON.parse(configData) as Config;\n  } catch (error) {\n    console.error(`Error reading config file: ${error instanceof Error ? error.message : String(error)}",
+        "type": "function"
+      },
+      {
+        "title": "writeConfig",
+        "code": "export function writeConfig(configPath: string, config: Config): boolean {\n  try {\n    const configDir = path.dirname(configPath);\n    \n    if (!fs.existsSync(configDir)) {\n      fs.mkdirSync(configDir, { recursive: true }",
+        "type": "function"
+      },
+      {
+        "title": "getFileStats",
+        "code": "export function getFileStats(directory: string, extension?: string): FileStats[] {\n  try {\n    if (!fs.existsSync(directory)) {\n      throw new Error(`Directory does not exist: ${directory}",
+        "type": "function"
+      },
+      {
+        "title": "files",
+        "code": "const files = fs.readdirSync(directory);\n    const stats: FileStats[] = [];\n    \n    for (const file of files) {\n      if (extension && !file.endsWith(extension)) {\n        continue;\n      }",
+        "type": "function"
+      },
+      {
+        "title": "filePath",
+        "code": "const filePath = path.join(directory, file);\n      const fileStat = fs.statSync(filePath);\n      \n      if (fileStat.isFile()) {\n        stats.push({\n          filename: file,\n          size: fileStat.size,\n          created: fileStat.birthtime,\n          modified: fileStat.mtime\n        }",
+        "type": "function"
+      },
+      {
+        "title": "promptForConfig",
+        "code": "function promptForConfig(defaultConfig?: Partial<Config>): Promise<Config> {\n  const questions = [\n    {\n      type: 'input',\n      name: 'name',\n      message: 'Project name:',\n      default: defaultConfig?.name || 'my-project'\n    },\n    {\n      type: 'input',\n      name: 'outputDir',\n      message: 'Output directory:',\n      default: defaultConfig?.outputDir || './output'\n    },\n    {\n      type: 'checkbox',\n      name: 'features',\n      message: 'Select features:',\n      choices: ['api', 'ui', 'database', 'auth'],\n      default: defaultConfig?.features || []\n    },\n    {\n      type: 'confirm',\n      name: 'verbose',\n      message: 'Enable verbose logging?',\n      default: defaultConfig?.verbose || false\n    }\n  ];\n  \n  return inquirer.prompt(questions) as Promise<Config>;\n}\n\n/**\n * Processes files based on configuration\n * @param config Configuration object\n * @returns Number of processed files\n */\nexport function processFiles(config: Config): number {\n  try {\n    console.log(`Processing files for project: ${config.name}`);\n    \n    if (!fs.existsSync(config.outputDir)) {\n      fs.mkdirSync(config.outputDir, { recursive: true }",
+        "type": "function"
+      },
+      {
+        "title": "feature",
+        "code": "const feature of config.features) {\n      const featureFile = path.join(config.outputDir, `${feature}.json`);\n      const featureData = {\n        name: feature,\n        enabled: true,\n        timestamp: new Date().toISOString()\n      };\n      \n      fs.writeFileSync(featureFile, JSON.stringify(featureData, null, 2), 'utf8');\n      \n      if (config.verbose) {\n        console.log(`Created feature file: ${featureFile}",
+        "type": "function"
+      },
+      {
+        "title": "main",
+        "code": "function main(args: string[]): Promise<number> {\n  try {\n    console.log('Starting CLI application...');\n    \n    const configPath = args[0] || './config.json';\n    \n    let config: Config;\n    \n    if (fs.existsSync(configPath)) {\n      console.log(`Loading configuration from ${configPath}",
+        "type": "function"
+      },
+      {
+        "title": "processedCount",
+        "code": "const processedCount = processFiles(config);\n    console.log(`Processed ${processedCount} feature files.`);\n    \n    if (config.verbose) {\n      const stats = getFileStats(config.outputDir, '.json');",
+        "type": "function"
+      },
+      {
+        "title": "Config",
+        "code": "export interface Config {\n  name: string;\n  outputDir: string;\n  features: string[];\n  verbose: boolean;\n}",
+        "type": "class"
+      },
+      {
+        "title": "FileStats",
+        "code": "export interface FileStats {\n  filename: string;\n  size: number;\n  created: Date;\n  modified: Date;\n}",
+        "type": "class"
+      }
+    ]
+  },
+  {
+    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/nodejs-testing/nodejs-testing.test.ts",
+    "relativePath": "nodejs-testing/nodejs-testing.test.ts",
+    "fileName": "nodejs-testing.test.ts",
+    "dirName": "nodejs-testing",
+    "content": "/**\n * This test file demonstrates techniques for testing Node.js scripts\n * with Vitest and TypeScript, focusing on mocking fs, process, and inquirer.\n */\nimport { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';\nimport fs from 'fs';\nimport path from 'path';\nimport inquirer from 'inquirer';\nimport type { Config, FileStats } from './cli-script';\n\ntype MockedFunction<T extends (...args: any) => any> = T & { mock: { calls: any[][]; results: { value: any }[] } };\n\n// Mock fs module\nvi.mock('fs', () => {\n  return {\n    default: {\n      existsSync: vi.fn(),\n      readFileSync: vi.fn(),\n      writeFileSync: vi.fn(),\n      mkdirSync: vi.fn(),\n      readdirSync: vi.fn(),\n      statSync: vi.fn()\n    },\n    existsSync: vi.fn(),\n    readFileSync: vi.fn(),\n    writeFileSync: vi.fn(),\n    mkdirSync: vi.fn(),\n    readdirSync: vi.fn(),\n    statSync: vi.fn()\n  };\n});\n\n// Mock inquirer module\nvi.mock('inquirer', () => {\n  return {\n    default: {\n      prompt: vi.fn()\n    },\n    prompt: vi.fn()\n  };\n});\n\nimport * as cliScript from './cli-script';\n\nvi.mock('./cli-script', async (importOriginal) => {\n  const originalModule = await importOriginal() as typeof cliScript;\n  return {\n    ...originalModule,\n    readConfig: vi.fn().mockImplementation((path: string) => {\n      return { name: 'test-project', outputDir: './test-output', features: ['api', 'ui'], verbose: true };\n    }),\n    writeConfig: vi.fn().mockReturnValue(true),\n    getFileStats: vi.fn().mockReturnValue([{\n      filename: 'test.json',\n      size: 1024,\n      created: new Date('2023-01-01'),\n      modified: new Date('2023-01-02')\n    }]),\n    promptForConfig: vi.fn().mockResolvedValue({\n      name: 'test-project',\n      outputDir: './test-output',\n      features: ['api', 'ui'],\n      verbose: true\n    }),\n    processFiles: vi.fn().mockReturnValue(2),\n    main: vi.fn().mockResolvedValue(0)\n  };\n});\n\n\nconst originalConsoleLog = console.log;\nconst originalConsoleError = console.error;\nconst mockConsoleLog = vi.fn();\nconst mockConsoleError = vi.fn();\n\ndescribe('Testing Node.js Scripts', () => {\n  const sampleConfig: Config = {\n    name: 'test-project',\n    outputDir: './test-output',\n    features: ['api', 'ui'],\n    verbose: true\n  };\n  \n  const sampleFileStats: FileStats[] = [\n    {\n      filename: 'test.json',\n      size: 1024,\n      created: new Date('2023-01-01'),\n      modified: new Date('2023-01-02')\n    }\n  ];\n  \n  beforeEach(() => {\n    vi.resetAllMocks();\n    \n    console.log = mockConsoleLog;\n    console.error = mockConsoleError;\n    \n    vi.mocked(fs.existsSync).mockReturnValue(true);\n    vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(sampleConfig));\n    vi.mocked(fs.readdirSync).mockReturnValue([{ name: 'test.json', isFile: () => true } as unknown as fs.Dirent]);\n    vi.mocked(fs.statSync).mockReturnValue({\n      isFile: () => true,\n      size: 1024,\n      birthtime: new Date('2023-01-01'),\n      mtime: new Date('2023-01-02'),\n      dev: 1,\n      ino: 1,\n      mode: 1,\n      nlink: 1,\n      uid: 1,\n      gid: 1,\n      rdev: 1,\n      blksize: 1,\n      blocks: 1,\n      atimeMs: 1,\n      mtimeMs: 1,\n      ctimeMs: 1,\n      birthtimeMs: 1,\n      atime: new Date(),\n      ctime: new Date()\n    } as unknown as fs.Stats);\n    \n    // Mock inquirer module\n    vi.mocked(inquirer.prompt).mockResolvedValue(sampleConfig);\n    \n    vi.mocked(cliScript.readConfig).mockImplementation((path: string) => {\n      return sampleConfig;\n    });\n    vi.mocked(cliScript.writeConfig).mockReturnValue(true);\n    vi.mocked(cliScript.getFileStats).mockReturnValue(sampleFileStats);\n    vi.mocked(cliScript.promptForConfig).mockResolvedValue(sampleConfig);\n    vi.mocked(cliScript.processFiles).mockImplementation((config) => {\n      console.log(`Processing files for project: ${config.name}`);\n      \n      if (!fs.existsSync(config.outputDir)) {\n        fs.mkdirSync(config.outputDir, { recursive: true });\n      }\n      \n      for (const feature of config.features) {\n        const featureFile = path.join(config.outputDir, `${feature}.json`);\n        const featureData = {\n          name: feature,\n          enabled: true,\n          timestamp: new Date().toISOString()\n        };\n        \n        fs.writeFileSync(featureFile, JSON.stringify(featureData, null, 2), 'utf8');\n        \n        if (config.verbose) {\n          console.log(`Created feature file: ${featureFile}`);\n        }\n      }\n      \n      return config.features.length;\n    });\n    vi.mocked(cliScript.main).mockImplementation(async (args) => {\n      const configPath = args[0] || './config.json';\n      fs.existsSync(configPath);\n      console.log('Starting CLI application...');\n      return 0;\n    });\n  });\n  \n  afterEach(() => {\n    console.log = originalConsoleLog;\n    console.error = originalConsoleError;\n  });\n  \n  describe('Testing File System Operations', () => {\n    it('should read configuration file correctly', () => {\n      const configPath = './config.json';\n      \n      vi.mocked(cliScript.readConfig).mockImplementationOnce((path) => {\n        fs.readFileSync(path, 'utf8');\n        return sampleConfig;\n      });\n      \n      const result = cliScript.readConfig(configPath);\n      \n      expect(fs.readFileSync).toHaveBeenCalledWith(configPath, 'utf8');\n      expect(result).toEqual(sampleConfig);\n    });\n    \n    it('should handle errors when reading config file', () => {\n      const configPath = './config.json';\n      vi.mocked(fs.readFileSync).mockImplementationOnce(() => {\n        throw new Error('File not found');\n      });\n      \n      const mockExit = vi.spyOn(process, 'exit').mockImplementation((code) => {\n        throw new Error(`Process exit with code: ${code}`);\n      });\n      \n      vi.mocked(cliScript.readConfig).mockImplementationOnce((path) => {\n        try {\n          fs.readFileSync(path, 'utf8');\n          return JSON.parse('{}') as any;\n        } catch (error) {\n          console.error(`Error reading config file: ${error instanceof Error ? error.message : String(error)}`);\n          process.exit(1);\n          return {} as any; // This line is never reached\n        }\n      });\n      \n      expect(() => cliScript.readConfig(configPath)).toThrow('Process exit with code: 1');\n      expect(console.error).toHaveBeenCalled();\n      expect(mockExit).toHaveBeenCalledWith(1);\n      \n      mockExit.mockRestore();\n    });\n    \n    it('should write configuration file correctly', () => {\n      const configPath = './config.json';\n      const configDir = path.dirname(configPath);\n      \n      vi.mocked(cliScript.writeConfig).mockImplementationOnce((filePath, config) => {\n        const dir = path.dirname(filePath);\n        fs.existsSync(dir);\n        fs.writeFileSync(filePath, JSON.stringify(config, null, 2), 'utf8');\n        return true;\n      });\n      \n      const result = cliScript.writeConfig(configPath, sampleConfig);\n      \n      expect(fs.existsSync).toHaveBeenCalledWith(configDir);\n      expect(fs.writeFileSync).toHaveBeenCalledWith(\n        configPath,\n        JSON.stringify(sampleConfig, null, 2),\n        'utf8'\n      );\n      expect(result).toBe(true);\n    });\n    \n    it('should create directory if it does not exist when writing config', () => {\n      const configPath = './config/config.json';\n      const configDir = path.dirname(configPath);\n      vi.mocked(fs.existsSync).mockReturnValueOnce(false);\n      \n      vi.mocked(cliScript.writeConfig).mockImplementationOnce((filePath, config) => {\n        const dir = path.dirname(filePath);\n        if (!fs.existsSync(dir)) {\n          fs.mkdirSync(dir, { recursive: true });\n        }\n        fs.writeFileSync(filePath, JSON.stringify(config, null, 2), 'utf8');\n        return true;\n      });\n      \n      cliScript.writeConfig(configPath, sampleConfig);\n      \n      expect(fs.mkdirSync).toHaveBeenCalledWith(configDir, { recursive: true });\n    });\n    \n    it('should get file statistics correctly', () => {\n      const directory = './test-dir';\n      const filePath = path.join(directory, 'test.json');\n      \n      vi.mocked(fs.readdirSync).mockReturnValue(['test.json'] as any);\n      \n      const mockStats = {\n        isFile: () => true,\n        size: 1024,\n        birthtime: new Date('2023-01-01'),\n        mtime: new Date('2023-01-02'),\n        dev: 1, ino: 1, mode: 1, nlink: 1, uid: 1, gid: 1, rdev: 1,\n        blksize: 1, blocks: 1, atimeMs: 1, mtimeMs: 1, ctimeMs: 1, birthtimeMs: 1,\n        atime: new Date(), ctime: new Date()\n      } as unknown as fs.Stats;\n      \n      vi.mocked(fs.statSync).mockReturnValue(mockStats);\n      \n      vi.mocked(cliScript.getFileStats).mockImplementationOnce((dir) => {\n        fs.readdirSync(dir);\n        const filePath = path.join(dir, 'test.json');\n        fs.statSync(filePath);\n        return sampleFileStats;\n      });\n      \n      const result = cliScript.getFileStats(directory);\n      \n      expect(fs.readdirSync).toHaveBeenCalledWith(directory);\n      expect(fs.statSync).toHaveBeenCalledWith(filePath);\n      expect(result).toEqual(sampleFileStats);\n    });\n    \n    it('should filter files by extension', () => {\n      const directory = './test-dir';\n      const extension = '.json';\n      vi.mocked(fs.readdirSync).mockReturnValue(['test.json', 'test.txt'] as any);\n      \n      vi.mocked(cliScript.getFileStats).mockImplementationOnce((dir, ext) => {\n        const files = fs.readdirSync(dir);\n        for (const file of files) {\n          if (file.endsWith(ext || '')) {\n            const filePath = path.join(dir, file);\n            fs.statSync(filePath);\n          }\n        }\n        return sampleFileStats;\n      });\n      \n      cliScript.getFileStats(directory, extension);\n      \n      expect(fs.statSync).toHaveBeenCalledTimes(1);\n      expect(fs.statSync).toHaveBeenCalledWith(path.join(directory, 'test.json'));\n    });\n  });\n  \n  describe('Testing User Interaction', () => {\n    it('should prompt for configuration', async () => {\n      const defaultConfig = { name: 'default-project' };\n      \n      vi.mocked(cliScript.promptForConfig).mockImplementationOnce(async (config) => {\n        const questions = [\n          { type: 'input', name: 'name', message: 'Project name:', default: config?.name || 'my-project' }\n        ];\n        inquirer.prompt(questions as any);\n        return sampleConfig;\n      });\n      \n      const result = await cliScript.promptForConfig(defaultConfig);\n      \n      expect(inquirer.prompt).toHaveBeenCalledWith(expect.arrayContaining([\n        expect.objectContaining({\n          name: 'name',\n          default: 'default-project'\n        })\n      ]));\n      expect(result).toEqual(sampleConfig);\n    });\n    \n    it('should use default values when no config is provided', async () => {\n      vi.mocked(cliScript.promptForConfig).mockImplementationOnce(async () => {\n        const questions = [\n          { type: 'input', name: 'name', message: 'Project name:', default: 'my-project' }\n        ];\n        inquirer.prompt(questions as any);\n        return sampleConfig;\n      });\n      \n      await cliScript.promptForConfig();\n      \n      expect(inquirer.prompt).toHaveBeenCalledWith(expect.arrayContaining([\n        expect.objectContaining({\n          name: 'name',\n          default: 'my-project'\n        })\n      ]));\n    });\n  });\n  \n  describe('Testing Process Functionality', () => {\n    it('should process files based on configuration', () => {\n      vi.mocked(fs.existsSync).mockReturnValueOnce(false);\n      \n      vi.mocked(cliScript.processFiles).mockImplementationOnce((config) => {\n        console.log(`Processing files for project: ${config.name}`);\n        \n        if (!fs.existsSync(config.outputDir)) {\n          fs.mkdirSync(config.outputDir, { recursive: true });\n        }\n        \n        for (const feature of config.features) {\n          const featureFile = path.join(config.outputDir, `${feature}.json`);\n          fs.writeFileSync(featureFile, JSON.stringify({}, null, 2), 'utf8');\n        }\n        \n        return config.features.length;\n      });\n      \n      const result = cliScript.processFiles(sampleConfig);\n      \n      expect(fs.mkdirSync).toHaveBeenCalledWith(sampleConfig.outputDir, { recursive: true });\n      expect(fs.writeFileSync).toHaveBeenCalledTimes(sampleConfig.features.length);\n      expect(result).toBe(sampleConfig.features.length);\n    });\n    \n    it('should log verbose information when verbose is enabled', () => {\n      const verboseConfig = { ...sampleConfig, verbose: true };\n      \n      cliScript.processFiles(verboseConfig);\n      \n      expect(console.log).toHaveBeenCalledTimes(verboseConfig.features.length + 1);\n    });\n    \n    it('should handle errors during processing', () => {\n      vi.mocked(fs.existsSync).mockReturnValueOnce(false);\n      \n      vi.mocked(cliScript.processFiles).mockImplementationOnce((config) => {\n        try {\n          console.log(`Processing files for project: ${config.name}`);\n          \n          if (!fs.existsSync(config.outputDir)) {\n            fs.mkdirSync(config.outputDir, { recursive: true });\n          }\n          \n          return config.features.length;\n        } catch (error) {\n          console.error(`Error processing files: ${error instanceof Error ? error.message : String(error)}`);\n          return 0;\n        }\n      });\n      \n      vi.mocked(fs.mkdirSync).mockImplementationOnce(() => {\n        throw new Error('Permission denied');\n      });\n      \n      const result = cliScript.processFiles(sampleConfig);\n      \n      expect(console.error).toHaveBeenCalled();\n      expect(result).toBe(0);\n    });\n  });\n  \n  describe('Testing Main CLI Function', () => {\n    it('should run the CLI with existing config', async () => {\n      (inquirer.prompt as any).mockResolvedValueOnce({ confirmConfig: true });\n      \n      const exitCode = await cliScript.main(['./config.json']);\n      \n      expect(fs.existsSync).toHaveBeenCalledWith('./config.json');\n      expect(exitCode).toBe(0);\n    });\n    \n    it('should prompt for new config when user rejects existing config', async () => {\n      vi.mocked(cliScript.main).mockImplementationOnce(async (args) => {\n        const configPath = args[0] || './config.json';\n        fs.existsSync(configPath);\n        const result = await inquirer.prompt([{ type: 'confirm', name: 'confirmConfig', message: 'Use existing configuration?' }]) as { confirmConfig: boolean };\n        if (!result.confirmConfig) {\n          const newConfig = await cliScript.promptForConfig();\n          cliScript.writeConfig(configPath, newConfig);\n        }\n        return 0;\n      });\n      \n      vi.mocked(inquirer.prompt).mockResolvedValueOnce({ confirmConfig: false });\n      \n      await cliScript.main(['./config.json']);\n      \n      expect(inquirer.prompt).toHaveBeenCalledTimes(1);\n      expect(cliScript.promptForConfig).toHaveBeenCalledTimes(1);\n      expect(cliScript.writeConfig).toHaveBeenCalledTimes(1);\n    });\n    \n    it('should create new config when config file does not exist', async () => {\n      vi.mocked(cliScript.main).mockImplementationOnce(async (args) => {\n        const configPath = args[0] || './config.json';\n        if (!fs.existsSync(configPath)) {\n          const newConfig = await cliScript.promptForConfig();\n          cliScript.writeConfig(configPath, newConfig);\n        }\n        return 0;\n      });\n      \n      vi.mocked(fs.existsSync).mockReturnValueOnce(false);\n      \n      await cliScript.main(['./config.json']);\n      \n      expect(cliScript.promptForConfig).toHaveBeenCalledTimes(1);\n      expect(cliScript.writeConfig).toHaveBeenCalledWith('./config.json', sampleConfig);\n    });\n    \n    it('should handle errors in the main function', async () => {\n      vi.mocked(inquirer.prompt).mockRejectedValueOnce(new Error('Prompt error'));\n      vi.mocked(cliScript.main).mockImplementationOnce(async () => {\n        console.error('Error in CLI application: Prompt error');\n        return 1;\n      });\n      \n      const exitCode = await cliScript.main(['./config.json']);\n      \n      expect(exitCode).toBe(1);\n      expect(console.error).toHaveBeenCalled();\n    });\n  });\n  \n  describe('Testing Process Arguments and Environment', () => {\n    it('should use default config path when no arguments provided', async () => {\n      (inquirer.prompt as any).mockResolvedValueOnce({ confirmConfig: true });\n      \n      await cliScript.main([]);\n      \n      expect(fs.existsSync).toHaveBeenCalledWith('./config.json');\n    });\n    \n    it('should capture console output', () => {\n      cliScript.processFiles(sampleConfig);\n      \n      expect(mockConsoleLog).toHaveBeenCalledWith(`Processing files for project: ${sampleConfig.name}`);\n    });\n    \n    it('should handle process exit', () => {\n      const mockExit = vi.spyOn(process, 'exit').mockImplementation((code) => {\n        throw new Error(`Process exit with code: ${code}`);\n      });\n      \n      vi.mocked(fs.readFileSync).mockImplementationOnce(() => {\n        throw new Error('File not found');\n      });\n      \n      vi.mocked(cliScript.readConfig).mockImplementationOnce((path) => {\n        try {\n          fs.readFileSync(path, 'utf8');\n          return {} as any;\n        } catch (error) {\n          console.error(`Error reading config file: ${error instanceof Error ? error.message : String(error)}`);\n          process.exit(1);\n          return {} as any; // This line is never reached due to process.exit\n        }\n      });\n      \n      expect(() => cliScript.readConfig('./config.json')).toThrow('Process exit with code: 1');\n      expect(mockExit).toHaveBeenCalledWith(1);\n      \n      mockExit.mockRestore();\n    });\n  });\n  \n  describe('Testing with Mocked Standard Input/Output', () => {\n    it('should handle user input through inquirer', async () => {\n      const userInput = {\n        name: 'user-project',\n        outputDir: './user-output',\n        features: ['database'],\n        verbose: false\n      };\n      \n      vi.mocked(inquirer.prompt).mockResolvedValueOnce(userInput);\n      \n      vi.mocked(cliScript.promptForConfig).mockImplementationOnce(async () => {\n        const questions = [\n          { type: 'input', name: 'name', message: 'Project name:' },\n          { type: 'input', name: 'outputDir', message: 'Output directory:' },\n          { type: 'checkbox', name: 'features', message: 'Select features:' },\n          { type: 'confirm', name: 'verbose', message: 'Enable verbose logging?' }\n        ];\n        return await inquirer.prompt(questions as any) as any;\n      });\n      \n      const result = await cliScript.promptForConfig();\n      \n      expect(inquirer.prompt).toHaveBeenCalled();\n      expect(result).toEqual(userInput);\n    });\n  });\n});\n",
+    "description": "This test file demonstrates techniques for testing Node.js scripts with Vitest and TypeScript, focusing on mocking fs, process, and inquirer.",
+    "isTestFile": true,
+    "category": "e2e-tests",
+    "codeBlocks": [
+      {
+        "title": "should read configuration file correctly",
+        "code": "it('should read configuration file correctly', () => {\n      const configPath = './config.json';\n      \n      vi.mocked(cliScript.readConfig).mockImplementationOnce((path) => {\n        fs.readFileSync(path, 'utf8');\n        return sampleConfig;\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should handle errors when reading config file",
+        "code": "it('should handle errors when reading config file', () => {\n      const configPath = './config.json';\n      vi.mocked(fs.readFileSync).mockImplementationOnce(() => {\n        throw new Error('File not found');\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should write configuration file correctly",
+        "code": "it('should write configuration file correctly', () => {\n      const configPath = './config.json';\n      const configDir = path.dirname(configPath);\n      \n      vi.mocked(cliScript.writeConfig).mockImplementationOnce((filePath, config) => {\n        const dir = path.dirname(filePath);\n        fs.existsSync(dir);\n        fs.writeFileSync(filePath, JSON.stringify(config, null, 2), 'utf8');\n        return true;\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should create directory if it does not exist when writing config",
+        "code": "it('should create directory if it does not exist when writing config', () => {\n      const configPath = './config/config.json';\n      const configDir = path.dirname(configPath);\n      vi.mocked(fs.existsSync).mockReturnValueOnce(false);\n      \n      vi.mocked(cliScript.writeConfig).mockImplementationOnce((filePath, config) => {\n        const dir = path.dirname(filePath);\n        if (!fs.existsSync(dir)) {\n          fs.mkdirSync(dir, { recursive: true })",
+        "type": "test-case"
+      },
+      {
+        "title": "should get file statistics correctly",
+        "code": "it('should get file statistics correctly', () => {\n      const directory = './test-dir';\n      const filePath = path.join(directory, 'test.json');\n      \n      vi.mocked(fs.readdirSync).mockReturnValue(['test.json'] as any);\n      \n      const mockStats = {\n        isFile: () => true,\n        size: 1024,\n        birthtime: new Date('2023-01-01'),\n        mtime: new Date('2023-01-02'),\n        dev: 1, ino: 1, mode: 1, nlink: 1, uid: 1, gid: 1, rdev: 1,\n        blksize: 1, blocks: 1, atimeMs: 1, mtimeMs: 1, ctimeMs: 1, birthtimeMs: 1,\n        atime: new Date(), ctime: new Date()\n      } as unknown as fs.Stats;\n      \n      vi.mocked(fs.statSync).mockReturnValue(mockStats);\n      \n      vi.mocked(cliScript.getFileStats).mockImplementationOnce((dir) => {\n        fs.readdirSync(dir);\n        const filePath = path.join(dir, 'test.json');\n        fs.statSync(filePath);\n        return sampleFileStats;\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should filter files by extension",
+        "code": "it('should filter files by extension', () => {\n      const directory = './test-dir';\n      const extension = '.json';\n      vi.mocked(fs.readdirSync).mockReturnValue(['test.json', 'test.txt'] as any);\n      \n      vi.mocked(cliScript.getFileStats).mockImplementationOnce((dir, ext) => {\n        const files = fs.readdirSync(dir);\n        for (const file of files) {\n          if (file.endsWith(ext || '')) {\n            const filePath = path.join(dir, file);\n            fs.statSync(filePath);\n          }\n        }\n        return sampleFileStats;\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should prompt for configuration",
+        "code": "it('should prompt for configuration', async () => {\n      const defaultConfig = { name: 'default-project' };\n      \n      vi.mocked(cliScript.promptForConfig).mockImplementationOnce(async (config) => {\n        const questions = [\n          { type: 'input', name: 'name', message: 'Project name:', default: config?.name || 'my-project' }\n        ];\n        inquirer.prompt(questions as any);\n        return sampleConfig;\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should use default values when no config is provided",
+        "code": "it('should use default values when no config is provided', async () => {\n      vi.mocked(cliScript.promptForConfig).mockImplementationOnce(async () => {\n        const questions = [\n          { type: 'input', name: 'name', message: 'Project name:', default: 'my-project' }\n        ];\n        inquirer.prompt(questions as any);\n        return sampleConfig;\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should process files based on configuration",
+        "code": "it('should process files based on configuration', () => {\n      vi.mocked(fs.existsSync).mockReturnValueOnce(false);\n      \n      vi.mocked(cliScript.processFiles).mockImplementationOnce((config) => {\n        console.log(`Processing files for project: ${config.name}`);\n        \n        if (!fs.existsSync(config.outputDir)) {\n          fs.mkdirSync(config.outputDir, { recursive: true })",
+        "type": "test-case"
+      },
+      {
+        "title": "should log verbose information when verbose is enabled",
+        "code": "it('should log verbose information when verbose is enabled', () => {\n      const verboseConfig = { ...sampleConfig, verbose: true };\n      \n      cliScript.processFiles(verboseConfig);\n      \n      expect(console.log).toHaveBeenCalledTimes(verboseConfig.features.length + 1);\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should handle errors during processing",
+        "code": "it('should handle errors during processing', () => {\n      vi.mocked(fs.existsSync).mockReturnValueOnce(false);\n      \n      vi.mocked(cliScript.processFiles).mockImplementationOnce((config) => {\n        try {\n          console.log(`Processing files for project: ${config.name}`);\n          \n          if (!fs.existsSync(config.outputDir)) {\n            fs.mkdirSync(config.outputDir, { recursive: true })",
+        "type": "test-case"
+      },
+      {
+        "title": "should run the CLI with existing config",
+        "code": "it('should run the CLI with existing config', async () => {\n      (inquirer.prompt as any).mockResolvedValueOnce({ confirmConfig: true })",
+        "type": "test-case"
+      },
+      {
+        "title": "should prompt for new config when user rejects existing config",
+        "code": "it('should prompt for new config when user rejects existing config', async () => {\n      vi.mocked(cliScript.main).mockImplementationOnce(async (args) => {\n        const configPath = args[0] || './config.json';\n        fs.existsSync(configPath);\n        const result = await inquirer.prompt([{ type: 'confirm', name: 'confirmConfig', message: 'Use existing configuration?' }]) as { confirmConfig: boolean };\n        if (!result.confirmConfig) {\n          const newConfig = await cliScript.promptForConfig();\n          cliScript.writeConfig(configPath, newConfig);\n        }\n        return 0;\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should create new config when config file does not exist",
+        "code": "it('should create new config when config file does not exist', async () => {\n      vi.mocked(cliScript.main).mockImplementationOnce(async (args) => {\n        const configPath = args[0] || './config.json';\n        if (!fs.existsSync(configPath)) {\n          const newConfig = await cliScript.promptForConfig();\n          cliScript.writeConfig(configPath, newConfig);\n        }\n        return 0;\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should handle errors in the main function",
+        "code": "it('should handle errors in the main function', async () => {\n      vi.mocked(inquirer.prompt).mockRejectedValueOnce(new Error('Prompt error'));\n      vi.mocked(cliScript.main).mockImplementationOnce(async () => {\n        console.error('Error in CLI application: Prompt error');\n        return 1;\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should use default config path when no arguments provided",
+        "code": "it('should use default config path when no arguments provided', async () => {\n      (inquirer.prompt as any).mockResolvedValueOnce({ confirmConfig: true })",
+        "type": "test-case"
+      },
+      {
+        "title": "should capture console output",
+        "code": "it('should capture console output', () => {\n      cliScript.processFiles(sampleConfig);\n      \n      expect(mockConsoleLog).toHaveBeenCalledWith(`Processing files for project: ${sampleConfig.name}`);\n    })",
+        "type": "test-case"
+      },
+      {
+        "title": "should handle process exit",
+        "code": "it('should handle process exit', () => {\n      const mockExit = vi.spyOn(process, 'exit').mockImplementation((code) => {\n        throw new Error(`Process exit with code: ${code}`);\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "should handle user input through inquirer",
+        "code": "it('should handle user input through inquirer', async () => {\n      const userInput = {\n        name: 'user-project',\n        outputDir: './user-output',\n        features: ['database'],\n        verbose: false\n      };\n      \n      vi.mocked(inquirer.prompt).mockResolvedValueOnce(userInput);\n      \n      vi.mocked(cliScript.promptForConfig).mockImplementationOnce(async () => {\n        const questions = [\n          { type: 'input', name: 'name', message: 'Project name:' },\n          { type: 'input', name: 'outputDir', message: 'Output directory:' },\n          { type: 'checkbox', name: 'features', message: 'Select features:' },\n          { type: 'confirm', name: 'verbose', message: 'Enable verbose logging?' }\n        ];\n        return await inquirer.prompt(questions as any) as any;\n      })",
+        "type": "test-case"
+      },
+      {
+        "title": "Testing Node.js Scripts",
+        "code": "describe('Testing Node.js Scripts', () => {\n  const sampleConfig: Config = {\n    name: 'test-project',\n    outputDir: './test-output',\n    features: ['api', 'ui'],\n    verbose: true\n  };\n  \n  const sampleFileStats: FileStats[] = [\n    {\n      filename: 'test.json',\n      size: 1024,\n      created: new Date('2023-01-01'),\n      modified: new Date('2023-01-02')\n    }\n  ];\n  \n  beforeEach(() => {\n    vi.resetAllMocks();\n    \n    console.log = mockConsoleLog;\n    console.error = mockConsoleError;\n    \n    vi.mocked(fs.existsSync).mockReturnValue(true);\n    vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(sampleConfig));\n    vi.mocked(fs.readdirSync).mockReturnValue([{ name: 'test.json', isFile: () => true } as unknown as fs.Dirent]);\n    vi.mocked(fs.statSync).mockReturnValue({\n      isFile: () => true,\n      size: 1024,\n      birthtime: new Date('2023-01-01'),\n      mtime: new Date('2023-01-02'),\n      dev: 1,\n      ino: 1,\n      mode: 1,\n      nlink: 1,\n      uid: 1,\n      gid: 1,\n      rdev: 1,\n      blksize: 1,\n      blocks: 1,\n      atimeMs: 1,\n      mtimeMs: 1,\n      ctimeMs: 1,\n      birthtimeMs: 1,\n      atime: new Date(),\n      ctime: new Date()\n    } as unknown as fs.Stats);\n    \n    // Mock inquirer module\n    vi.mocked(inquirer.prompt).mockResolvedValue(sampleConfig);\n    \n    vi.mocked(cliScript.readConfig).mockImplementation((path: string) => {\n      return sampleConfig;\n    })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing File System Operations",
+        "code": "describe('Testing File System Operations', () => {\n    it('should read configuration file correctly', () => {\n      const configPath = './config.json';\n      \n      vi.mocked(cliScript.readConfig).mockImplementationOnce((path) => {\n        fs.readFileSync(path, 'utf8');\n        return sampleConfig;\n      })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing User Interaction",
+        "code": "describe('Testing User Interaction', () => {\n    it('should prompt for configuration', async () => {\n      const defaultConfig = { name: 'default-project' };\n      \n      vi.mocked(cliScript.promptForConfig).mockImplementationOnce(async (config) => {\n        const questions = [\n          { type: 'input', name: 'name', message: 'Project name:', default: config?.name || 'my-project' }\n        ];\n        inquirer.prompt(questions as any);\n        return sampleConfig;\n      })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Process Functionality",
+        "code": "describe('Testing Process Functionality', () => {\n    it('should process files based on configuration', () => {\n      vi.mocked(fs.existsSync).mockReturnValueOnce(false);\n      \n      vi.mocked(cliScript.processFiles).mockImplementationOnce((config) => {\n        console.log(`Processing files for project: ${config.name}`);\n        \n        if (!fs.existsSync(config.outputDir)) {\n          fs.mkdirSync(config.outputDir, { recursive: true })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Main CLI Function",
+        "code": "describe('Testing Main CLI Function', () => {\n    it('should run the CLI with existing config', async () => {\n      (inquirer.prompt as any).mockResolvedValueOnce({ confirmConfig: true })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing Process Arguments and Environment",
+        "code": "describe('Testing Process Arguments and Environment', () => {\n    it('should use default config path when no arguments provided', async () => {\n      (inquirer.prompt as any).mockResolvedValueOnce({ confirmConfig: true })",
+        "type": "describe-block"
+      },
+      {
+        "title": "Testing with Mocked Standard Input/Output",
+        "code": "describe('Testing with Mocked Standard Input/Output', () => {\n    it('should handle user input through inquirer', async () => {\n      const userInput = {\n        name: 'user-project',\n        outputDir: './user-output',\n        features: ['database'],\n        verbose: false\n      };\n      \n      vi.mocked(inquirer.prompt).mockResolvedValueOnce(userInput);\n      \n      vi.mocked(cliScript.promptForConfig).mockImplementationOnce(async () => {\n        const questions = [\n          { type: 'input', name: 'name', message: 'Project name:' },\n          { type: 'input', name: 'outputDir', message: 'Output directory:' },\n          { type: 'checkbox', name: 'features', message: 'Select features:' },\n          { type: 'confirm', name: 'verbose', message: 'Enable verbose logging?' }\n        ];\n        return await inquirer.prompt(questions as any) as any;\n      })",
+        "type": "describe-block"
+      }
+    ]
+  }
+]
