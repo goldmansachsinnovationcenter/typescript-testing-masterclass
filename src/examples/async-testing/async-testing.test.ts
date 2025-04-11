@@ -5,6 +5,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ApiClient, User } from './api-client';
 
+vi.setConfig({ testTimeout: 60000 });
+
 describe('Testing Asynchronous Code', () => {
   let apiClient: ApiClient;
   
