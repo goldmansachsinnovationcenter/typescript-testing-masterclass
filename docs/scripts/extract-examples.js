@@ -20,6 +20,7 @@ const DIRECTORY_CATEGORY_MAP = {
   'indirect-dependencies': TEST_CATEGORIES.UNIT,
   'same-package': TEST_CATEGORIES.UNIT,
   'test-doubles': TEST_CATEGORIES.UNIT,
+  'advanced-patterns': TEST_CATEGORIES.UNIT,
   
   'react-specific': TEST_CATEGORIES.INTEGRATION,
   'dynamic-imports': TEST_CATEGORIES.INTEGRATION,
@@ -28,6 +29,7 @@ const DIRECTORY_CATEGORY_MAP = {
   'accessibility-testing': TEST_CATEGORIES.E2E,
   'async-testing': TEST_CATEGORIES.E2E,
   'nodejs-testing': TEST_CATEGORIES.E2E,
+  'troubleshooting': TEST_CATEGORIES.COMMON,
 };
 
 function extractExamplesFromFile(filePath) {

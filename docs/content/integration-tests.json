@@ -1,6 +1,6 @@
 [
   {
-    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/dynamic-imports/calculator.ts",
+    "path": "/home/ubuntu/typescript-testing-masterclass/src/examples/dynamic-imports/calculator.ts",
     "relativePath": "dynamic-imports/calculator.ts",
     "fileName": "calculator.ts",
     "dirName": "dynamic-imports",
@@ -22,7 +22,7 @@
     ]
   },
   {
-    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/dynamic-imports/dynamic-imports.test.ts",
+    "path": "/home/ubuntu/typescript-testing-masterclass/src/examples/dynamic-imports/dynamic-imports.test.ts",
     "relativePath": "dynamic-imports/dynamic-imports.test.ts",
     "fileName": "dynamic-imports.test.ts",
     "dirName": "dynamic-imports",
@@ -69,7 +69,7 @@
     ]
   },
   {
-    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/dynamic-imports/math-utils.ts",
+    "path": "/home/ubuntu/typescript-testing-masterclass/src/examples/dynamic-imports/math-utils.ts",
     "relativePath": "dynamic-imports/math-utils.ts",
     "fileName": "math-utils.ts",
     "dirName": "dynamic-imports",
@@ -86,7 +86,7 @@
     ]
   },
   {
-    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/lazy-loaded-components/AppWithLazyLoading.tsx",
+    "path": "/home/ubuntu/typescript-testing-masterclass/src/examples/lazy-loaded-components/AppWithLazyLoading.tsx",
     "relativePath": "lazy-loaded-components/AppWithLazyLoading.tsx",
     "fileName": "AppWithLazyLoading.tsx",
     "dirName": "lazy-loaded-components",
@@ -108,7 +108,7 @@
     ]
   },
   {
-    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/lazy-loaded-components/LazyComponent.tsx",
+    "path": "/home/ubuntu/typescript-testing-masterclass/src/examples/lazy-loaded-components/LazyComponent.tsx",
     "relativePath": "lazy-loaded-components/LazyComponent.tsx",
     "fileName": "LazyComponent.tsx",
     "dirName": "lazy-loaded-components",
@@ -125,7 +125,7 @@
     ]
   },
   {
-    "path": "/home/ubuntu/repos/typescript-testing-masterclass/src/examples/lazy-loaded-components/lazy-loaded-components.test.tsx",
+    "path": "/home/ubuntu/typescript-testing-masterclass/src/examples/lazy-loaded-components/lazy-loaded-components.test.tsx",
     "relativePath": "lazy-loaded-components/lazy-loaded-components.test.tsx",
     "fileName": "lazy-loaded-components.test.tsx",
     "dirName": "lazy-loaded-components",
