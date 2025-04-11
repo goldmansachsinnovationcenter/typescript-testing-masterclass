@@ -56,9 +56,7 @@ export const useThemeCounter = (options: UseThemeCounterOptions = {}): UseThemeC
     const { max = Number.MAX_SAFE_INTEGER } = counterOptions;
     const step = isDark ? darkModeStep : lightModeStep;
     
-    if (count + step > max && count === 8) {
-      return;
-    } else if (count + step > max) {
+    if (count + step > max) {
       setValue(max);
     } else {
       baseIncrement();
