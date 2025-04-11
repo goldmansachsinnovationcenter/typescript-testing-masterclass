@@ -19,10 +19,15 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
       
-      - name: Run tests
+      # Skip root tests as there's no package.json in the root
+      - name: Check for tests
         run: |
-          npm install
-          npm test || echo "No tests found, continuing with build"
+          if [ -f "package.json" ]; then
+            npm install
+            npm test || echo "No tests found, continuing with build"
+          else
+            echo "No package.json found in root, skipping tests"
+          fi
       
       - name: Build documentation site
         run: |
