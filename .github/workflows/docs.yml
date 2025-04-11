@@ -21,7 +21,7 @@ jobs:
       
       - name: Run tests
         run: |
-          npm ci
+          npm install
           npm test || echo "No tests found, continuing with build"
       
       - name: Build documentation site
