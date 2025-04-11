@@ -5,9 +5,23 @@
     "e2e-tests",
     "common-patterns"
   ],
-  "totalExamples": 38,
+  "totalExamples": 44,
   "examplesByCategory": {
     "unit-tests": [
+      {
+        "fileName": "useThemeCounter.test.tsx",
+        "dirName": "advanced-patterns",
+        "description": "This test file demonstrates how to test advanced patterns that combine custom hooks with context in Vitest with TypeScript.  KEY CONCEPTS: 1. Testing hooks that depend on context 2. Using wrapper components to provide context in tests 3. Testing type discriminated behavior 4. Testing with branded types",
+        "isTestFile": true,
+        "path": "advanced-patterns/useThemeCounter.test.tsx"
+      },
+      {
+        "fileName": "useThemeCounter.ts",
+        "dirName": "advanced-patterns",
+        "description": "This file demonstrates an advanced pattern combining a custom hook with context. It creates a counter hook that changes behavior based on the current theme.",
+        "isTestFile": false,
+        "path": "advanced-patterns/useThemeCounter.ts"
+      },
       {
         "fileName": "api.ts",
         "dirName": "__mocks__",
@@ -265,6 +279,20 @@
         "path": "async-testing/async-testing.test.ts"
       },
       {
+        "fileName": "enhanced-api-client.ts",
+        "dirName": "async-testing",
+        "description": "Enhanced API client with improved type safety and error handling This demonstrates advanced TypeScript patterns for robust async code",
+        "isTestFile": false,
+        "path": "async-testing/enhanced-api-client.ts"
+      },
+      {
+        "fileName": "enhanced-async-testing.test.ts",
+        "dirName": "async-testing",
+        "description": "This test file demonstrates advanced techniques for testing asynchronous code with Vitest and TypeScript, focusing on type safety, error handling, and race conditions.  KEY CONCEPTS: 1. Branded Types: Using TypeScript branded types for stronger type safety 2. Discriminated Unions: Using union types with discriminators for better error handling 3. Race Conditions: Testing complex timing scenarios with proper mocking 4. Cancellation: Testing request cancellation with AbortController 5. Negative Test Cases: Testing error conditions and edge cases",
+        "isTestFile": true,
+        "path": "async-testing/enhanced-async-testing.test.ts"
+      },
+      {
         "fileName": "cli-script.ts",
         "dirName": "nodejs-testing",
         "description": "Example CLI script that uses Node.js native modules and inquirer This demonstrates common patterns for command-line applications",
@@ -309,6 +337,11 @@
             "fileName": "accessibility-testing.test.tsx",
             "dirName": "accessibility-testing",
             "path": "accessibility-testing/accessibility-testing.test.tsx"
+          },
+          {
+            "fileName": "useThemeCounter.test.tsx",
+            "dirName": "advanced-patterns",
+            "path": "advanced-patterns/useThemeCounter.test.tsx"
           },
           {
             "fileName": "async-testing.test.ts",
@@ -364,6 +397,11 @@
             "fileName": "test-doubles.test.ts",
             "dirName": "test-doubles",
             "path": "test-doubles/test-doubles.test.ts"
+          },
+          {
+            "fileName": "common-issues.test.ts",
+            "dirName": "troubleshooting",
+            "path": "troubleshooting/common-issues.test.ts"
           }
         ]
       },
@@ -372,9 +410,19 @@
         "description": "Providing custom implementations for mocked functions",
         "examples": [
           {
+            "fileName": "useThemeCounter.test.tsx",
+            "dirName": "advanced-patterns",
+            "path": "advanced-patterns/useThemeCounter.test.tsx"
+          },
+          {
             "fileName": "async-testing.test.ts",
             "dirName": "async-testing",
             "path": "async-testing/async-testing.test.ts"
+          },
+          {
+            "fileName": "enhanced-async-testing.test.ts",
+            "dirName": "async-testing",
+            "path": "async-testing/enhanced-async-testing.test.ts"
           },
           {
             "fileName": "dynamic-imports.test.ts",
@@ -415,6 +463,11 @@
             "fileName": "same-package.test.ts",
             "dirName": "same-package",
             "path": "same-package/same-package.test.ts"
+          },
+          {
+            "fileName": "common-issues.test.ts",
+            "dirName": "troubleshooting",
+            "path": "troubleshooting/common-issues.test.ts"
           }
         ]
       }

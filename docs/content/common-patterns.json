@@ -30,6 +30,11 @@
         "path": "accessibility-testing/accessibility-testing.test.tsx"
       },
       {
+        "fileName": "useThemeCounter.test.tsx",
+        "dirName": "advanced-patterns",
+        "path": "advanced-patterns/useThemeCounter.test.tsx"
+      },
+      {
         "fileName": "async-testing.test.ts",
         "dirName": "async-testing",
         "path": "async-testing/async-testing.test.ts"
@@ -83,6 +88,11 @@
         "fileName": "test-doubles.test.ts",
         "dirName": "test-doubles",
         "path": "test-doubles/test-doubles.test.ts"
+      },
+      {
+        "fileName": "common-issues.test.ts",
+        "dirName": "troubleshooting",
+        "path": "troubleshooting/common-issues.test.ts"
       }
     ]
   },
@@ -91,9 +101,19 @@
     "description": "Providing custom implementations for mocked functions",
     "examples": [
       {
+        "fileName": "useThemeCounter.test.tsx",
+        "dirName": "advanced-patterns",
+        "path": "advanced-patterns/useThemeCounter.test.tsx"
+      },
+      {
         "fileName": "async-testing.test.ts",
         "dirName": "async-testing",
         "path": "async-testing/async-testing.test.ts"
+      },
+      {
+        "fileName": "enhanced-async-testing.test.ts",
+        "dirName": "async-testing",
+        "path": "async-testing/enhanced-async-testing.test.ts"
       },
       {
         "fileName": "dynamic-imports.test.ts",
@@ -134,6 +154,11 @@
         "fileName": "same-package.test.ts",
         "dirName": "same-package",
         "path": "same-package/same-package.test.ts"
+      },
+      {
+        "fileName": "common-issues.test.ts",
+        "dirName": "troubleshooting",
+        "path": "troubleshooting/common-issues.test.ts"
       }
     ]
   }

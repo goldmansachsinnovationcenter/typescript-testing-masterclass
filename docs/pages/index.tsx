@@ -31,6 +31,39 @@ export default function Home() {
             <h2>Common Patterns &rarr;</h2>
             <p>Reusable patterns and techniques for effective testing.</p>
           </Link>
+          
+          <Link href="/advanced-patterns" className="card">
+            <h2>Advanced Patterns &rarr;</h2>
+            <p>Sophisticated testing techniques combining multiple patterns.</p>
+          </Link>
+
+          <Link href="/troubleshooting" className="card">
+            <h2>Troubleshooting &rarr;</h2>
+            <p>Solutions for common testing issues and challenges.</p>
+          </Link>
+        </div>
+        
+        <div className="getting-started">
+          <h2>Getting Started</h2>
+          <p>
+            This masterclass provides comprehensive examples and best practices for testing TypeScript applications using Vitest.
+            Whether you're new to testing or looking to improve your existing test suite, you'll find valuable techniques and patterns here.
+          </p>
+          
+          <h3>Installation</h3>
+          <div className="code-block">
+            <pre><code>npm install -D vitest @testing-library/react @testing-library/jest-dom</code></pre>
+          </div>
+          
+          <h3>Key Features</h3>
+          <ul>
+            <li>Type-safe mocking and spying techniques</li>
+            <li>React component testing strategies</li>
+            <li>Asynchronous code testing</li>
+            <li>Accessibility testing</li>
+            <li>Node.js script testing</li>
+            <li>Advanced patterns and troubleshooting</li>
+          </ul>
         </div>
       </div>
 
@@ -48,6 +81,7 @@ export default function Home() {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
           gap: 1.5rem;
+          margin-bottom: 3rem;
         }
         .card {
           padding: 1.5rem;
@@ -57,6 +91,7 @@ export default function Home() {
           border: 1px solid #eaeaea;
           border-radius: 10px;
           transition: color 0.15s ease, border-color 0.15s ease;
+          background-color: white;
         }
         .card:hover,
         .card:focus,
@@ -72,6 +107,36 @@ export default function Home() {
           margin: 0;
           font-size: 1.25rem;
           line-height: 1.5;
+        }
+        .getting-started {
+          background-color: white;
+          padding: 2rem;
+          border-radius: 10px;
+          margin-top: 2rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .getting-started h2 {
+          margin-top: 0;
+        }
+        .getting-started h3 {
+          margin-top: 1.5rem;
+          margin-bottom: 0.5rem;
+        }
+        .code-block {
+          background-color: #f5f5f5;
+          padding: 1rem;
+          border-radius: 5px;
+          overflow-x: auto;
+          margin: 1rem 0;
+        }
+        .code-block pre {
+          margin: 0;
+        }
+        .getting-started ul {
+          padding-left: 1.5rem;
+        }
+        .getting-started li {
+          margin-bottom: 0.5rem;
         }
       `}</style>
     </Layout>

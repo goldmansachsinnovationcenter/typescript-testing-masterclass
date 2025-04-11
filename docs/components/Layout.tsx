@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
+import Sidebar from './Sidebar';
 
 type LayoutProps = {
   children: ReactNode;
@@ -9,7 +10,7 @@ type LayoutProps = {
 
 const Layout = ({ children, title = 'TypeScript Testing Masterclass' }: LayoutProps) => {
   return (
-    <div className="container">
+    <div className="page-container">
       <Head>
         <title>{title}</title>
         <meta charSet="utf-8" />
@@ -37,33 +38,55 @@ const Layout = ({ children, title = 'TypeScript Testing Masterclass' }: LayoutPr
           </div>
         </nav>
       </header>
-      <main>{children}</main>
+      
+      <div className="content-wrapper">
+        <Sidebar />
+        <main className="main-content">
+          <div className="container">
+            {children}
+          </div>
+        </main>
+      </div>
+      
       <footer>
-        <p>
-          TypeScript Testing Masterclass Documentation - 
-          <a href="https://github.com/goldmansachsinnovationcenter/typescript-testing-masterclass" target="_blank" rel="noopener noreferrer">
-            GitHub Repository
-          </a>
-        </p>
+        <div className="container">
+          <p>
+            TypeScript Testing Masterclass Documentation - 
+            <a href="https://github.com/goldmansachsinnovationcenter/typescript-testing-masterclass" target="_blank" rel="noopener noreferrer">
+              GitHub Repository
+            </a>
+          </p>
+        </div>
       </footer>
+      
       <style>{`
-        .container {
+        .page-container {
           min-height: 100vh;
           display: flex;
           flex-direction: column;
+        }
+        .container {
           max-width: 1200px;
           margin: 0 auto;
           padding: 0 1rem;
+          width: 100%;
         }
         header {
           padding: 1rem 0;
           border-bottom: 1px solid #eaeaea;
+          background-color: white;
+          position: sticky;
+          top: 0;
+          z-index: 1000;
         }
         nav {
           display: flex;
           justify-content: space-between;
           align-items: center;
           flex-wrap: wrap;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 1rem;
         }
         .logo {
           font-size: 1.5rem;
@@ -83,18 +106,30 @@ const Layout = ({ children, title = 'TypeScript Testing Masterclass' }: LayoutPr
           color: #0070f3;
           text-decoration: underline;
         }
-        main {
+        .content-wrapper {
+          display: flex;
+          flex: 1;
+        }
+        .main-content {
           flex: 1;
           padding: 2rem 0;
+          margin-left: 30px; /* Space for collapsed sidebar toggle */
         }
         footer {
           padding: 2rem 0;
           border-top: 1px solid #eaeaea;
           text-align: center;
+          background-color: white;
         }
         footer a {
           color: #0070f3;
           text-decoration: none;
+        }
+        
+        @media (min-width: 769px) {
+          .main-content {
+            margin-left: 280px; /* Space for expanded sidebar */
+          }
         }
       `}</style>
       <style>{`
@@ -104,6 +139,7 @@ const Layout = ({ children, title = 'TypeScript Testing Masterclass' }: LayoutPr
           margin: 0;
           font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
             Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+          background-color: #f9fafb;
         }
         * {
           box-sizing: border-box;
