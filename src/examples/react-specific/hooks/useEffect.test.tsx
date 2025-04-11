@@ -83,7 +83,7 @@ describe('UserProfile Component with useEffect', () => {
     });
   });
   
-  it.skip('should increment counter with interval', async () => {
+  it('should increment counter with interval', async () => {
     vi.useFakeTimers();
     
     render(<UserProfile userId={1} />);
@@ -94,16 +94,20 @@ describe('UserProfile Component with useEffect', () => {
     
     expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 0');
     
-    vi.advanceTimersByTime(1000);
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
     expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 1');
     
-    vi.advanceTimersByTime(2000);
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
     expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 3');
     
     vi.useRealTimers();
   });
   
-  it.skip('should handle manual counter increment', async () => {
+  it('should handle manual counter increment', async () => {
     render(<UserProfile userId={1} />);
     
     await waitFor(() => {
@@ -112,12 +116,14 @@ describe('UserProfile Component with useEffect', () => {
     
     expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 0');
     
-    fireEvent.click(screen.getByText('Increment'));
+    act(() => {
+      fireEvent.click(screen.getByText('Increment'));
+    });
     
     expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 1');
   });
   
-  it.skip('should clean up effects when unmounted', async () => {
+  it('should clean up effects when unmounted', async () => {
     vi.useFakeTimers();
     
     const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
@@ -128,7 +134,9 @@ describe('UserProfile Component with useEffect', () => {
       expect(screen.getByTestId('user-profile')).toBeInTheDocument();
     });
     
-    unmount();
+    act(() => {
+      unmount();
+    });
     
     expect(clearIntervalSpy).toHaveBeenCalled();
     

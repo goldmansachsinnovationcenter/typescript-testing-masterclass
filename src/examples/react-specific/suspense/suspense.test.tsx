@@ -129,8 +129,11 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       vi.useRealTimers();
     });
     
-    it.skip('should initially show loading state and then user details', async () => {
+    it('should initially show loading state and then user details', async () => {
       const { act } = await import('react');
+      
+      const originalConsoleError = console.error;
+      console.error = vi.fn();
       
       await act(async () => {
         render(<UserProfile />);
@@ -148,10 +151,15 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       
       expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 1');
       expect(api.fetchUser).toHaveBeenCalledWith(1);
+      
+      console.error = originalConsoleError;
     });
     
-    it.skip('should load a different user when button is clicked', async () => {
+    it('should load a different user when button is clicked', async () => {
       const { act } = await import('react');
+      
+      const originalConsoleError = console.error;
+      console.error = vi.fn();
       
       await act(async () => {
         render(<UserProfile />);
@@ -182,9 +190,11 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 2');
       expect(screen.getByTestId('user-name')).toHaveTextContent('Name: User 2');
       expect(api.fetchUser).toHaveBeenCalledWith(2);
+      
+      console.error = originalConsoleError;
     });
     
-    it.skip('should show error boundary when loading invalid user', async () => {
+    it('should show error boundary when loading invalid user', async () => {
       const { act } = await import('react');
       
       const originalConsoleError = console.error;

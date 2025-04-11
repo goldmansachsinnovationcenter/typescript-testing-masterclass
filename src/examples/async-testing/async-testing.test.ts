@@ -51,8 +51,10 @@ describe('Testing Asynchronous Code', () => {
       await expect(promise).rejects.toThrow('User not found');
     });
     
-    it.skip('should handle promise rejection with try/catch', async () => {
+    it('should handle promise rejection with try/catch', async () => {
       const userId = -1;
+      
+      vi.spyOn(Math, 'random').mockReturnValue(0.5);
       
       vi.runAllTimers();
       
