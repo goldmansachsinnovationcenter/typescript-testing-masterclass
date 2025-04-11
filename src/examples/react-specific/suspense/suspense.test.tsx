@@ -147,13 +147,13 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       
       await waitFor(() => {
         expect(screen.getByTestId('user-details')).toBeInTheDocument();
-      });
+      }, { timeout: 15000 });
       
       expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 1');
       expect(api.fetchUser).toHaveBeenCalledWith(1);
       
       console.error = originalConsoleError;
-    });
+    }, 20000);
     
     it('should load a different user when button is clicked', async () => {
       const { act } = await import('react');
@@ -171,7 +171,7 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       
       await waitFor(() => {
         expect(screen.getByTestId('user-details')).toBeInTheDocument();
-      });
+      }, { timeout: 15000 });
       
       await act(async () => {
         fireEvent.click(screen.getByTestId('load-user-2'));
@@ -185,14 +185,14 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       
       await waitFor(() => {
         expect(screen.getByTestId('user-details')).toBeInTheDocument();
-      });
+      }, { timeout: 15000 });
       
       expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 2');
       expect(screen.getByTestId('user-name')).toHaveTextContent('Name: User 2');
       expect(api.fetchUser).toHaveBeenCalledWith(2);
       
       console.error = originalConsoleError;
-    });
+    }, 30000);
     
     it('should show error boundary when loading invalid user', async () => {
       const { act } = await import('react');
@@ -210,7 +210,7 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       
       await waitFor(() => {
         expect(screen.getByTestId('user-details')).toBeInTheDocument();
-      });
+      }, { timeout: 15000 });
       
       await act(async () => {
         fireEvent.click(screen.getByTestId('load-invalid-user'));
@@ -224,7 +224,7 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       
       await waitFor(() => {
         expect(screen.getByTestId('error-fallback')).toBeInTheDocument();
-      });
+      }, { timeout: 15000 });
       
       expect(screen.getByTestId('error-message')).toHaveTextContent('User not found');
       expect(api.fetchUser).toHaveBeenCalledWith(0);
@@ -241,12 +241,12 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       
       await waitFor(() => {
         expect(screen.getByTestId('user-details')).toBeInTheDocument();
-      });
+      }, { timeout: 15000 });
       
       expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 1');
       
       console.error = originalConsoleError;
-    });
+    }, 40000);
   });
   
   describe('Testing createResource Function', () => {

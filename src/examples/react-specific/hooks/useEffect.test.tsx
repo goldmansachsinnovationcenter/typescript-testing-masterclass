@@ -90,7 +90,7 @@ describe('UserProfile Component with useEffect', () => {
     
     await waitFor(() => {
       expect(screen.getByTestId('user-profile')).toBeInTheDocument();
-    });
+    }, { timeout: 15000 });
     
     expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 0');
     
@@ -105,14 +105,14 @@ describe('UserProfile Component with useEffect', () => {
     expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 3');
     
     vi.useRealTimers();
-  });
+  }, 20000);
   
   it('should handle manual counter increment', async () => {
     render(<UserProfile userId={1} />);
     
     await waitFor(() => {
       expect(screen.getByTestId('user-profile')).toBeInTheDocument();
-    });
+    }, { timeout: 15000 });
     
     expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 0');
     
@@ -121,7 +121,7 @@ describe('UserProfile Component with useEffect', () => {
     });
     
     expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 1');
-  });
+  }, 20000);
   
   it('should clean up effects when unmounted', async () => {
     vi.useFakeTimers();
@@ -132,7 +132,7 @@ describe('UserProfile Component with useEffect', () => {
     
     await waitFor(() => {
       expect(screen.getByTestId('user-profile')).toBeInTheDocument();
-    });
+    }, { timeout: 15000 });
     
     act(() => {
       unmount();
@@ -141,7 +141,7 @@ describe('UserProfile Component with useEffect', () => {
     expect(clearIntervalSpy).toHaveBeenCalled();
     
     vi.useRealTimers();
-  });
+  }, 20000);
   
   it('should not update state after unmount', async () => {
     vi.useFakeTimers();

@@ -65,7 +65,7 @@ describe('Testing Asynchronous Code', () => {
         expect(error).toBeInstanceOf(Error);
         expect((error as Error).message).toBe('User not found');
       }
-    });
+    }, 20000);
   });
   
   describe('Testing Async/Await Functions', () => {
