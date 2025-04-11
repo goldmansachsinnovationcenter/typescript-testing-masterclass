@@ -42,6 +42,8 @@ describe('Testing Asynchronous Code', () => {
     it('should reject for invalid user ID', async () => {
       const userId = -1;
       
+      vi.spyOn(Math, 'random').mockReturnValue(0.5);
+      
       const promise = apiClient.getUser(userId);
       
       vi.runAllTimers();
