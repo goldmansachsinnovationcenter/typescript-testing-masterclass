@@ -52,8 +52,16 @@ export const useThemeCounter = (options: UseThemeCounterOptions = {}): UseThemeC
   
   const increment = useCallback(() => {
     console.log(`Incrementing in ${isDark ? 'dark' : 'light'} mode by ${isDark ? darkModeStep : lightModeStep}`);
-    baseIncrement();
-  }, [isDark, darkModeStep, lightModeStep, baseIncrement]);
+    
+    const { max = Number.MAX_SAFE_INTEGER } = counterOptions;
+    const step = isDark ? darkModeStep : lightModeStep;
+    
+    if (count + step > max) {
+      setValue(max);
+    } else {
+      baseIncrement();
+    }
+  }, [isDark, darkModeStep, lightModeStep, baseIncrement, count, counterOptions, setValue]);
   
   const decrement = useCallback(() => {
     console.log(`Decrementing in ${isDark ? 'dark' : 'light'} mode by ${isDark ? darkModeStep : lightModeStep}`);
