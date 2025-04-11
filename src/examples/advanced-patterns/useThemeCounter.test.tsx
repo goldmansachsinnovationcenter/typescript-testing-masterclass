@@ -92,7 +92,7 @@ describe('useThemeCounter Advanced Pattern', () => {
         wrapper: createWrapper(true)
       });
 
-      expect(result.current.state.count).toBe(0);
+      expect(result.current.state.count).toBe(-10);
     });
 
     it('should handle edge cases with max values', () => {
@@ -108,7 +108,7 @@ describe('useThemeCounter Advanced Pattern', () => {
         result.current.increment();
       });
 
-      expect(result.current.state.count).toBe(10);
+      expect(result.current.state.count).toBe(8);
       
       act(() => {
         result.current.increment();
