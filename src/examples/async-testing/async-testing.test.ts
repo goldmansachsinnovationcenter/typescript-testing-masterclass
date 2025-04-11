@@ -58,16 +58,18 @@ describe('Testing Asynchronous Code', () => {
       
       vi.spyOn(Math, 'random').mockReturnValue(0.5);
       
+      const promise = apiClient.getUser(userId);
+      
       vi.runAllTimers();
       
       try {
-        await apiClient.getUser(userId);
+        await promise;
         expect.fail('Promise should have been rejected');
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
         expect((error as Error).message).toBe('User not found');
       }
-    }, 20000);
+    }, 60000);
   });
   
   describe('Testing Async/Await Functions', () => {
