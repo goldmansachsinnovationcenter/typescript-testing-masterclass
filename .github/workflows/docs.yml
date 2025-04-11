@@ -19,14 +19,20 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
       
-      # Skip root tests as there's no package.json in the root
-      - name: Check for tests
+      # Run tests in the repository
+      - name: Run tests
         run: |
-          if [ -f "package.json" ]; then
-            npm install
-            npm test || echo "No tests found, continuing with build"
+          # Install dependencies
+          npm install
+          
+          # Run tests in src directory if it exists
+          if [ -d "src" ]; then
+            echo "Running tests in src directory"
+            npm test
           else
-            echo "No package.json found in root, skipping tests"
+            echo "No src directory found, checking for tests in other locations"
+            # Try to find and run any test files in the repository
+            find . -name "*.test.ts" -o -name "*.test.tsx" -o -name "*.spec.ts" -o -name "*.spec.tsx" | xargs -r npx vitest run
           fi
       
       - name: Build documentation site
