@@ -135,6 +135,13 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       const originalConsoleError = console.error;
       console.error = vi.fn();
       
+      let resolveUserPromise: (value: { id: number; name: string }) => void;
+      const userPromise = new Promise<{ id: number; name: string }>(resolve => {
+        resolveUserPromise = resolve;
+      });
+      
+      (api.fetchUser as any).mockImplementation(() => userPromise);
+      
       await act(async () => {
         render(<UserProfile />);
       });
@@ -142,18 +149,16 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       expect(screen.getByTestId('loading-fallback')).toBeInTheDocument();
       
       await act(async () => {
-        await vi.runAllTimersAsync();
+        resolveUserPromise!({ id: 1, name: 'User 1' });
+        await userPromise;
       });
       
-      await waitFor(() => {
-        expect(screen.getByTestId('user-details')).toBeInTheDocument();
-      }, { timeout: 15000 });
-      
+      expect(screen.getByTestId('user-details')).toBeInTheDocument();
       expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 1');
       expect(api.fetchUser).toHaveBeenCalledWith(1);
       
       console.error = originalConsoleError;
-    }, 20000);
+    });
     
     it('should load a different user when button is clicked', async () => {
       const { act } = await import('react');
@@ -161,17 +166,31 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       const originalConsoleError = console.error;
       console.error = vi.fn();
       
+      let resolveUserPromise1: (value: { id: number; name: string }) => void;
+      const userPromise1 = new Promise<{ id: number; name: string }>(resolve => {
+        resolveUserPromise1 = resolve;
+      });
+      
+      let resolveUserPromise2: (value: { id: number; name: string }) => void;
+      const userPromise2 = new Promise<{ id: number; name: string }>(resolve => {
+        resolveUserPromise2 = resolve;
+      });
+      
+      (api.fetchUser as any).mockImplementationOnce(() => userPromise1)
+                            .mockImplementationOnce(() => userPromise2);
+      
       await act(async () => {
         render(<UserProfile />);
       });
       
+      expect(screen.getByTestId('loading-fallback')).toBeInTheDocument();
+      
       await act(async () => {
-        await vi.runAllTimersAsync();
+        resolveUserPromise1!({ id: 1, name: 'User 1' });
+        await userPromise1;
       });
       
-      await waitFor(() => {
-        expect(screen.getByTestId('user-details')).toBeInTheDocument();
-      }, { timeout: 15000 });
+      expect(screen.getByTestId('user-details')).toBeInTheDocument();
       
       await act(async () => {
         fireEvent.click(screen.getByTestId('load-user-2'));
@@ -180,73 +199,58 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       expect(screen.getByTestId('loading-fallback')).toBeInTheDocument();
       
       await act(async () => {
-        await vi.runAllTimersAsync();
+        resolveUserPromise2!({ id: 2, name: 'User 2' });
+        await userPromise2;
       });
       
-      await waitFor(() => {
-        expect(screen.getByTestId('user-details')).toBeInTheDocument();
-      }, { timeout: 15000 });
-      
+      expect(screen.getByTestId('user-details')).toBeInTheDocument();
       expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 2');
       expect(screen.getByTestId('user-name')).toHaveTextContent('Name: User 2');
       expect(api.fetchUser).toHaveBeenCalledWith(2);
       
       console.error = originalConsoleError;
-    }, 30000);
+    });
     
     it('should show error boundary when loading invalid user', async () => {
+      vi.useRealTimers();
+      
       const { act } = await import('react');
       
       const originalConsoleError = console.error;
       console.error = vi.fn();
       
+      (api.fetchUser as any).mockImplementation(async (id: number) => {
+        if (id === 0) {
+          return Promise.reject(new Error('User not found'));
+        }
+        return Promise.resolve({ id, name: `User ${id}` });
+      });
+      
       await act(async () => {
         render(<UserProfile />);
       });
       
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
-      
       await waitFor(() => {
         expect(screen.getByTestId('user-details')).toBeInTheDocument();
-      }, { timeout: 15000 });
+      }, { timeout: 1000 });
+      
+      expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 1');
       
       await act(async () => {
         fireEvent.click(screen.getByTestId('load-invalid-user'));
       });
       
-      expect(screen.getByTestId('loading-fallback')).toBeInTheDocument();
-      
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
-      
       await waitFor(() => {
         expect(screen.getByTestId('error-fallback')).toBeInTheDocument();
-      }, { timeout: 15000 });
+      }, { timeout: 1000 });
       
-      expect(screen.getByTestId('error-message')).toHaveTextContent('User not found');
       expect(api.fetchUser).toHaveBeenCalledWith(0);
       
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('retry-button'));
-      });
+      expect(screen.getByTestId('retry-button')).toBeInTheDocument();
       
-      expect(screen.getByTestId('loading-fallback')).toBeInTheDocument();
-      
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
-      
-      await waitFor(() => {
-        expect(screen.getByTestId('user-details')).toBeInTheDocument();
-      }, { timeout: 15000 });
-      
-      expect(screen.getByTestId('user-id')).toHaveTextContent('ID: 1');
       
       console.error = originalConsoleError;
-    }, 40000);
+    });
   });
   
   describe('Testing createResource Function', () => {

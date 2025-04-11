@@ -86,12 +86,17 @@ describe('UserProfile Component with useEffect', () => {
   it('should increment counter with interval', async () => {
     vi.useFakeTimers();
     
+    (api.fetchUser as any).mockImplementation(async () => {
+      return { id: 1, name: 'Test User' };
+    });
+    
     render(<UserProfile userId={1} />);
     
-    await waitFor(() => {
-      expect(screen.getByTestId('user-profile')).toBeInTheDocument();
-    }, { timeout: 15000 });
+    await act(async () => {
+      await Promise.resolve();
+    });
     
+    expect(screen.getByTestId('user-profile')).toBeInTheDocument();
     expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 0');
     
     act(() => {
@@ -105,15 +110,20 @@ describe('UserProfile Component with useEffect', () => {
     expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 3');
     
     vi.useRealTimers();
-  }, 20000);
+  });
   
   it('should handle manual counter increment', async () => {
+    (api.fetchUser as any).mockImplementation(async () => {
+      return { id: 1, name: 'Test User' };
+    });
+    
     render(<UserProfile userId={1} />);
     
-    await waitFor(() => {
-      expect(screen.getByTestId('user-profile')).toBeInTheDocument();
-    }, { timeout: 15000 });
+    await act(async () => {
+      await Promise.resolve();
+    });
     
+    expect(screen.getByTestId('user-profile')).toBeInTheDocument();
     expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 0');
     
     act(() => {
@@ -121,18 +131,24 @@ describe('UserProfile Component with useEffect', () => {
     });
     
     expect(screen.getByTestId('counter')).toHaveTextContent('Counter: 1');
-  }, 20000);
+  });
   
   it('should clean up effects when unmounted', async () => {
     vi.useFakeTimers();
+    
+    (api.fetchUser as any).mockImplementation(async () => {
+      return { id: 1, name: 'Test User' };
+    });
     
     const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
     
     const { unmount } = render(<UserProfile userId={1} />);
     
-    await waitFor(() => {
-      expect(screen.getByTestId('user-profile')).toBeInTheDocument();
-    }, { timeout: 15000 });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    
+    expect(screen.getByTestId('user-profile')).toBeInTheDocument();
     
     act(() => {
       unmount();
@@ -141,7 +157,7 @@ describe('UserProfile Component with useEffect', () => {
     expect(clearIntervalSpy).toHaveBeenCalled();
     
     vi.useRealTimers();
-  }, 20000);
+  });
   
   it('should not update state after unmount', async () => {
     vi.useFakeTimers();
