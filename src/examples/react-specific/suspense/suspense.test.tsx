@@ -129,9 +129,7 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       vi.useRealTimers();
     });
     
-    it('should initially show loading state and then user details', async () => {
-      expect(true).toBe(true);
-      return;
+    it.skip('should initially show loading state and then user details', async () => {
       const { act } = await import('react');
       
       await act(async () => {
@@ -152,9 +150,7 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       expect(api.fetchUser).toHaveBeenCalledWith(1);
     });
     
-    it('should load a different user when button is clicked', async () => {
-      expect(true).toBe(true);
-      return;
+    it.skip('should load a different user when button is clicked', async () => {
       const { act } = await import('react');
       
       await act(async () => {
@@ -188,9 +184,7 @@ describe('React Suspense and ErrorBoundary Testing', () => {
       expect(api.fetchUser).toHaveBeenCalledWith(2);
     });
     
-    it('should show error boundary when loading invalid user', async () => {
-      expect(true).toBe(true);
-      return;
+    it.skip('should show error boundary when loading invalid user', async () => {
       const { act } = await import('react');
       
       const originalConsoleError = console.error;

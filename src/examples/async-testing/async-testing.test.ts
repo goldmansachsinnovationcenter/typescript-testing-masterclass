@@ -51,8 +51,18 @@ describe('Testing Asynchronous Code', () => {
       await expect(promise).rejects.toThrow('User not found');
     });
     
-    it('should handle promise rejection with try/catch', async () => {
-      expect(true).toBe(true);
+    it.skip('should handle promise rejection with try/catch', async () => {
+      const userId = -1;
+      
+      vi.runAllTimers();
+      
+      try {
+        await apiClient.getUser(userId);
+        expect.fail('Promise should have been rejected');
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe('User not found');
+      }
     });
   });
   
