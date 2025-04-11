@@ -2,12 +2,12 @@
 const nextConfig = {
   output: 'export',
   distDir: 'out',
-  basePath: process.env.NODE_ENV === 'production' && process.env.CI_PROJECT_NAME ? `/${process.env.CI_PROJECT_NAME}` : '',
+  basePath: process.env.NODE_ENV === 'production' ? '/typescript-testing-masterclass' : '',
   images: {
     unoptimized: true,
   },
   reactStrictMode: true,
-  assetPrefix: process.env.NODE_ENV === 'production' && process.env.CI_PROJECT_NAME ? `/${process.env.CI_PROJECT_NAME}` : '',
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/typescript-testing-masterclass' : '',
   trailingSlash: true,
 };
 
