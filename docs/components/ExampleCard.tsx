@@ -24,106 +24,46 @@ const ExampleCard: React.FC<ExampleProps> = ({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="example-card">
-      <div className="card-header">
-        <div className="title-section">
-          <h3>{title}</h3>
-          <div className="tags">
-            <span className="tag">{category}</span>
-            <span className="tag">{language}</span>
-          </div>
-        </div>
-        <button 
-          className="toggle-button"
-          onClick={() => setExpanded(!expanded)}
-        >
-          {expanded ? 'Collapse' : 'Expand'}
-        </button>
-      </div>
-      
-      <p className="description">{description}</p>
-      
-      {expanded && (
-        <div className="code-section">
-          <CodeBlock code={code} language={language} fileName={fileName} />
-          {sourceLink && (
-            <div className="source-link">
-              <Link href={sourceLink}>
-                View source code
-              </Link>
+    <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+      <div className="p-6">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h3 className="text-xl font-semibold text-primary mb-2">{title}</h3>
+            <div className="flex gap-2 mb-3">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary">
+                {category}
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                {language}
+              </span>
             </div>
-          )}
+          </div>
+          <button 
+            className="px-3 py-1.5 text-sm font-medium rounded-md bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? 'Collapse' : 'Expand'}
+          </button>
         </div>
-      )}
-      
-      <style jsx>{`
-        .example-card {
-          margin-bottom: 2rem;
-          padding: 1.5rem;
-          border-radius: 0.5rem;
-          background-color: #fff;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        .card-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 1rem;
-        }
-        .title-section {
-          display: flex;
-          flex-direction: column;
-        }
-        h3 {
-          margin-top: 0;
-          margin-bottom: 0.5rem;
-          color: #0070f3;
-        }
-        .description {
-          margin-bottom: 1rem;
-          color: #444;
-        }
-        .tags {
-          display: flex;
-          gap: 0.5rem;
-          margin-bottom: 0.5rem;
-        }
-        .tag {
-          padding: 0.25rem 0.5rem;
-          border-radius: 0.25rem;
-          background-color: #f0f7ff;
-          color: #0070f3;
-          font-size: 0.8rem;
-        }
-        .toggle-button {
-          background-color: transparent;
-          border: 1px solid #0070f3;
-          color: #0070f3;
-          padding: 0.25rem 0.75rem;
-          border-radius: 0.25rem;
-          cursor: pointer;
-          font-size: 0.9rem;
-          transition: all 0.2s ease;
-        }
-        .toggle-button:hover {
-          background-color: #0070f3;
-          color: white;
-        }
-        .code-section {
-          margin-top: 1rem;
-        }
-        .source-link {
-          margin-top: 1rem;
-          text-align: right;
-        }
-        .source-link a {
-          color: #0070f3;
-          text-decoration: none;
-        }
-        .source-link a:hover {
-          text-decoration: underline;
-        }
-      `}</style>
+        
+        <p className="text-gray-700 mb-4">{description}</p>
+        
+        {expanded && (
+          <div className="mt-4">
+            <CodeBlock code={code} language={language} fileName={fileName} />
+            {sourceLink && (
+              <div className="mt-4 text-right">
+                <Link 
+                  href={sourceLink}
+                  className="text-primary hover:underline font-medium"
+                >
+                  View source code
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

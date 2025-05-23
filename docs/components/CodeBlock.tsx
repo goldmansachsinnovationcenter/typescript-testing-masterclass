@@ -9,50 +9,34 @@ type CodeBlockProps = {
 
 const CodeBlock: React.FC<CodeBlockProps> = ({ code, language, fileName }) => {
   return (
-    <div className="code-block">
-      {fileName && <div className="code-filename">{fileName}</div>}
+    <div className="rounded-lg overflow-hidden border border-gray-200">
+      {fileName && (
+        <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 font-mono text-sm text-gray-700">
+          {fileName}
+        </div>
+      )}
       <Highlight
         theme={themes.github}
         code={code.trim()}
         language={language}
       >
         {({ className, style, tokens, getLineProps, getTokenProps }) => (
-          <pre className={className} style={{ ...style, padding: '1rem', borderRadius: '0.5rem', overflow: 'auto' }}>
+          <pre className={`${className} p-4 overflow-auto`} style={style}>
             {tokens.map((line, i) => (
-              <div key={i} {...getLineProps({ line, key: i })}>
-                <span className="line-number">{i + 1}</span>
-                {line.map((token, key) => (
-                  <span key={key} {...getTokenProps({ token, key })} />
-                ))}
+              <div key={i} {...getLineProps({ line, key: i })} className="table-row">
+                <span className="table-cell text-right pr-4 select-none text-gray-500 text-xs w-12">
+                  {i + 1}
+                </span>
+                <span className="table-cell">
+                  {line.map((token, key) => (
+                    <span key={key} {...getTokenProps({ token, key })} />
+                  ))}
+                </span>
               </div>
             ))}
           </pre>
         )}
       </Highlight>
-      <style jsx>{`
-        .code-block {
-          margin: 1.5rem 0;
-          border-radius: 0.5rem;
-          overflow: hidden;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        .code-filename {
-          background-color: #f6f8fa;
-          padding: 0.5rem 1rem;
-          border-bottom: 1px solid #e1e4e8;
-          font-family: monospace;
-          font-size: 0.9rem;
-          color: #24292e;
-        }
-        .line-number {
-          display: inline-block;
-          width: 2rem;
-          text-align: right;
-          margin-right: 1rem;
-          color: #6a737d;
-          user-select: none;
-        }
-      `}</style>
     </div>
   );
 };

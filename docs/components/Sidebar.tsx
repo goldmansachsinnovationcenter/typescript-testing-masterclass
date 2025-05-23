@@ -100,31 +100,47 @@ const Sidebar: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="sidebar-loading">Loading...</div>;
+    return <div className="flex items-center justify-center h-16 text-gray-500">Loading...</div>;
   }
 
   return (
-    <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
-      <button className="toggle-button" onClick={toggleSidebar}>
+    <div className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out z-40 ${isOpen ? 'translate-x-0' : '-translate-x-64'}`}>
+      <button 
+        className="absolute right-0 top-4 translate-x-full bg-primary text-white p-2 rounded-r-md shadow-md"
+        onClick={toggleSidebar}
+      >
         {isOpen ? '←' : '→'}
       </button>
       
-      <div className="sidebar-content">
-        <h3 className="sidebar-title">Navigation</h3>
-        <ul className="sidebar-sections">
-          <li className={router.pathname === '/' ? 'active' : ''}>
-            <Link href="/" className="section-link">Home</Link>
+      <div className="w-64 h-full overflow-y-auto p-4">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Navigation</h3>
+        <ul className="space-y-1">
+          <li>
+            <Link 
+              href="/" 
+              className={`block px-3 py-2 rounded-md ${router.pathname === '/' ? 'bg-primary-50 text-primary font-medium' : 'text-gray-700 hover:bg-gray-100'}`}
+            >
+              Home
+            </Link>
           </li>
           
           {sections.map((section, index) => (
-            <li key={index} className={router.pathname.startsWith(section.path) ? 'active' : ''}>
-              <Link href={section.path} className="section-link">{section.title}</Link>
+            <li key={index} className="mt-2">
+              <Link 
+                href={section.path} 
+                className={`block px-3 py-2 rounded-md ${router.pathname.startsWith(section.path) ? 'bg-primary-50 text-primary font-medium' : 'text-gray-700 hover:bg-gray-100'}`}
+              >
+                {section.title}
+              </Link>
               
               {section.subsections && section.subsections.length > 0 && (
-                <ul className="subsections">
+                <ul className="pl-4 mt-1 space-y-1">
                   {section.subsections.map((subsection, subIndex) => (
                     <li key={subIndex}>
-                      <Link href={subsection.path} className="subsection-link">
+                      <Link 
+                        href={subsection.path} 
+                        className="block px-3 py-1.5 text-sm rounded-md text-gray-600 hover:bg-gray-100"
+                      >
                         {subsection.title}
                       </Link>
                     </li>
@@ -135,121 +151,6 @@ const Sidebar: React.FC = () => {
           ))}
         </ul>
       </div>
-      
-      <style jsx>{`
-        .sidebar {
-          position: fixed;
-          top: 70px;
-          left: 0;
-          height: calc(100vh - 70px);
-          background-color: #f8f9fa;
-          transition: transform 0.3s ease;
-          z-index: 100;
-          display: flex;
-          box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-        }
-        
-        .sidebar.open {
-          transform: translateX(0);
-        }
-        
-        .sidebar.closed {
-          transform: translateX(calc(-100% + 30px));
-        }
-        
-        .toggle-button {
-          position: absolute;
-          right: -30px;
-          top: 20px;
-          width: 30px;
-          height: 40px;
-          background-color: #0070f3;
-          color: white;
-          border: none;
-          border-radius: 0 4px 4px 0;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 16px;
-        }
-        
-        .sidebar-content {
-          width: 250px;
-          padding: 1rem;
-          overflow-y: auto;
-        }
-        
-        .sidebar-title {
-          margin-top: 0;
-          padding-bottom: 0.5rem;
-          border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .sidebar-sections {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
-        
-        .sidebar-sections li {
-          margin-bottom: 0.5rem;
-        }
-        
-        .section-link {
-          display: block;
-          padding: 0.5rem 0;
-          color: #333;
-          text-decoration: none;
-          font-weight: 500;
-        }
-        
-        .section-link:hover {
-          color: #0070f3;
-        }
-        
-        .active > .section-link {
-          color: #0070f3;
-          font-weight: 600;
-        }
-        
-        .subsections {
-          list-style: none;
-          padding-left: 1rem;
-          margin: 0.5rem 0;
-        }
-        
-        .subsection-link {
-          display: block;
-          padding: 0.25rem 0;
-          color: #666;
-          text-decoration: none;
-          font-size: 0.9rem;
-        }
-        
-        .subsection-link:hover {
-          color: #0070f3;
-        }
-        
-        .sidebar-loading {
-          padding: 1rem;
-          color: #666;
-        }
-        
-        @media (max-width: 768px) {
-          .sidebar.open {
-            transform: translateX(0);
-          }
-          
-          .sidebar.closed {
-            transform: translateX(-100%);
-          }
-          
-          .toggle-button {
-            display: flex;
-          }
-        }
-      `}</style>
     </div>
   );
 };

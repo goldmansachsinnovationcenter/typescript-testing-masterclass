@@ -1,3 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
 html,
 body {
   padding: 0;
@@ -10,61 +15,33 @@ body {
   box-sizing: border-box;
 }
 
-.container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
+@layer base {
+  :root {
+    --primary: 214 100% 50%;
+    --primary-dark: 214 100% 40%;
+    --primary-light: 214 100% 60%;
+    --secondary: 280 80% 50%;
+    --secondary-dark: 280 80% 40%;
+    --secondary-light: 280 80% 60%;
+    --background: 210 20% 98%;
+    --foreground: 214 60% 20%;
+  }
 }
 
-header {
-  padding: 1rem 0;
-  border-bottom: 1px solid #eaeaea;
-}
-
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-decoration: none;
-  color: #0070f3;
-}
-
-.nav-links {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.nav-link {
-  color: #444;
-  text-decoration: none;
-}
-
-.nav-link:hover {
-  color: #0070f3;
-  text-decoration: underline;
-}
-
-main {
-  flex: 1;
-  padding: 2rem 0;
-}
-
-footer {
-  padding: 2rem 0;
-  border-top: 1px solid #eaeaea;
-  text-align: center;
-}
-
-footer a {
-  color: #0070f3;
-  text-decoration: none;
+@layer components {
+  .container {
+    @apply max-w-7xl mx-auto px-4;
+  }
+  
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-colors;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-500 text-white hover:bg-primary-600;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6;
+  }
 }
