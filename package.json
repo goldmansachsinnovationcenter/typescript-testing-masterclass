@@ -15,6 +15,9 @@
   "author": "",
   "license": "ISC",
   "description": "A comprehensive guide for mocking and spying in Vitest with TypeScript",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
