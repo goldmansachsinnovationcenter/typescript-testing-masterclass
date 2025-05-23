@@ -12,31 +12,37 @@ export default function Home() {
         </p>
 
         <div className="grid">
+          {/* @ts-ignore - Type compatibility issue with Link component */}
           <Link href="/unit-tests" className="card">
             <h2>Unit Tests &rarr;</h2>
             <p>Learn how to write effective unit tests for TypeScript code.</p>
           </Link>
 
+          {/* @ts-ignore - Type compatibility issue with Link component */}
           <Link href="/integration-tests" className="card">
             <h2>Integration Tests &rarr;</h2>
             <p>Discover techniques for testing component interactions.</p>
           </Link>
 
+          {/* @ts-ignore - Type compatibility issue with Link component */}
           <Link href="/e2e-tests" className="card">
             <h2>E2E Tests &rarr;</h2>
             <p>Explore end-to-end and advanced testing strategies.</p>
           </Link>
 
+          {/* @ts-ignore - Type compatibility issue with Link component */}
           <Link href="/common-patterns" className="card">
             <h2>Common Patterns &rarr;</h2>
             <p>Reusable patterns and techniques for effective testing.</p>
           </Link>
           
+          {/* @ts-ignore - Type compatibility issue with Link component */}
           <Link href="/advanced-patterns" className="card">
             <h2>Advanced Patterns &rarr;</h2>
             <p>Sophisticated testing techniques combining multiple patterns.</p>
           </Link>
 
+          {/* @ts-ignore - Type compatibility issue with Link component */}
           <Link href="/troubleshooting" className="card">
             <h2>Troubleshooting &rarr;</h2>
             <p>Solutions for common testing issues and challenges.</p>

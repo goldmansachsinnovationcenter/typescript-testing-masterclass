@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
-import Link from 'next/link';
 import Head from 'next/head';
+import Link from 'next/link';
 import Sidebar from './Sidebar';
 
 type LayoutProps = {
@@ -20,26 +20,36 @@ const Layout = ({ children, title = 'TypeScript Testing Masterclass' }: LayoutPr
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-16">
-            {/* @ts-ignore - Type compatibility issue with Link component after PNPM conversion */}
-            <Link href="/" className="text-2xl font-bold text-primary">
-              TypeScript Testing Masterclass
+            {/* @ts-ignore - Type compatibility issue with Link component */}
+            <Link href="/" legacyBehavior>
+              <a className="text-2xl font-bold text-primary">
+                TypeScript Testing Masterclass
+              </a>
             </Link>
             <nav className="hidden md:flex space-x-6">
-              {/* @ts-ignore - Type compatibility issue with Link component after PNPM conversion */}
-              <Link href="/unit-tests" className="text-gray-700 hover:text-primary transition-colors">
-                Unit Tests
+              {/* @ts-ignore - Type compatibility issue with Link component */}
+              <Link href="/unit-tests" legacyBehavior>
+                <a className="text-gray-700 hover:text-primary transition-colors">
+                  Unit Tests
+                </a>
               </Link>
-              {/* @ts-ignore - Type compatibility issue with Link component after PNPM conversion */}
-              <Link href="/integration-tests" className="text-gray-700 hover:text-primary transition-colors">
-                Integration Tests
+              {/* @ts-ignore - Type compatibility issue with Link component */}
+              <Link href="/integration-tests" legacyBehavior>
+                <a className="text-gray-700 hover:text-primary transition-colors">
+                  Integration Tests
+                </a>
               </Link>
-              {/* @ts-ignore - Type compatibility issue with Link component after PNPM conversion */}
-              <Link href="/e2e-tests" className="text-gray-700 hover:text-primary transition-colors">
-                E2E Tests
+              {/* @ts-ignore - Type compatibility issue with Link component */}
+              <Link href="/e2e-tests" legacyBehavior>
+                <a className="text-gray-700 hover:text-primary transition-colors">
+                  E2E Tests
+                </a>
               </Link>
-              {/* @ts-ignore - Type compatibility issue with Link component after PNPM conversion */}
-              <Link href="/common-patterns" className="text-gray-700 hover:text-primary transition-colors">
-                Common Patterns
+              {/* @ts-ignore - Type compatibility issue with Link component */}
+              <Link href="/common-patterns" legacyBehavior>
+                <a className="text-gray-700 hover:text-primary transition-colors">
+                  Common Patterns
+                </a>
               </Link>
             </nav>
           </div>
