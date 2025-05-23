@@ -15,37 +15,27 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '18'
           cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+      
+      - name: Install PNPM
+        run: npm install -g pnpm
       
       # Run tests in the repository
+      - name: Install dependencies
+        run: pnpm install
+      
       - name: Run tests
-        run: |
-          # Install dependencies
-          npm install
-          
-          # Run tests in src directory if it exists
-          if [ -d "src" ]; then
-            echo "Running tests in src directory"
-            npm test
-          else
-            echo "No src directory found, checking for tests in other locations"
-            # Try to find and run any test files in the repository
-            find . -name "*.test.ts" -o -name "*.test.tsx" -o -name "*.spec.ts" -o -name "*.spec.tsx" | xargs -r npx vitest run
-          fi
+        run: pnpm test
       
       - name: Build documentation site
-        run: |
-          cd docs
-          npm ci
-          npm run build
+        run: pnpm docs:build
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: docs-build
-          path: docs/out
+          path: docs
   
   deploy:
     needs: build-and-test
@@ -71,10 +61,10 @@ jobs:
         uses: actions/configure-pages@v4
       
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: './public'
       
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v4
