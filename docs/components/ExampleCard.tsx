@@ -24,29 +24,29 @@ const ExampleCard: React.FC<ExampleProps> = ({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+    <div className="bg-background-light rounded-lg border border-secondary shadow-lg overflow-hidden mb-6">
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div>
             <h3 className="text-xl font-semibold text-primary mb-2">{title}</h3>
             <div className="flex gap-2 mb-3">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-background">
                 {category}
               </span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-background">
                 {language}
               </span>
             </div>
           </div>
           <button 
-            className="px-3 py-1.5 text-sm font-medium rounded-md bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
+            className="px-3 py-1.5 text-sm font-medium rounded-md bg-background-dark border border-primary hover:bg-background text-foreground transition-colors"
             onClick={() => setExpanded(!expanded)}
           >
             {expanded ? 'Collapse' : 'Expand'}
           </button>
         </div>
         
-        <p className="text-gray-700 mb-4">{description}</p>
+        <p className="text-foreground-dark mb-4">{description}</p>
         
         {expanded && (
           <div className="mt-4">
@@ -56,7 +56,7 @@ const ExampleCard: React.FC<ExampleProps> = ({
                 {/* @ts-ignore - Type compatibility issue with Link component */}
                 <Link 
                   href={sourceLink}
-                  className="text-primary hover:underline font-medium"
+                  className="text-primary hover:text-primary-light hover:underline font-medium"
                 >
                   View source code
                 </Link>

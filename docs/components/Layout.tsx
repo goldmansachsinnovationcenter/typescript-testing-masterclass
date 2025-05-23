@@ -10,14 +10,14 @@ type LayoutProps = {
 
 const Layout = ({ children, title = 'TypeScript Testing Masterclass' }: LayoutProps) => {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       <Head>
         <title>{title}</title>
         <meta charSet="utf-8" />
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-background-light border-b border-primary sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-16">
             {/* @ts-ignore - Type compatibility issue with Link component */}
@@ -29,25 +29,25 @@ const Layout = ({ children, title = 'TypeScript Testing Masterclass' }: LayoutPr
             <nav className="hidden md:flex space-x-6">
               {/* @ts-ignore - Type compatibility issue with Link component */}
               <Link href="/unit-tests" legacyBehavior>
-                <a className="text-gray-700 hover:text-primary transition-colors">
+                <a className="text-secondary hover:text-primary-light transition-colors">
                   Unit Tests
                 </a>
               </Link>
               {/* @ts-ignore - Type compatibility issue with Link component */}
               <Link href="/integration-tests" legacyBehavior>
-                <a className="text-gray-700 hover:text-primary transition-colors">
+                <a className="text-secondary hover:text-primary-light transition-colors">
                   Integration Tests
                 </a>
               </Link>
               {/* @ts-ignore - Type compatibility issue with Link component */}
               <Link href="/e2e-tests" legacyBehavior>
-                <a className="text-gray-700 hover:text-primary transition-colors">
+                <a className="text-secondary hover:text-primary-light transition-colors">
                   E2E Tests
                 </a>
               </Link>
               {/* @ts-ignore - Type compatibility issue with Link component */}
               <Link href="/common-patterns" legacyBehavior>
-                <a className="text-gray-700 hover:text-primary transition-colors">
+                <a className="text-secondary hover:text-primary-light transition-colors">
                   Common Patterns
                 </a>
               </Link>
@@ -65,9 +65,9 @@ const Layout = ({ children, title = 'TypeScript Testing Masterclass' }: LayoutPr
         </main>
       </div>
       
-      <footer className="bg-white border-t border-gray-200 py-6">
+      <footer className="bg-background-light border-t border-primary py-6">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-600">
+          <p className="text-foreground-dark">
             TypeScript Testing Masterclass Documentation - 
             <a href="https://github.com/goldmansachsinnovationcenter/typescript-testing-masterclass" 
                target="_blank" 

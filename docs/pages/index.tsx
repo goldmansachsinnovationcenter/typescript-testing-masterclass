@@ -92,18 +92,19 @@ export default function Home() {
         .card {
           padding: 1.5rem;
           text-align: left;
-          color: inherit;
+          color: #FFFFFF;
           text-decoration: none;
-          border: 1px solid #eaeaea;
+          border: 1px solid #00FFFF;
           border-radius: 10px;
-          transition: color 0.15s ease, border-color 0.15s ease;
-          background-color: white;
+          transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+          background-color: #1E1E1E;
         }
         .card:hover,
         .card:focus,
         .card:active {
-          color: #0070f3;
-          border-color: #0070f3;
+          color: #FF00FF;
+          border-color: #FF00FF;
+          background-color: #121212;
         }
         .card h2 {
           margin: 0 0 1rem 0;
@@ -115,11 +116,13 @@ export default function Home() {
           line-height: 1.5;
         }
         .getting-started {
-          background-color: white;
+          background-color: #1E1E1E;
           padding: 2rem;
           border-radius: 10px;
           margin-top: 2rem;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          border: 1px solid #00FFFF;
+          box-shadow: 0 2px 8px rgba(0, 255, 255, 0.2);
+          color: #FFFFFF;
         }
         .getting-started h2 {
           margin-top: 0;
@@ -129,11 +132,13 @@ export default function Home() {
           margin-bottom: 0.5rem;
         }
         .code-block {
-          background-color: #f5f5f5;
+          background-color: #000000;
           padding: 1rem;
           border-radius: 5px;
           overflow-x: auto;
           margin: 1rem 0;
+          border: 1px solid #00FF00;
+          color: #00FF00;
         }
         .code-block pre {
           margin: 0;

@@ -8,22 +8,29 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#0070f3',
-          dark: '#0050b3',
-          light: '#3291ff',
+          DEFAULT: '#FF00FF', // Neon pink
+          dark: '#CC00CC',
+          light: '#FF66FF',
         },
         secondary: {
-          DEFAULT: '#7928ca',
-          dark: '#4c0993',
-          light: '#9e56fc',
+          DEFAULT: '#00FFFF', // Neon blue
+          dark: '#00CCCC',
+          light: '#66FFFF',
+        },
+        accent: {
+          DEFAULT: '#00FF00', // Neon green
+          dark: '#00CC00',
+          light: '#66FF66',
         },
         background: {
-          DEFAULT: '#f9fafb',
-          dark: '#111',
+          DEFAULT: '#121212', // Dark charcoal
+          dark: '#000000', // Black
+          light: '#1E1E1E',
         },
         foreground: {
-          DEFAULT: '#333',
-          dark: '#fff',
+          DEFAULT: '#FFFFFF', // White
+          dark: '#EEEEEE',
+          light: '#FFFFFF',
         },
       },
       fontFamily: {
@@ -31,5 +38,6 @@ module.exports = {
       },
     },
   },
+  darkMode: 'class',
   plugins: [],
 }

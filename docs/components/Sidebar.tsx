@@ -98,26 +98,26 @@ const Sidebar: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center h-16 text-gray-500">Loading...</div>;
+    return <div className="flex items-center justify-center h-16 text-secondary">Loading...</div>;
   }
 
   return (
-    <div className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out z-40 ${isOpen ? 'translate-x-0' : '-translate-x-64'}`}>
+    <div className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-background-light border-r border-primary transition-transform duration-300 ease-in-out z-40 ${isOpen ? 'translate-x-0' : '-translate-x-64'}`}>
       <button 
-        className="absolute right-0 top-4 translate-x-full bg-primary text-white p-2 rounded-r-md shadow-md"
+        className="absolute right-0 top-4 translate-x-full bg-primary text-background p-2 rounded-r-md shadow-md"
         onClick={toggleSidebar}
       >
         {isOpen ? '←' : '→'}
       </button>
       
       <div className="w-64 h-full overflow-y-auto p-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Navigation</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4 border-b border-primary pb-2">Navigation</h3>
         <ul className="space-y-1">
           <li>
             {/* @ts-ignore - Type compatibility issue with Link component */}
             <Link 
               href="/" 
-              className={`block px-3 py-2 rounded-md ${router.pathname === '/' ? 'bg-primary-50 text-primary font-medium' : 'text-gray-700 hover:bg-gray-100'}`}
+              className={`block px-3 py-2 rounded-md ${router.pathname === '/' ? 'bg-background-dark text-primary font-medium' : 'text-secondary hover:bg-background-dark'}`}
             >
               Home
             </Link>
@@ -128,7 +128,7 @@ const Sidebar: React.FC = () => {
               {/* @ts-ignore - Type compatibility issue with Link component */}
               <Link 
                 href={section.path} 
-                className={`block px-3 py-2 rounded-md ${router.pathname.startsWith(section.path) ? 'bg-primary-50 text-primary font-medium' : 'text-gray-700 hover:bg-gray-100'}`}
+                className={`block px-3 py-2 rounded-md ${router.pathname.startsWith(section.path) ? 'bg-background-dark text-primary font-medium' : 'text-secondary hover:bg-background-dark'}`}
               >
                 {section.title}
               </Link>
@@ -140,7 +140,7 @@ const Sidebar: React.FC = () => {
                       {/* @ts-ignore - Type compatibility issue with Link component */}
                       <Link 
                         href={subsection.path} 
-                        className="block px-3 py-1.5 text-sm rounded-md text-gray-600 hover:bg-gray-100"
+                        className="block px-3 py-1.5 text-sm rounded-md text-foreground-dark hover:bg-background-dark hover:text-secondary"
                       >
                         {subsection.title}
                       </Link>
