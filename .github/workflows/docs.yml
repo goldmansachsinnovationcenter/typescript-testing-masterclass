@@ -2,9 +2,9 @@ name: Build and Deploy Docs
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, devin/1748010286-ui-redesign-pnpm-conversion ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, devin/1748010286-ui-redesign-pnpm-conversion ]
 
 jobs:
   build-and-test:
