@@ -1,5 +1,6 @@
     const fs = require('fs');
 const path = require('path');
+const extendedDescriptions = require('./extended-descriptions');
 
 const EXAMPLES_DIR = path.join(__dirname, '../../src/examples');
 const OUTPUT_DIR = path.join(__dirname, '../content');
@@ -101,7 +102,9 @@ function extractExamplesFromFile(filePath) {
     fileName,
     dirName,
     content,
-    description: description || `Example from ${fileName}`,
+    description: extendedDescriptions[fileName] || 
+                 description || 
+                 `Example from ${fileName}`,
     isTestFile,
     category: DIRECTORY_CATEGORY_MAP[dirName] || TEST_CATEGORIES.UNIT,
     codeBlocks,
@@ -192,7 +195,9 @@ function extractAllExamples() {
   }
 
   const files = getAllFiles(EXAMPLES_DIR);
-  const examples = files.map(extractExamplesFromFile);
+  const examples = files
+    .map(extractExamplesFromFile)
+    .filter(example => example.isTestFile); // Only include test files
 
   const examplesByCategory = {
     [TEST_CATEGORIES.UNIT]: [],

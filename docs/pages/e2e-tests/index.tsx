@@ -14,11 +14,10 @@ export default function E2ETests() {
         
         <div className="categories">
           <h2>Categories</h2>
-          <ul>
-            <li>Accessibility Testing</li>
-            <li>Asynchronous Testing</li>
-            <li>Node.js Testing</li>
-          </ul>
+          <p className="text-sm text-foreground-dark mb-4">
+            Click on categories in the filter below to show/hide examples from specific directories.
+            Use the Select All and Clear buttons to quickly manage your filters.
+          </p>
         </div>
         
         <div className="examples">

@@ -126,11 +126,6 @@
         "path": "indirect-dependencies/indirect-dependencies.test.ts"
       },
       {
-        "fileName": "LazyComponent.tsx",
-        "dirName": "__mocks__",
-        "path": "lazy-loaded-components/__mocks__/LazyComponent.tsx"
-      },
-      {
         "fileName": "nodejs-testing.test.ts",
         "dirName": "nodejs-testing",
         "path": "nodejs-testing/nodejs-testing.test.ts"
