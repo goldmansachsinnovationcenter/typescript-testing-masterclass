@@ -15,6 +15,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language, fileName }) => {
           {fileName}
         </div>
       )}
+      {/* @ts-ignore - Type compatibility issue with Highlight component after PNPM conversion */}
       <Highlight
         theme={themes.github}
         code={code.trim()}
