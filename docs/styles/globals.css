@@ -1,70 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
 html,
 body {
   padding: 0;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  background-color: #121212;
+  color: #FFFFFF;
 }
 
 * {
   box-sizing: border-box;
 }
 
-.container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
+@layer base {
+  :root {
+    --primary: 300 100% 50%; /* Neon pink */
+    --primary-dark: 300 100% 40%;
+    --primary-light: 300 100% 60%;
+    --secondary: 180 100% 50%; /* Neon blue */
+    --secondary-dark: 180 100% 40%;
+    --secondary-light: 180 100% 60%;
+    --accent: 120 100% 50%; /* Neon green */
+    --accent-dark: 120 100% 40%;
+    --accent-light: 120 100% 60%;
+    --background: 0 0% 7%; /* Dark charcoal */
+    --foreground: 0 0% 100%; /* White */
+  }
 }
 
-header {
-  padding: 1rem 0;
-  border-bottom: 1px solid #eaeaea;
-}
-
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-decoration: none;
-  color: #0070f3;
-}
-
-.nav-links {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.nav-link {
-  color: #444;
-  text-decoration: none;
-}
-
-.nav-link:hover {
-  color: #0070f3;
-  text-decoration: underline;
-}
-
-main {
-  flex: 1;
-  padding: 2rem 0;
-}
-
-footer {
-  padding: 2rem 0;
-  border-top: 1px solid #eaeaea;
-  text-align: center;
-}
-
-footer a {
-  color: #0070f3;
-  text-decoration: none;
+@layer components {
+  .container {
+    @apply max-w-7xl mx-auto px-4;
+  }
+  
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-colors;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-background hover:bg-primary-light;
+  }
+  
+  .card {
+    @apply bg-background-light rounded-lg border border-primary shadow-lg p-6 text-foreground;
+  }
+  
+  .code-block {
+    @apply bg-background-dark border border-secondary rounded-md p-4 text-foreground;
+  }
+  
+  .tag {
+    @apply bg-secondary text-background px-2 py-1 rounded-md text-xs font-medium;
+  }
+  
+  .success {
+    @apply text-accent;
+  }
+  
+  .nav-link {
+    @apply text-secondary hover:text-secondary-light transition-colors;
+  }
+  
+  .nav-link-active {
+    @apply text-primary font-medium;
+  }
 }

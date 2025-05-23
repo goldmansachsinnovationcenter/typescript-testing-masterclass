@@ -6,12 +6,18 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "docs:dev": "pnpm --filter docs dev",
+    "docs:build": "pnpm --filter docs build",
+    "docs:start": "pnpm --filter docs start"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "A comprehensive guide for mocking and spying in Vitest with TypeScript",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",

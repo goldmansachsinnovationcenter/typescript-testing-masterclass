@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ExampleCard from './ExampleCard';
+import CategoryFilter, { FilterCategory } from './CategoryFilter';
 
 type Example = {
   fileName: string;
@@ -22,19 +23,33 @@ const ExampleList: React.FC<ExampleListProps> = ({ category }) => {
   const [examples, setExamples] = useState<Example[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<FilterCategory[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   useEffect(() => {
     async function loadExamples() {
       try {
-        const basePath = process.env.NODE_ENV === 'production' 
-          ? `/${process.env.CI_PROJECT_NAME || ''}`
-          : '';
+        const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
         const response = await fetch(`${basePath}/content/${category}.json`);
         if (!response.ok) {
           throw new Error(`Failed to load examples: ${response.statusText}`);
         }
         const data = await response.json();
         setExamples(Array.isArray(data) ? data : []);
+        
+        const directories = Array.isArray(data) 
+          ? Array.from(new Set(data.map((example: Example) => example.dirName)))
+          : [];
+        
+        setCategories(
+          directories.map(dir => ({
+            id: dir,
+            name: dir.replace(/-/g, ' ')
+          }))
+        );
+        
+        setSelectedCategories(directories);
+        
         setLoading(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
@@ -59,7 +74,17 @@ const ExampleList: React.FC<ExampleListProps> = ({ category }) => {
 
   return (
     <div className="example-list">
-      {examples.map((example, index) => {
+      {categories.length > 0 && (
+        <CategoryFilter 
+          categories={categories} 
+          selectedCategories={selectedCategories} 
+          onCategoryChange={setSelectedCategories} 
+        />
+      )}
+      
+      {examples
+        .filter(example => selectedCategories.includes(example.dirName))
+        .map((example, index) => {
         if (category === 'common-patterns' && 'title' in example) {
           return (
             <div key={index} className="pattern-card">

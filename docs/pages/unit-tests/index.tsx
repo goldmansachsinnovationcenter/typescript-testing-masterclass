@@ -14,13 +14,10 @@ export default function UnitTests() {
         
         <div className="categories">
           <h2>Categories</h2>
-          <ul>
-            <li>Direct Module Imports</li>
-            <li>Indirect Module Dependencies</li>
-            <li>Same Package Mocking</li>
-            <li>Test Doubles (Stubs, Mocks, Spies)</li>
-            <li>React Hooks Testing</li>
-          </ul>
+          <p className="text-sm text-foreground-dark mb-4">
+            Click on categories in the filter below to show/hide examples from specific directories.
+            Use the Select All and Clear buttons to quickly manage your filters.
+          </p>
         </div>
         
         <div className="examples">
