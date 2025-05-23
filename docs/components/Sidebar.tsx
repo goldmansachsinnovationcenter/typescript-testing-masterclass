@@ -22,9 +22,7 @@ const Sidebar: React.FC = () => {
   useEffect(() => {
     async function loadSections() {
       try {
-        const basePath = process.env.NODE_ENV === 'production' 
-          ? `/${process.env.CI_PROJECT_NAME || ''}`
-          : '';
+        const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
         
         const mainSections: Section[] = [
           { 

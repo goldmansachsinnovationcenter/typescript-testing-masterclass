@@ -26,9 +26,7 @@ const ExampleList: React.FC<ExampleListProps> = ({ category }) => {
   useEffect(() => {
     async function loadExamples() {
       try {
-        const basePath = process.env.NODE_ENV === 'production' 
-          ? `/${process.env.CI_PROJECT_NAME || ''}`
-          : '';
+        const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
         const response = await fetch(`${basePath}/content/${category}.json`);
         if (!response.ok) {
           throw new Error(`Failed to load examples: ${response.statusText}`);
